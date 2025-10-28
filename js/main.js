@@ -211,16 +211,9 @@ function resetStep2() {
     });
 }
 
-// Check-in button toggle
+// Check-in functionality (now using dropdown, no initialization needed)
 function initCheckInButtons() {
-    document.querySelectorAll('.check-in-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.check-in-btn').forEach(b => {
-                b.classList.remove('selected');
-            });
-            this.classList.add('selected');
-        });
-    });
+    // Check-in is now a dropdown, no additional initialization needed
 }
 
 // Multiple visitors functionality
@@ -549,7 +542,7 @@ function initForms() {
         // Collect all form data
         const formData = {
             visitors: visitors,
-            checkIn: document.querySelector('.check-in-btn.selected').getAttribute('data-option'),
+            checkIn: document.getElementById('checkIn').value,
             visitorNote: document.getElementById('visitorNote').value,
             hosting: selectedHost,
             hostName: selectedHost === 'someone' ? document.getElementById('hostName').value : 'Self',

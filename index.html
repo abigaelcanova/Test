@@ -136,10 +136,12 @@
                         <!-- Check-in -->
                         <div class="form-group">
                             <label class="form-label">Check-in <span class="required">*</span></label>
-                            <span class="form-sublabel">Select One</span>
-                            <div class="check-in-options">
-                                <button type="button" class="check-in-btn" data-option="desk">Stop at desk</button>
-                                <button type="button" class="check-in-btn selected" data-option="bypass">Bypass desk</button>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="checkIn">
+                                    <option value="desk">Stop at desk</option>
+                                    <option value="bypass" selected>Bypass desk</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
                             </div>
                         </div>
 

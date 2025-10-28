@@ -347,7 +347,7 @@ body {
     font-size: 14px;
     cursor: pointer;
     padding: 4px 0;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
     text-decoration: none;
     display: inline-block;
 }
@@ -358,7 +358,7 @@ body {
 
 /* Bulk Upload Section */
 .bulk-upload-section {
-    margin: 16px 0 24px 0;
+    margin: 8px 0 24px 0;
 }
 
 .bulk-upload-divider {
@@ -537,36 +537,6 @@ body {
 
 .phone-input-wrapper .form-input {
     flex: 1;
-}
-
-/* Check-in Options */
-.check-in-options {
-    display: flex;
-    gap: 12px;
-    margin-top: 8px;
-}
-
-.check-in-btn {
-    flex: 1;
-    padding: 11px 20px;
-    border: 1px solid #d4d4d4;
-    border-radius: 6px;
-    background: white;
-    font-size: 14px;
-    color: #4a4a4a;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: 400;
-}
-
-.check-in-btn:hover {
-    border-color: #999;
-}
-
-.check-in-btn.selected {
-    border-color: #0f3d5c;
-    color: white;
-    background: #0f3d5c;
 }
 
 /* Textarea */
