@@ -12,15 +12,114 @@ document.addEventListener('DOMContentLoaded', function() {
     initForms();
 });
 
+// Mock data for upcoming visits
+const upcomingVisits = [
+    { date: '2025-11-05', time: '9:00 AM', name: 'Jennifer Lee', status: 'invited' },
+    { date: '2025-11-08', time: '2:00 PM', name: 'Christopher Taylor', status: 'invited' },
+    { date: '2025-11-12', time: '11:30 AM', name: 'Amanda Anderson', status: 'invited' },
+    { date: '2025-11-15', time: '3:30 PM', name: 'Matthew Thomas', status: 'invited' },
+    { date: '2025-11-20', time: '10:00 AM', name: 'Lisa Rodriguez', status: 'invited' }
+];
+
+// Mock data for past visits
+const pastVisits = [
+    { date: '2025-10-28', time: '12:00 PM', name: 'John Smith', status: 'invited' },
+    { date: '2025-10-27', time: '2:30 PM', name: 'Sarah Johnson', status: 'invited' },
+    { date: '2025-09-16', time: '12:30 PM', name: 'Michael Brown', status: 'invited' },
+    { date: '2025-09-16', time: '10:30 AM', name: 'Emily Davis', status: 'invited' },
+    { date: '2025-09-04', time: '12:45 PM', name: 'David Wilson', status: 'invited' },
+    { date: '2025-08-13', time: '1:15 PM', name: 'Jessica Martinez', status: 'invited' },
+    { date: '2025-07-01', time: '3:45 PM', name: 'Robert Garcia', status: 'invited' }
+];
+
 // Navigation functionality
 function initNavigation() {
-    document.querySelectorAll('.nav-item').forEach(item => {
+    const navItems = document.querySelectorAll('.nav-item');
+    const emptyState = document.getElementById('emptyState');
+    const visitsList = document.getElementById('visitsList');
+    
+    // Show upcoming visits by default
+    renderUpcomingVisits();
+    visitsList.style.display = 'block';
+    emptyState.style.display = 'none';
+    
+    navItems.forEach((item, index) => {
         item.addEventListener('click', function() {
-            document.querySelectorAll('.nav-item').forEach(nav => {
-                nav.classList.remove('active');
-            });
+            // Update active state
+            navItems.forEach(nav => nav.classList.remove('active'));
             this.classList.add('active');
+            
+            // Show/hide appropriate content
+            if (index === 0) {
+                // Upcoming tab
+                emptyState.style.display = 'none';
+                visitsList.style.display = 'block';
+                renderUpcomingVisits();
+            } else {
+                // Past tab
+                emptyState.style.display = 'none';
+                visitsList.style.display = 'block';
+                renderPastVisits();
+            }
         });
+    });
+}
+
+// Render upcoming visits list
+function renderUpcomingVisits() {
+    const visitsList = document.getElementById('visitsList');
+    visitsList.innerHTML = '';
+    
+    upcomingVisits.forEach(visit => {
+        const visitItem = document.createElement('div');
+        visitItem.className = 'visit-item';
+        
+        // Format the date
+        const visitDate = new Date(visit.date + 'T00:00:00');
+        const formattedDate = `${visitDate.getMonth() + 1}/${visitDate.getDate()}/${visitDate.getFullYear()}`;
+        
+        visitItem.innerHTML = `
+            <div class="visit-date">
+                <div class="visit-date-main">${formattedDate}</div>
+                <div class="visit-time">${visit.time}</div>
+            </div>
+            <div class="visit-name">${visit.name}</div>
+            <div class="visit-status">
+                <span class="visit-status-label">Status:</span>
+                <span class="visit-status-value">${visit.status}</span>
+            </div>
+        `;
+        
+        visitsList.appendChild(visitItem);
+    });
+}
+
+// Render past visits list
+function renderPastVisits() {
+    const visitsList = document.getElementById('visitsList');
+    visitsList.innerHTML = '';
+    
+    pastVisits.forEach(visit => {
+        const visitItem = document.createElement('div');
+        visitItem.className = 'visit-item';
+        
+        // Format the date
+        const visitDate = new Date(visit.date + 'T00:00:00');
+        const formattedDate = `${visitDate.getMonth() + 1}/${visitDate.getDate()}/${visitDate.getFullYear()}`;
+        
+        visitItem.innerHTML = `
+            <div class="visit-date">
+                <div class="visit-date-main">${formattedDate}</div>
+                <div class="visit-time">${visit.time}</div>
+            </div>
+            <div class="visit-name">${visit.name}</div>
+            <div class="visit-status">
+                <span class="visit-status-label">Status:</span>
+                <span class="visit-status-value">${visit.status}</span>
+            </div>
+        `;
+        
+        visitsList.appendChild(visitItem);
     });
 }
 

@@ -20,7 +20,8 @@
             </div>
 
             <div class="content-area">
-                <div class="empty-state">
+                <!-- Empty state for upcoming -->
+                <div class="empty-state" id="emptyState">
                     <div class="empty-state-icon">
                         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                             <!-- Person icon -->
@@ -38,6 +39,11 @@
                         Click button below or "+" on the top right to<br>
                         register a new visitor.
                     </p>
+                </div>
+                
+                <!-- Visits list -->
+                <div class="visits-list" id="visitsList" style="display: none;">
+                    <!-- Visits will be populated here by JavaScript -->
                 </div>
             </div>
         </div>
