@@ -97,11 +97,13 @@ function resetStep2() {
     const hostingOptions = document.getElementById('hostingOptions');
     const step2MainTitle = document.getElementById('step2MainTitle');
     const someoneElseTitle = document.getElementById('someoneElseTitle');
+    const step2ContinueBtn = document.getElementById('step2Continue');
     
     hostDetails.classList.remove('active');
     hostingOptions.style.display = 'flex';
     step2MainTitle.style.display = 'block';
     someoneElseTitle.classList.remove('active');
+    step2ContinueBtn.style.display = 'none';
     
     // Clear button selections
     document.querySelectorAll('.hosting-btn').forEach(b => {
@@ -131,6 +133,8 @@ window.clearInput = clearInput;
 
 // Hosting options functionality
 function initHostingButtons() {
+    const step2ContinueBtn = document.getElementById('step2Continue');
+    
     document.querySelectorAll('.hosting-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.hosting-btn').forEach(b => {
@@ -139,23 +143,30 @@ function initHostingButtons() {
             this.classList.add('selected');
             
             selectedHost = this.getAttribute('data-host');
+            
+            // Show the continue button when an option is selected
+            step2ContinueBtn.style.display = 'block';
+        });
+    });
+
+    // Step 2 continue button handler
+    step2ContinueBtn.addEventListener('click', function() {
+        if (selectedHost === 'me') {
+            // If "I am" is selected, go directly to step 3
+            goToStep(3);
+        } else if (selectedHost === 'someone') {
+            // If "Someone else" is selected, show host details form
             const hostDetails = document.getElementById('hostDetails');
             const hostingOptions = document.getElementById('hostingOptions');
             const step2MainTitle = document.getElementById('step2MainTitle');
             const someoneElseTitle = document.getElementById('someoneElseTitle');
             
-            if (selectedHost === 'someone') {
-                hostDetails.classList.add('active');
-                hostingOptions.style.display = 'none';
-                step2MainTitle.style.display = 'none';
-                someoneElseTitle.classList.add('active');
-            } else if (selectedHost === 'me') {
-                // If "I am" is selected, go directly to step 3
-                setTimeout(() => {
-                    goToStep(3);
-                }, 300);
-            }
-        });
+            hostDetails.classList.add('active');
+            hostingOptions.style.display = 'none';
+            step2MainTitle.style.display = 'none';
+            someoneElseTitle.classList.add('active');
+            step2ContinueBtn.style.display = 'none';
+        }
     });
 
     // Continue to step 3 from someone else option
@@ -217,8 +228,79 @@ function initForms() {
         };
         
         console.log('Visitor Request Submitted:', formData);
-        alert('Visitor request submitted successfully!');
-        closeModal();
+        showConfirmation(formData);
     });
+    
+    // Confirmation modal handlers
+    const confirmationModal = document.getElementById('confirmationModal');
+    document.getElementById('closeConfirmation').addEventListener('click', closeConfirmationModal);
+    document.getElementById('backToVisits').addEventListener('click', closeConfirmationModal);
+    
+    // Close when clicking outside confirmation modal
+    confirmationModal.addEventListener('click', function(e) {
+        if (e.target === confirmationModal) {
+            closeConfirmationModal();
+        }
+    });
+}
+
+// Show confirmation modal
+function showConfirmation(formData) {
+    // Close the registration modal
+    closeModal();
+    
+    // Format the date
+    const visitDate = new Date(formData.visitDate + 'T00:00:00');
+    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = visitDate.toLocaleDateString('en-US', dateOptions);
+    
+    // Determine time text
+    let timeText = '';
+    if (formData.startTime && formData.endTime) {
+        timeText = ` at ${formatTime(formData.startTime)}`;
+    } else if (formData.startTime) {
+        timeText = ` at ${formatTime(formData.startTime)}`;
+    }
+    
+    // Set confirmation date text
+    document.getElementById('confirmDate').textContent = formattedDate + timeText;
+    
+    // Set detail date
+    const shortDateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('detailDate').textContent = visitDate.toLocaleDateString('en-US', shortDateOptions);
+    
+    // Set time detail
+    if (formData.startTime && formData.endTime) {
+        document.getElementById('detailTime').textContent = 
+            `${formatTime(formData.startTime)} - ${formatTime(formData.endTime)}`;
+    } else if (formData.startTime) {
+        document.getElementById('detailTime').textContent = `Starting at ${formatTime(formData.startTime)}`;
+    } else {
+        document.getElementById('detailTime').textContent = 'All day visit';
+    }
+    
+    // Set visitor name
+    const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+    document.getElementById('visitorNameDisplay').textContent = fullName;
+    
+    // Show confirmation modal
+    document.getElementById('confirmationModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// Format time from 24h to 12h format
+function formatTime(time) {
+    if (!time) return '';
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
+}
+
+// Close confirmation modal
+function closeConfirmationModal() {
+    document.getElementById('confirmationModal').classList.remove('active');
+    document.body.style.overflow = '';
 }
 

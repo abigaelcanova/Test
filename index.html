@@ -126,6 +126,8 @@
                         <button type="button" class="hosting-btn" data-host="someone">Someone else</button>
                     </div>
 
+                    <button type="button" class="continue-btn" id="step2Continue" style="display: none;">Continue</button>
+
                     <h2 class="someone-else-title" id="someoneElseTitle">Someone else</h2>
 
                     <div class="host-details" id="hostDetails">
@@ -250,6 +252,51 @@
 
                         <button type="submit" class="continue-btn">Submit Visitor Request</button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmationModal">
+        <div class="modal confirmation-modal">
+            <button class="modal-close" id="closeConfirmation">×</button>
+            
+            <div class="confirmation-content">
+                <div class="confirmation-left">
+                    <div class="confirmation-header">
+                        <div class="check-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 6L9 17L4 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h2>Visit confirmed</h2>
+                    </div>
+                    <p class="confirmation-text">Your visitor registration is confirmed for <span id="confirmDate"></span>.</p>
+                </div>
+                
+                <div class="confirmation-right">
+                    <h3>Visit details</h3>
+                    
+                    <div class="detail-group">
+                        <div class="detail-header">
+                            <span class="detail-icon">📅</span>
+                            <span id="detailDate"></span>
+                            <button class="edit-icon">✎</button>
+                        </div>
+                        <p class="detail-subtext" id="detailTime">All day visit</p>
+                        <a href="#" class="cancel-link">Cancel visit</a>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-header">
+                            <span class="detail-label">Visitor name(s)</span>
+                            <button class="edit-icon">✎</button>
+                        </div>
+                        <p class="detail-value" id="visitorNameDisplay"></p>
+                    </div>
+                    
+                    <button class="back-btn" id="backToVisits">Back to visits</button>
                 </div>
             </div>
         </div>
