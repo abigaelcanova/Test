@@ -228,11 +228,132 @@ let visitorCount = 1;
 
 function initMultipleVisitors() {
     const addButton = document.getElementById('addAnotherVisitor');
+    const downloadButton = document.getElementById('downloadTemplate');
+    const uploadInput = document.getElementById('bulkUpload');
     
     addButton.addEventListener('click', function() {
         visitorCount++;
         addVisitorForm();
     });
+    
+    // Download CSV template
+    downloadButton.addEventListener('click', downloadCSVTemplate);
+    
+    // Upload CSV file
+    uploadInput.addEventListener('change', handleCSVUpload);
+}
+
+// Download CSV template
+function downloadCSVTemplate() {
+    const csvContent = 'Email,First Name,Last Name,Phone Number\n' +
+                       'example@email.com,John,Smith,+1234567890\n' +
+                       ',Jane,Doe,+1234567891\n';
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'visitor_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+// Handle CSV upload
+function handleCSVUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        parseCSV(text);
+    };
+    reader.readAsText(file);
+    
+    // Reset input
+    event.target.value = '';
+}
+
+// Parse CSV and populate visitor forms
+function parseCSV(csvText) {
+    const lines = csvText.split('\n').filter(line => line.trim());
+    if (lines.length <= 1) {
+        alert('The CSV file appears to be empty.');
+        return;
+    }
+    
+    // Skip header row
+    const dataLines = lines.slice(1);
+    
+    // Clear existing visitors except the first one
+    const container = document.getElementById('visitorsContainer');
+    const allVisitors = container.querySelectorAll('.visitor-form');
+    allVisitors.forEach((form, index) => {
+        if (index > 0) {
+            form.remove();
+        }
+    });
+    
+    visitorCount = 1;
+    
+    // Populate visitors from CSV
+    dataLines.forEach((line, index) => {
+        const values = parseCSVLine(line);
+        if (values.length < 4) return; // Skip incomplete rows
+        
+        const [email, firstName, lastName, phone] = values;
+        
+        // Skip if all fields are empty
+        if (!email && !firstName && !lastName && !phone) return;
+        
+        if (index === 0) {
+            // Populate first visitor form
+            const firstForm = container.querySelector('.visitor-form');
+            firstForm.querySelector('.visitor-email').value = email || '';
+            firstForm.querySelector('.visitor-firstname').value = firstName || '';
+            firstForm.querySelector('.visitor-lastname').value = lastName || '';
+            firstForm.querySelector('.visitor-phone').value = phone || '';
+        } else {
+            // Add new visitor form
+            visitorCount++;
+            addVisitorForm();
+            
+            // Populate the newly added form
+            const forms = container.querySelectorAll('.visitor-form');
+            const newForm = forms[forms.length - 1];
+            newForm.querySelector('.visitor-email').value = email || '';
+            newForm.querySelector('.visitor-firstname').value = firstName || '';
+            newForm.querySelector('.visitor-lastname').value = lastName || '';
+            newForm.querySelector('.visitor-phone').value = phone || '';
+        }
+    });
+    
+    alert(`Successfully imported ${Math.min(dataLines.length, visitorCount)} visitor(s).`);
+}
+
+// Parse a CSV line handling quoted values
+function parseCSVLine(line) {
+    const values = [];
+    let currentValue = '';
+    let insideQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+            insideQuotes = !insideQuotes;
+        } else if (char === ',' && !insideQuotes) {
+            values.push(currentValue.trim());
+            currentValue = '';
+        } else {
+            currentValue += char;
+        }
+    }
+    
+    values.push(currentValue.trim());
+    return values;
 }
 
 function addVisitorForm() {
