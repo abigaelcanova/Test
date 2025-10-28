@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initCheckInButtons();
     initHostingButtons();
     initDatePicker();
+    initMultipleVisitors();
     initForms();
 });
 
@@ -222,6 +223,81 @@ function initCheckInButtons() {
     });
 }
 
+// Multiple visitors functionality
+let visitorCount = 1;
+
+function initMultipleVisitors() {
+    const addButton = document.getElementById('addAnotherVisitor');
+    
+    addButton.addEventListener('click', function() {
+        visitorCount++;
+        addVisitorForm();
+    });
+}
+
+function addVisitorForm() {
+    const container = document.getElementById('visitorsContainer');
+    const visitorForm = document.createElement('div');
+    visitorForm.className = 'visitor-form';
+    visitorForm.setAttribute('data-visitor', visitorCount);
+    
+    visitorForm.innerHTML = `
+        <div class="visitor-header">
+            <h3 class="visitor-number">Visitor ${visitorCount}</h3>
+            <button type="button" class="remove-visitor-btn" onclick="removeVisitor(this)">Remove</button>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Visitor's email</label>
+            <div class="input-wrapper">
+                <input type="email" class="form-input visitor-email" placeholder="Enter email address">
+                <button type="button" class="clear-btn" onclick="this.previousElementSibling.value=''">×</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">First name <span class="required">*</span></label>
+            <input type="text" class="form-input visitor-firstname" placeholder="e.g. John">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Last name <span class="required">*</span></label>
+            <input type="text" class="form-input visitor-lastname" placeholder="e.g. Smith">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Phone number</label>
+            <div class="phone-input-wrapper">
+                <div class="country-select">🇺🇸</div>
+                <div class="input-wrapper" style="flex: 1;">
+                    <input type="tel" class="form-input visitor-phone" placeholder="e.g. +1234567890">
+                    <button type="button" class="clear-btn" onclick="this.previousElementSibling.value=''">×</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(visitorForm);
+}
+
+function removeVisitor(button) {
+    const visitorForm = button.closest('.visitor-form');
+    visitorForm.remove();
+    
+    // Renumber remaining visitors
+    const allVisitors = document.querySelectorAll('.visitor-form');
+    allVisitors.forEach((form, index) => {
+        const number = index + 1;
+        form.setAttribute('data-visitor', number);
+        form.querySelector('.visitor-number').textContent = `Visitor ${number}`;
+    });
+    
+    visitorCount = allVisitors.length;
+}
+
+// Make removeVisitor available globally
+window.removeVisitor = removeVisitor;
+
 // Clear input function
 function clearInput(inputId) {
     document.getElementById(inputId).value = '';
@@ -294,6 +370,35 @@ function initDatePicker() {
     
     visitDateInput.addEventListener('change', updateDateDisplay);
     updateDateDisplay(); // Set initial display
+    
+    // Recurring visit functionality
+    const recurringCheckbox = document.getElementById('recurringCheckbox');
+    const recurringFrequency = document.getElementById('recurringFrequency');
+    const recurringEndDate = document.getElementById('recurringEndDate');
+    const recurringEndInput = document.getElementById('recurringEnd');
+    const endDateDisplay = document.getElementById('endDateDisplay');
+    
+    recurringCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            recurringFrequency.style.display = 'block';
+            recurringEndDate.style.display = 'block';
+        } else {
+            recurringFrequency.style.display = 'none';
+            recurringEndDate.style.display = 'none';
+        }
+    });
+    
+    // Format end date display
+    recurringEndInput.addEventListener('change', function() {
+        if (this.value) {
+            const date = new Date(this.value + 'T00:00:00');
+            if (!isNaN(date)) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDate = date.toLocaleDateString('en-US', options);
+                endDateDisplay.textContent = formattedDate;
+            }
+        }
+    });
 }
 
 // Form submission handlers
@@ -308,12 +413,21 @@ function initForms() {
     document.getElementById('step3Form').addEventListener('submit', function(e) {
         e.preventDefault();
         
+        // Collect all visitors data
+        const visitors = [];
+        document.querySelectorAll('.visitor-form').forEach(form => {
+            const visitor = {
+                email: form.querySelector('.visitor-email').value,
+                firstName: form.querySelector('.visitor-firstname').value,
+                lastName: form.querySelector('.visitor-lastname').value,
+                phone: form.querySelector('.visitor-phone').value
+            };
+            visitors.push(visitor);
+        });
+        
         // Collect all form data
         const formData = {
-            visitorEmail: document.getElementById('visitorEmail').value,
-            firstName: document.getElementById('firstName').value,
-            lastName: document.getElementById('lastName').value,
-            phoneNumber: document.getElementById('phoneNumber').value,
+            visitors: visitors,
             checkIn: document.querySelector('.check-in-btn.selected').getAttribute('data-option'),
             visitorNote: document.getElementById('visitorNote').value,
             hosting: selectedHost,
@@ -323,7 +437,10 @@ function initForms() {
             visitDate: document.getElementById('visitDate').value,
             startTime: document.getElementById('startTime').value,
             endTime: document.getElementById('endTime').value,
-            numEntries: document.getElementById('numEntries').value
+            numEntries: document.getElementById('numEntries').value,
+            recurring: document.getElementById('recurringCheckbox').checked,
+            frequency: document.getElementById('frequency').value,
+            recurringEndDate: document.getElementById('recurringEnd').value
         };
         
         console.log('Visitor Request Submitted:', formData);
@@ -378,9 +495,12 @@ function showConfirmation(formData) {
         document.getElementById('detailTime').textContent = 'All day visit';
     }
     
-    // Set visitor name
-    const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-    document.getElementById('visitorNameDisplay').textContent = fullName;
+    // Set visitor names
+    const visitorNames = formData.visitors
+        .map(v => `${v.firstName} ${v.lastName}`.trim())
+        .filter(name => name)
+        .join(', ');
+    document.getElementById('visitorNameDisplay').textContent = visitorNames || 'No names provided';
     
     // Show confirmation modal
     document.getElementById('confirmationModal').classList.add('active');

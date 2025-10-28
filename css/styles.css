@@ -295,6 +295,65 @@ body {
     margin-top: 8px;
 }
 
+/* Multiple Visitors */
+#visitorsContainer {
+    margin-bottom: 24px;
+}
+
+.visitor-form {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.visitor-form:last-child {
+    border-bottom: none;
+}
+
+.visitor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.visitor-number {
+    font-size: 16px;
+    font-weight: 500;
+    color: #4a4a4a;
+    margin: 0;
+}
+
+.remove-visitor-btn {
+    background: none;
+    border: none;
+    color: #e91e63;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 8px;
+    text-decoration: underline;
+}
+
+.remove-visitor-btn:hover {
+    color: #c2185b;
+}
+
+.add-visitor-link {
+    background: none;
+    border: none;
+    color: #0066cc;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 8px 0;
+    margin-bottom: 24px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.add-visitor-link:hover {
+    text-decoration: underline;
+}
+
 /* Form Elements */
 .form-group {
     margin-bottom: 24px;
@@ -320,6 +379,27 @@ body {
     margin-top: 4px;
 }
 
+/* Checkbox */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4a4a4a;
+}
+
+.form-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #0f3d5c;
+}
+
+.checkbox-label span {
+    user-select: none;
+}
+
 .input-wrapper {
     position: relative;
 }
@@ -333,6 +413,8 @@ body {
     color: #333;
     transition: border-color 0.2s ease;
     background-color: #fafafa;
+    min-height: 42px;
+    box-sizing: border-box;
 }
 
 .form-input:focus {
@@ -379,12 +461,14 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 10px 10px;
+    padding: 10px 12px;
     border: 1px solid #d4d4d4;
     border-radius: 6px;
     background: #fafafa;
     cursor: pointer;
     font-size: 18px;
+    height: 42px;
+    box-sizing: border-box;
 }
 
 .country-select::after {

@@ -70,38 +70,52 @@
                     <h2 class="modal-title">Visitor information</h2>
 
                     <form id="step1Form">
-                        <!-- Visitor's email -->
-                        <div class="form-group">
-                            <label class="form-label">Visitor's email</label>
-                            <div class="input-wrapper">
-                                <input type="email" class="form-input" placeholder="Enter email address" id="visitorEmail">
-                                <button type="button" class="clear-btn" onclick="clearInput('visitorEmail')">×</button>
-                            </div>
-                        </div>
+                        <div id="visitorsContainer">
+                            <!-- Visitor 1 -->
+                            <div class="visitor-form" data-visitor="1">
+                                <div class="visitor-header">
+                                    <h3 class="visitor-number">Visitor 1</h3>
+                                </div>
 
-                        <!-- First name -->
-                        <div class="form-group">
-                            <label class="form-label">First name <span class="required">*</span></label>
-                            <input type="text" class="form-input" placeholder="e.g. John" id="firstName" required>
-                        </div>
+                                <!-- Visitor's email -->
+                                <div class="form-group">
+                                    <label class="form-label">Visitor's email</label>
+                                    <div class="input-wrapper">
+                                        <input type="email" class="form-input visitor-email" placeholder="Enter email address">
+                                        <button type="button" class="clear-btn" onclick="this.previousElementSibling.value=''">×</button>
+                                    </div>
+                                </div>
 
-                        <!-- Last name -->
-                        <div class="form-group">
-                            <label class="form-label">Last name <span class="required">*</span></label>
-                            <input type="text" class="form-input" placeholder="e.g. Smith" id="lastName" required>
-                        </div>
+                                <!-- First name -->
+                                <div class="form-group">
+                                    <label class="form-label">First name <span class="required">*</span></label>
+                                    <input type="text" class="form-input visitor-firstname" placeholder="e.g. John">
+                                </div>
 
-                        <!-- Phone number -->
-                        <div class="form-group">
-                            <label class="form-label">Phone number</label>
-                            <div class="phone-input-wrapper">
-                                <div class="country-select">🇺🇸</div>
-                                <div class="input-wrapper" style="flex: 1;">
-                                    <input type="tel" class="form-input" placeholder="e.g. +1234567890" id="phoneNumber">
-                                    <button type="button" class="clear-btn" onclick="clearInput('phoneNumber')">×</button>
+                                <!-- Last name -->
+                                <div class="form-group">
+                                    <label class="form-label">Last name <span class="required">*</span></label>
+                                    <input type="text" class="form-input visitor-lastname" placeholder="e.g. Smith">
+                                </div>
+
+                                <!-- Phone number -->
+                                <div class="form-group">
+                                    <label class="form-label">Phone number</label>
+                                    <div class="phone-input-wrapper">
+                                        <div class="country-select">🇺🇸</div>
+                                        <div class="input-wrapper" style="flex: 1;">
+                                            <input type="tel" class="form-input visitor-phone" placeholder="e.g. +1234567890">
+                                            <button type="button" class="clear-btn" onclick="this.previousElementSibling.value=''">×</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Add another visitor button -->
+                        <button type="button" class="add-visitor-link" id="addAnotherVisitor">
+                            + Add another visitor
+                        </button>
 
                         <!-- Check-in -->
                         <div class="form-group">
@@ -194,7 +208,40 @@
                             <label class="form-label">Visit date <span class="required">*</span></label>
                             <div class="date-input-wrapper date-display-wrapper">
                                 <span class="date-display" id="dateDisplay">October 27, 2025</span>
-                                <input type="date" class="form-input" id="visitDate" required>
+                                <input type="date" class="form-input" id="visitDate">
+                                <span class="calendar-icon">📅</span>
+                            </div>
+                        </div>
+
+                        <!-- Recurring visit -->
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" class="form-checkbox" id="recurringCheckbox">
+                                <span>Recurring visit</span>
+                            </label>
+                        </div>
+
+                        <!-- Recurring frequency (hidden by default) -->
+                        <div class="form-group" id="recurringFrequency" style="display: none;">
+                            <label class="form-label">Frequency</label>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="frequency">
+                                    <option value="">Select frequency</option>
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="biweekly">Every 2 weeks</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+
+                        <!-- End date for recurring (hidden by default) -->
+                        <div class="form-group" id="recurringEndDate" style="display: none;">
+                            <label class="form-label">Repeat until</label>
+                            <div class="date-input-wrapper date-display-wrapper">
+                                <span class="date-display" id="endDateDisplay">Select end date</span>
+                                <input type="date" class="form-input" id="recurringEnd">
                                 <span class="calendar-icon">📅</span>
                             </div>
                         </div>
@@ -245,7 +292,7 @@
                         <div class="form-group">
                             <label class="form-label">Number of Entries <span class="required">*</span></label>
                             <div class="select-wrapper">
-                                <select class="form-select" id="numEntries" required>
+                                <select class="form-select" id="numEntries">
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                     <option value="3">3</option>
