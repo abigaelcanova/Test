@@ -4,7 +4,6 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Mail, Bell, Users } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 
 export function Step3DateTime({ data, onNext, onSubmit }) {
@@ -68,43 +67,6 @@ export function Step3DateTime({ data, onNext, onSubmit }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="floor">
-            Floor <span className="text-destructive">*</span>
-          </Label>
-          <Select value={floor} onValueChange={setFloor}>
-            <SelectTrigger id="floor">
-              <SelectValue placeholder="Select floor" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">1</SelectItem>
-              <SelectItem value="2">2</SelectItem>
-              <SelectItem value="3">3</SelectItem>
-              <SelectItem value="14">14</SelectItem>
-              <SelectItem value="15">15</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="suite">
-            Suite <span className="text-destructive">*</span>
-          </Label>
-          <Select value={suite} onValueChange={setSuite}>
-            <SelectTrigger id="suite">
-              <SelectValue placeholder="Select suite" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1001">#1001</SelectItem>
-              <SelectItem value="1002">#1002</SelectItem>
-              <SelectItem value="1003">#1003</SelectItem>
-              <SelectItem value="1004">#1004</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
       <div className="space-y-2">
         <Label htmlFor="numEntries">
           Number of Entries <span className="text-destructive">*</span>
@@ -150,14 +112,53 @@ export function Step3DateTime({ data, onNext, onSubmit }) {
         </div>
 
         {hostType === 'someone' && (
-          <div className="space-y-2">
-            <Label htmlFor="hostName">Host name <span className="text-destructive">*</span></Label>
-            <Input
-              id="hostName"
-              placeholder="Search or enter host name"
-              value={hostName}
-              onChange={(e) => setHostName(e.target.value)}
-            />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="hostName">Host name <span className="text-destructive">*</span></Label>
+              <Input
+                id="hostName"
+                placeholder="Search or enter host name"
+                value={hostName}
+                onChange={(e) => setHostName(e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="floor">
+                  Floor <span className="text-destructive">*</span>
+                </Label>
+                <Select value={floor} onValueChange={setFloor}>
+                  <SelectTrigger id="floor">
+                    <SelectValue placeholder="Select floor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="2">2</SelectItem>
+                    <SelectItem value="3">3</SelectItem>
+                    <SelectItem value="14">14</SelectItem>
+                    <SelectItem value="15">15</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="suite">
+                  Suite <span className="text-destructive">*</span>
+                </Label>
+                <Select value={suite} onValueChange={setSuite}>
+                  <SelectTrigger id="suite">
+                    <SelectValue placeholder="Select suite" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1001">#1001</SelectItem>
+                    <SelectItem value="1002">#1002</SelectItem>
+                    <SelectItem value="1003">#1003</SelectItem>
+                    <SelectItem value="1004">#1004</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -179,12 +180,9 @@ export function Step3DateTime({ data, onNext, onSubmit }) {
                 />
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-gray-500" />
-                  <Label htmlFor="receiveCopyInvitation" className="cursor-pointer font-medium">
-                    Receive copy of invitation
-                  </Label>
-                </div>
+                <Label htmlFor="receiveCopyInvitation" className="cursor-pointer font-medium">
+                  Receive copy of invitation
+                </Label>
                 <p className="text-sm text-gray-600 mt-1">
                   Get an email copy when visitors are invited
                 </p>
@@ -202,12 +200,9 @@ export function Step3DateTime({ data, onNext, onSubmit }) {
                 />
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <Bell className="h-4 w-4 text-gray-500" />
-                  <Label htmlFor="receiveCheckInNotifications" className="cursor-pointer font-medium">
-                    Receive check-in notifications
-                  </Label>
-                </div>
+                <Label htmlFor="receiveCheckInNotifications" className="cursor-pointer font-medium">
+                  Receive check-in notifications
+                </Label>
                 <p className="text-sm text-gray-600 mt-1">
                   Get notified when visitors arrive and check in
                 </p>
@@ -216,10 +211,7 @@ export function Step3DateTime({ data, onNext, onSubmit }) {
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-gray-500" />
-              <Label htmlFor="additionalOrganizers">Additional organizers (optional)</Label>
-            </div>
+            <Label htmlFor="additionalOrganizers">Additional organizers (optional)</Label>
             <Textarea
               id="additionalOrganizers"
               placeholder="Enter email addresses separated by commas&#10;e.g. john@example.com, jane@example.com"
