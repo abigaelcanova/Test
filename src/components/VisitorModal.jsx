@@ -6,7 +6,6 @@ import { Step0DateSelect } from "./modal-steps/Step0DateSelect"
 import { Step1VisitorInfo } from "./modal-steps/Step1VisitorInfo"
 import { Step1bCheckIn } from "./modal-steps/Step1bCheckIn"
 import { Step2BulkUpload } from "./modal-steps/Step2BulkUpload"
-import { Step2WhoHosting } from "./modal-steps/Step2WhoHosting"
 import { Step3DateTime } from "./modal-steps/Step3DateTime"
 
 export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
@@ -20,6 +19,8 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
     floor: '1',
     suite: '1001',
     visitDate: new Date().toISOString().split('T')[0],
+    isMultiDay: false,
+    selectedDates: [new Date().toISOString().split('T')[0]],
     recurring: false,
     frequency: '',
     recurringEnd: '',
@@ -54,6 +55,8 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
       floor: '1',
       suite: '1001',
       visitDate: new Date().toISOString().split('T')[0],
+      isMultiDay: false,
+      selectedDates: [new Date().toISOString().split('T')[0]],
       recurring: false,
       frequency: '',
       recurringEnd: '',
@@ -80,6 +83,8 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
         floor: '1',
         suite: '1001',
         visitDate: new Date().toISOString().split('T')[0],
+        isMultiDay: false,
+        selectedDates: [new Date().toISOString().split('T')[0]],
         recurring: false,
         frequency: '',
         recurringEnd: '',
@@ -93,7 +98,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
     }, 300)
   }
 
-  const totalSteps = 5
+  const totalSteps = 4
   const progress = (currentStep / totalSteps) * 100
   const [showBulkUpload, setShowBulkUpload] = useState(false)
 
@@ -173,7 +178,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
             data={formData}
             onNext={(data) => {
               handleNext(data)
-              setCurrentStep(4) // Skip check-in step for bulk upload
+              setCurrentStep(3) // Skip check-in step for bulk upload
             }}
             onSkip={() => {
               setShowBulkUpload(false)
@@ -183,13 +188,6 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
 
         {currentStep === 3 && (
           <Step1bCheckIn
-            data={formData}
-            onNext={handleNext}
-          />
-        )}
-
-        {currentStep === 4 && (
-          <Step2WhoHosting
             data={formData}
             onSubmit={handleFinalSubmit}
           />

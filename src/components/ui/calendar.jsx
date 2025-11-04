@@ -3,9 +3,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-export function Calendar({ selected, onSelect, className }) {
+export function Calendar({ selected, onSelect, className, isMultiSelect = false }) {
   const [currentMonth, setCurrentMonth] = React.useState(
-    selected ? new Date(selected) : new Date()
+    selected ? (Array.isArray(selected) ? new Date(selected[0]) : new Date(selected)) : new Date()
   )
 
   const daysInMonth = (date) => {
@@ -41,12 +41,23 @@ export function Calendar({ selected, onSelect, className }) {
 
   const isSelected = (day) => {
     if (!selected) return false
-    const [year, month, dayStr] = selected.split('-')
-    return (
-      parseInt(dayStr) === day &&
-      parseInt(month) - 1 === currentMonth.getMonth() &&
-      parseInt(year) === currentMonth.getFullYear()
-    )
+    
+    if (Array.isArray(selected)) {
+      // Multi-select mode
+      const year = currentMonth.getFullYear()
+      const month = String(currentMonth.getMonth() + 1).padStart(2, '0')
+      const dayStr = String(day).padStart(2, '0')
+      const dateString = `${year}-${month}-${dayStr}`
+      return selected.includes(dateString)
+    } else {
+      // Single select mode
+      const [year, month, dayStr] = selected.split('-')
+      return (
+        parseInt(dayStr) === day &&
+        parseInt(month) - 1 === currentMonth.getMonth() &&
+        parseInt(year) === currentMonth.getFullYear()
+      )
+    }
   }
 
   const isToday = (day) => {
