@@ -1,7 +1,9 @@
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Edit2, XCircle } from "lucide-react"
 import { formatDate, formatTime } from "@/lib/utils"
 
-export function VisitorTable({ visits }) {
+export function VisitorTable({ visits, onEdit, onCancel }) {
   const getStatusVariant = (status) => {
     const variants = {
       'invited': 'secondary',
@@ -24,6 +26,7 @@ export function VisitorTable({ visits }) {
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Host</th>
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Location</th>
             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -50,6 +53,35 @@ export function VisitorTable({ visits }) {
                 <Badge variant={getStatusVariant(visit.status)}>
                   {visit.status}
                 </Badge>
+              </td>
+              <td className="px-4 py-4 text-right">
+                {visit.status !== 'cancelled' && (onEdit || onCancel) && (
+                  <div className="flex justify-end gap-2">
+                    {onEdit && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onEdit(visit)}
+                        data-testid="edit-visit"
+                      >
+                        <Edit2 className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                    )}
+                    {onCancel && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onCancel(visit.id)}
+                        className="text-destructive hover:text-destructive"
+                        data-testid="cancel-visit"
+                      >
+                        <XCircle className="h-4 w-4 mr-1" />
+                        Cancel
+                      </Button>
+                    )}
+                  </div>
+                )}
               </td>
             </tr>
           ))}

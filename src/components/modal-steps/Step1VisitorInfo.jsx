@@ -8,7 +8,7 @@ export function Step1VisitorInfo({ data, onNext }) {
   const [visitors, setVisitors] = useState(data.visitors)
 
   const addVisitor = () => {
-    setVisitors([...visitors, { email: '', firstName: '', lastName: '', phone: '' }])
+    setVisitors([...visitors, { email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }])
   }
 
   const removeVisitor = (index) => {
@@ -95,7 +95,7 @@ export function Step1VisitorInfo({ data, onNext }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`phone-${index}`}>Phone number</Label>
+              <Label htmlFor={`phone-${index}`}>Phone number (optional)</Label>
               <div className="flex gap-2">
                 <div className="w-12 h-10 flex items-center justify-center border rounded-md bg-muted">
                   🇺🇸
@@ -109,6 +109,32 @@ export function Step1VisitorInfo({ data, onNext }) {
                   className="flex-1 visitor-phone"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`company-${index}`}>
+                Affiliation / Company Name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id={`company-${index}`}
+                placeholder="e.g. Acme Corp"
+                value={visitor.company}
+                onChange={(e) => updateVisitor(index, 'company', e.target.value)}
+                className="visitor-company"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`visitSummary-${index}`}>
+                Visit Summary <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id={`visitSummary-${index}`}
+                placeholder="e.g. Quarterly business review"
+                value={visitor.visitSummary}
+                onChange={(e) => updateVisitor(index, 'visitSummary', e.target.value)}
+                className="visitor-summary"
+              />
             </div>
           </div>
         ))}

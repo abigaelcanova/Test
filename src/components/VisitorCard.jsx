@@ -1,9 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, MapPin, User } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Calendar, Clock, MapPin, User, Edit2, XCircle } from "lucide-react"
 import { formatDate, formatTime } from "@/lib/utils"
 
-export function VisitorCard({ visit }) {
+export function VisitorCard({ visit, onEdit, onCancel }) {
   const getStatusVariant = (status) => {
     const variants = {
       'invited': 'secondary',
@@ -27,6 +28,32 @@ export function VisitorCard({ visit }) {
               {visit.status}
             </Badge>
           </div>
+          {visit.status !== 'cancelled' && (onEdit || onCancel) && (
+            <div className="flex gap-1">
+              {onEdit && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onEdit(visit)}
+                  className="h-8 w-8"
+                  data-testid="edit-visit"
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+              )}
+              {onCancel && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onCancel(visit.id)}
+                  className="h-8 w-8 text-destructive hover:text-destructive"
+                  data-testid="cancel-visit"
+                >
+                  <XCircle className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          )}
         </div>
         
         <div className="space-y-2.5 text-sm text-gray-600">

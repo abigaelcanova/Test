@@ -5,26 +5,30 @@ import { ChevronLeft } from "lucide-react"
 import { Step0DateSelect } from "./modal-steps/Step0DateSelect"
 import { Step1VisitorInfo } from "./modal-steps/Step1VisitorInfo"
 import { Step1bCheckIn } from "./modal-steps/Step1bCheckIn"
+import { Step2BulkUpload } from "./modal-steps/Step2BulkUpload"
 import { Step2WhoHosting } from "./modal-steps/Step2WhoHosting"
 import { Step3DateTime } from "./modal-steps/Step3DateTime"
 
-export function VisitorModal({ open, onOpenChange, onSubmit }) {
+export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState({
-    visitors: [{ email: '', firstName: '', lastName: '', phone: '' }],
+    visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
     checkIn: 'bypass',
     visitorNote: '',
     hostType: '',
     hostName: '',
-    floor: '',
-    suite: '',
+    floor: '1',
+    suite: '1001',
     visitDate: new Date().toISOString().split('T')[0],
     recurring: false,
     frequency: '',
     recurringEnd: '',
     startTime: '',
     endTime: '',
-    numEntries: '1'
+    numEntries: '1',
+    receiveCopyInvitation: true,
+    receiveCheckInNotifications: true,
+    additionalOrganizers: ''
   })
 
   const handleNext = (stepData) => {
@@ -42,20 +46,23 @@ export function VisitorModal({ open, onOpenChange, onSubmit }) {
     // Reset form
     setCurrentStep(0)
     setFormData({
-      visitors: [{ email: '', firstName: '', lastName: '', phone: '' }],
+      visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
       checkIn: 'bypass',
       visitorNote: '',
       hostType: '',
       hostName: '',
-      floor: '',
-      suite: '',
+      floor: '1',
+      suite: '1001',
       visitDate: new Date().toISOString().split('T')[0],
       recurring: false,
       frequency: '',
       recurringEnd: '',
       startTime: '',
       endTime: '',
-      numEntries: '1'
+      numEntries: '1',
+      receiveCopyInvitation: true,
+      receiveCheckInNotifications: true,
+      additionalOrganizers: ''
     })
   }
 
@@ -65,26 +72,30 @@ export function VisitorModal({ open, onOpenChange, onSubmit }) {
     setTimeout(() => {
       setCurrentStep(0)
       setFormData({
-        visitors: [{ email: '', firstName: '', lastName: '', phone: '' }],
+        visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
         checkIn: 'bypass',
         visitorNote: '',
         hostType: '',
         hostName: '',
-        floor: '',
-        suite: '',
+        floor: '1',
+        suite: '1001',
         visitDate: new Date().toISOString().split('T')[0],
         recurring: false,
         frequency: '',
         recurringEnd: '',
         startTime: '',
         endTime: '',
-        numEntries: '1'
+        numEntries: '1',
+        receiveCopyInvitation: true,
+        receiveCheckInNotifications: true,
+        additionalOrganizers: ''
       })
     }, 300)
   }
 
   const totalSteps = 5
   const progress = (currentStep / totalSteps) * 100
+  const [showBulkUpload, setShowBulkUpload] = useState(false)
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -122,7 +133,9 @@ export function VisitorModal({ open, onOpenChange, onSubmit }) {
         {currentStep === 0 && (
           <Step0DateSelect
             data={formData}
-            onNext={handleNext}
+            onNext={(data) => {
+              handleNext(data)
+            }}
           />
         )}
 
@@ -133,10 +146,38 @@ export function VisitorModal({ open, onOpenChange, onSubmit }) {
           />
         )}
 
+        {/* Bulk upload option appears at step 2 */}
         {currentStep === 2 && (
+          <div className="mb-4 flex justify-end">
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              onClick={() => setShowBulkUpload(!showBulkUpload)}
+              className="text-xs"
+            >
+              {showBulkUpload ? '← Add visitors manually' : 'Upload CSV instead →'}
+            </Button>
+          </div>
+        )}
+
+        {currentStep === 2 && !showBulkUpload && (
           <Step1VisitorInfo
             data={formData}
             onNext={handleNext}
+          />
+        )}
+
+        {currentStep === 2 && showBulkUpload && (
+          <Step2BulkUpload
+            data={formData}
+            onNext={(data) => {
+              handleNext(data)
+              setCurrentStep(4) // Skip check-in step for bulk upload
+            }}
+            onSkip={() => {
+              setShowBulkUpload(false)
+            }}
           />
         )}
 

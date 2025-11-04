@@ -16,6 +16,7 @@ function App() {
   const [confirmedVisit, setConfirmedVisit] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("upcoming")
+  const [editingVisit, setEditingVisit] = useState(null)
 
   const handleAddVisitor = (formData) => {
     // Create visit entries from form data
@@ -24,25 +25,55 @@ function App() {
       .map(v => `${v.firstName} ${v.lastName}`)
       .join(', ')
 
-    const newVisit = {
-      id: Date.now(),
-      visitorName: visitorNames,
-      date: formData.visitDate,
-      startTime: formData.startTime,
-      endTime: formData.endTime,
-      host: formData.hostType === 'me' ? 'Current User' : formData.hostName,
-      floor: formData.floor,
-      suite: formData.suite,
-      status: 'confirmed',
-      checkIn: formData.checkIn,
-      note: formData.visitorNote,
-      numEntries: formData.numEntries
+    if (editingVisit) {
+      // Update existing visit
+      const updatedVisit = {
+        ...editingVisit,
+        visitorName: visitorNames,
+        date: formData.visitDate,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        host: formData.hostName,
+        floor: formData.floor,
+        suite: formData.suite,
+        checkIn: formData.checkIn,
+        note: formData.visitorNote,
+        numEntries: formData.numEntries
+      }
+      setVisits(prev => prev.map(v => v.id === editingVisit.id ? updatedVisit : v))
+      setEditingVisit(null)
+    } else {
+      // Create new visit
+      const newVisit = {
+        id: Date.now(),
+        visitorName: visitorNames,
+        date: formData.visitDate,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        host: formData.hostName,
+        floor: formData.floor,
+        suite: formData.suite,
+        status: 'confirmed',
+        checkIn: formData.checkIn,
+        note: formData.visitorNote,
+        numEntries: formData.numEntries
+      }
+      setVisits(prev => [...prev, newVisit])
+      setConfirmedVisit({ ...formData, visitorName: visitorNames })
+      setIsConfirmationOpen(true)
     }
-
-    setVisits(prev => [...prev, newVisit])
-    setConfirmedVisit({ ...formData, visitorName: visitorNames })
     setIsModalOpen(false)
-    setIsConfirmationOpen(true)
+  }
+
+  const handleEditVisit = (visit) => {
+    setEditingVisit(visit)
+    setIsModalOpen(true)
+  }
+
+  const handleCancelVisit = (visitId) => {
+    setVisits(prev => prev.map(v => 
+      v.id === visitId ? { ...v, status: 'cancelled' } : v
+    ))
   }
 
   const upcomingVisits = visits.filter(v => 
@@ -133,12 +164,21 @@ function App() {
                       {/* Mobile: Cards */}
                       <div className="md:hidden space-y-3">
                         {upcomingVisits.map(visit => (
-                          <VisitorCard key={visit.id} visit={visit} />
+                          <VisitorCard 
+                            key={visit.id} 
+                            visit={visit}
+                            onEdit={handleEditVisit}
+                            onCancel={handleCancelVisit}
+                          />
                         ))}
                       </div>
                       {/* Desktop: Table */}
                       <div className="hidden md:block">
-                        <VisitorTable visits={upcomingVisits} />
+                        <VisitorTable 
+                          visits={upcomingVisits}
+                          onEdit={handleEditVisit}
+                          onCancel={handleCancelVisit}
+                        />
                       </div>
                     </>
                   )
@@ -176,7 +216,12 @@ function App() {
           ) : (
             <div className="space-y-3">
               {upcomingVisits.map(visit => (
-                <VisitorCard key={visit.id} visit={visit} />
+                <VisitorCard 
+                  key={visit.id} 
+                  visit={visit}
+                  onEdit={handleEditVisit}
+                  onCancel={handleCancelVisit}
+                />
               ))}
             </div>
           )
@@ -208,8 +253,12 @@ function App() {
       {/* Modals */}
       <VisitorModal
         open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        onOpenChange={(open) => {
+          setIsModalOpen(open)
+          if (!open) setEditingVisit(null)
+        }}
         onSubmit={handleAddVisitor}
+        editingVisit={editingVisit}
       />
 
       <ConfirmationModal
