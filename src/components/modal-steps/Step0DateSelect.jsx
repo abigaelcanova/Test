@@ -11,6 +11,8 @@ export function Step0DateSelect({ data, onNext }) {
   const [recurring, setRecurring] = useState(data.recurring)
   const [frequency, setFrequency] = useState(data.frequency)
   const [recurringEnd, setRecurringEnd] = useState(data.recurringEnd)
+  const [startTime, setStartTime] = useState(data.startTime)
+  const [endTime, setEndTime] = useState(data.endTime)
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -18,13 +20,18 @@ export function Step0DateSelect({ data, onNext }) {
       visitDate,
       recurring,
       frequency: recurring ? frequency : '',
-      recurringEnd: recurring ? recurringEnd : ''
+      recurringEnd: recurring ? recurringEnd : '',
+      startTime,
+      endTime
     })
   }
 
   const formatDisplayDate = (dateStr) => {
     if (!dateStr) return ''
-    const date = new Date(dateStr)
+    // Parse the date string manually to avoid timezone issues
+    const [year, month, day] = dateStr.split('-').map(Number)
+    // Create date in local timezone (month is 0-indexed)
+    const date = new Date(year, month - 1, day)
     return date.toLocaleDateString('en-US', { 
       weekday: 'long',
       month: 'long', 
@@ -64,6 +71,53 @@ export function Step0DateSelect({ data, onNext }) {
             </div>
           </div>
         )}
+
+        {/* Start and End Time */}
+        <div className="border-t pt-4 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="startTime">Start time</Label>
+              <Select value={startTime} onValueChange={setStartTime}>
+                <SelectTrigger id="startTime">
+                  <SelectValue placeholder="Select start time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="08:00">8:00 AM</SelectItem>
+                  <SelectItem value="09:00">9:00 AM</SelectItem>
+                  <SelectItem value="10:00">10:00 AM</SelectItem>
+                  <SelectItem value="11:00">11:00 AM</SelectItem>
+                  <SelectItem value="12:00">12:00 PM</SelectItem>
+                  <SelectItem value="13:00">1:00 PM</SelectItem>
+                  <SelectItem value="14:00">2:00 PM</SelectItem>
+                  <SelectItem value="15:00">3:00 PM</SelectItem>
+                  <SelectItem value="16:00">4:00 PM</SelectItem>
+                  <SelectItem value="17:00">5:00 PM</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="endTime">End time</Label>
+              <Select value={endTime} onValueChange={setEndTime}>
+                <SelectTrigger id="endTime">
+                  <SelectValue placeholder="Select end time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="09:00">9:00 AM</SelectItem>
+                  <SelectItem value="10:00">10:00 AM</SelectItem>
+                  <SelectItem value="11:00">11:00 AM</SelectItem>
+                  <SelectItem value="12:00">12:00 PM</SelectItem>
+                  <SelectItem value="13:00">1:00 PM</SelectItem>
+                  <SelectItem value="14:00">2:00 PM</SelectItem>
+                  <SelectItem value="15:00">3:00 PM</SelectItem>
+                  <SelectItem value="16:00">4:00 PM</SelectItem>
+                  <SelectItem value="17:00">5:00 PM</SelectItem>
+                  <SelectItem value="18:00">6:00 PM</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
 
         {/* Recurring Visit Options */}
         <div className="border-t pt-4 space-y-4">

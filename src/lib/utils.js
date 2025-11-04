@@ -6,7 +6,11 @@ export function cn(...inputs) {
 }
 
 export function formatDate(date) {
-  return new Date(date).toLocaleDateString('en-US', {
+  // Parse the date string manually to avoid timezone issues
+  const [year, month, day] = date.split('-').map(Number)
+  // Create date in local timezone (month is 0-indexed)
+  const dateObj = new Date(year, month - 1, day)
+  return dateObj.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric'
