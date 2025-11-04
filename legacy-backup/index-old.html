@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Registration</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Visitor registration</h1>
+            <button class="add-visitor-btn">Add new visitor</button>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="nav-item active">Upcoming</div>
+                <div class="nav-item">Past</div>
+            </div>
+
+            <div class="content-area">
+                <!-- Empty state for upcoming -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-state-icon">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Person icon -->
+                            <circle cx="40" cy="25" r="12"/>
+                            <path d="M 25 55 Q 25 42 40 42 Q 55 42 55 55 L 55 65 L 25 65 Z"/>
+                            
+                            <!-- Plus sign -->
+                            <line x1="75" y1="35" x2="75" y2="55" stroke-width="2.5" stroke-linecap="round"/>
+                            <line x1="65" y1="45" x2="85" y2="45" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h2>No visitors</h2>
+                    <p>
+                        You have no upcoming visitors.<br>
+                        Click button below or "+" on the top right to<br>
+                        register a new visitor.
+                    </p>
+                </div>
+                
+                <!-- Visits list -->
+                <div class="visits-list" id="visitsList" style="display: none;">
+                    <!-- Visits will be populated here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="visitorModal">
+        <div class="modal">
+            <div class="modal-header">
+                <button class="modal-back" id="modalBack">
+                    <span>←</span>
+                    <span>Back</span>
+                </button>
+                <button class="modal-close" id="closeModal">×</button>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="step-text" id="stepText">Step 1 of 3</div>
+            </div>
+
+            <div class="modal-content">
+                <!-- STEP 1: Visitor Information -->
+                <div class="modal-step active" id="step1">
+                    <h2 class="modal-title">Visitor information</h2>
+
+                    <form id="step1Form">
+                        <div id="visitorsContainer">
+                            <!-- Visitor 1 -->
+                            <div class="visitor-form" data-visitor="1">
+                                <div class="visitor-header">
+                                    <h3 class="visitor-number">Visitor 1</h3>
+                                </div>
+
+                                <!-- Visitor's email -->
+                                <div class="form-group">
+                                    <label class="form-label">Visitor's email</label>
+                                    <div class="input-wrapper">
+                                        <input type="email" class="form-input visitor-email" placeholder="Enter email address">
+                                        <button type="button" class="clear-btn" onclick="this.previousElementSibling.value=''">×</button>
+                                    </div>
+                                </div>
+
+                                <!-- First name -->
+                                <div class="form-group">
+                                    <label class="form-label">First name <span class="required">*</span></label>
+                                    <input type="text" class="form-input visitor-firstname" placeholder="e.g. John">
+                                </div>
+
+                                <!-- Last name -->
+                                <div class="form-group">
+                                    <label class="form-label">Last name <span class="required">*</span></label>
+                                    <input type="text" class="form-input visitor-lastname" placeholder="e.g. Smith">
+                                </div>
+
+                                <!-- Phone number -->
+                                <div class="form-group">
+                                    <label class="form-label">Phone number</label>
+                                    <div class="phone-input-wrapper">
+                                        <div class="country-select">🇺🇸</div>
+                                        <div class="input-wrapper" style="flex: 1;">
+                                            <input type="tel" class="form-input visitor-phone" placeholder="e.g. +1234567890">
+                                            <button type="button" class="clear-btn" onclick="this.previousElementSibling.value=''">×</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add another visitor button -->
+                        <button type="button" class="add-visitor-link" id="addAnotherVisitor">
+                            + Add another visitor
+                        </button>
+
+                        <!-- Bulk upload section -->
+                        <div class="bulk-upload-section">
+                            <div class="bulk-upload-divider">
+                                <span>or</span>
+                            </div>
+                            <div class="bulk-upload-actions">
+                                <button type="button" class="bulk-action-btn" id="downloadTemplate">
+                                    Download template
+                                </button>
+                                <label for="bulkUpload" class="bulk-action-btn upload-btn">
+                                    Upload visitor list
+                                    <input type="file" id="bulkUpload" accept=".csv" style="display: none;">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Check-in -->
+                        <div class="form-group">
+                            <label class="form-label">Check-in <span class="required">*</span></label>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="checkIn">
+                                    <option value="desk">Stop at desk</option>
+                                    <option value="bypass" selected>Bypass desk</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+
+                        <!-- Note for visitor -->
+                        <div class="form-group">
+                            <label class="form-label">Note for visitor</label>
+                            <textarea class="form-textarea" placeholder="e.g. Go to security desk" id="visitorNote"></textarea>
+                        </div>
+
+                        <button type="submit" class="continue-btn">Continue to step 2</button>
+                    </form>
+                </div>
+
+                <!-- STEP 2: Who is hosting -->
+                <div class="modal-step" id="step2">
+                    <h2 class="modal-title" id="step2MainTitle">Who is hosting?</h2>
+
+                    <div class="hosting-options" id="hostingOptions">
+                        <button type="button" class="hosting-btn" data-host="me">I am</button>
+                        <button type="button" class="hosting-btn" data-host="someone">Someone else</button>
+                    </div>
+
+                    <button type="button" class="continue-btn" id="step2Continue" style="display: none;">Continue</button>
+
+                    <h2 class="someone-else-title" id="someoneElseTitle">Someone else</h2>
+
+                    <div class="host-details" id="hostDetails">
+                        <!-- Host name -->
+                        <div class="form-group">
+                            <label class="form-label">Host name</label>
+                            <input type="text" class="form-input" placeholder="Search host name" id="hostName">
+                        </div>
+
+                        <!-- Building -->
+                        <div class="form-group">
+                            <label class="form-label">Building</label>
+                            <input type="text" class="form-input disabled-input" value="Current building" id="building" disabled>
+                        </div>
+
+                        <!-- Floor -->
+                        <div class="form-group">
+                            <label class="form-label">Floor</label>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="floor">
+                                    <option value="">e.g. 14</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+
+                        <!-- Suite -->
+                        <div class="form-group">
+                            <label class="form-label">Suite</label>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="suite">
+                                    <option value="">e.g. #1004</option>
+                                    <option value="1001">#1001</option>
+                                    <option value="1002">#1002</option>
+                                    <option value="1003">#1003</option>
+                                    <option value="1004">#1004</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+
+                        <button type="button" class="continue-btn" id="continueStep3">Continue to step 3</button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Visit date and time -->
+                <div class="modal-step" id="step3">
+                    <h2 class="modal-title">Visit date and time</h2>
+
+                    <form id="step3Form">
+                        <!-- Visit date -->
+                        <div class="form-group">
+                            <label class="form-label">Visit date <span class="required">*</span></label>
+                            <div class="date-input-wrapper date-display-wrapper">
+                                <span class="date-display" id="dateDisplay">October 27, 2025</span>
+                                <input type="date" class="form-input" id="visitDate">
+                                <span class="calendar-icon">📅</span>
+                            </div>
+                        </div>
+
+                        <!-- Recurring visit -->
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" class="form-checkbox" id="recurringCheckbox">
+                                <span>Recurring visit</span>
+                            </label>
+                        </div>
+
+                        <!-- Recurring frequency (hidden by default) -->
+                        <div class="form-group" id="recurringFrequency" style="display: none;">
+                            <label class="form-label">Frequency</label>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="frequency">
+                                    <option value="">Select frequency</option>
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="biweekly">Every 2 weeks</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+
+                        <!-- End date for recurring (hidden by default) -->
+                        <div class="form-group" id="recurringEndDate" style="display: none;">
+                            <label class="form-label">Repeat until</label>
+                            <div class="date-input-wrapper date-display-wrapper">
+                                <span class="date-display" id="endDateDisplay">Select end date</span>
+                                <input type="date" class="form-input" id="recurringEnd">
+                                <span class="calendar-icon">📅</span>
+                            </div>
+                        </div>
+
+                        <!-- Start time -->
+                        <div class="form-group">
+                            <label class="form-label">Start time</label>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="startTime">
+                                    <option value="">Select start time</option>
+                                    <option value="08:00">8:00 AM</option>
+                                    <option value="09:00">9:00 AM</option>
+                                    <option value="10:00">10:00 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="12:00">12:00 PM</option>
+                                    <option value="13:00">1:00 PM</option>
+                                    <option value="14:00">2:00 PM</option>
+                                    <option value="15:00">3:00 PM</option>
+                                    <option value="16:00">4:00 PM</option>
+                                    <option value="17:00">5:00 PM</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+
+                        <!-- End time -->
+                        <div class="form-group">
+                            <label class="form-label">End time</label>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="endTime">
+                                    <option value="">Select end time</option>
+                                    <option value="09:00">9:00 AM</option>
+                                    <option value="10:00">10:00 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="12:00">12:00 PM</option>
+                                    <option value="13:00">1:00 PM</option>
+                                    <option value="14:00">2:00 PM</option>
+                                    <option value="15:00">3:00 PM</option>
+                                    <option value="16:00">4:00 PM</option>
+                                    <option value="17:00">5:00 PM</option>
+                                    <option value="18:00">6:00 PM</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+
+                        <!-- Number of Entries -->
+                        <div class="form-group">
+                            <label class="form-label">Number of Entries <span class="required">*</span></label>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="numEntries">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="continue-btn">Submit Visitor Request</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmationModal">
+        <div class="modal confirmation-modal">
+            <button class="modal-close" id="closeConfirmation">×</button>
+            
+            <div class="confirmation-content">
+                <div class="confirmation-left">
+                    <div class="confirmation-header">
+                        <div class="check-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 6L9 17L4 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h2>Visit confirmed</h2>
+                    </div>
+                    <p class="confirmation-text">Your visitor registration is confirmed for <span id="confirmDate"></span>.</p>
+                </div>
+                
+                <div class="confirmation-right">
+                    <h3>Visit details</h3>
+                    
+                    <div class="detail-group">
+                        <div class="detail-header">
+                            <span class="detail-icon">📅</span>
+                            <span id="detailDate"></span>
+                            <button class="edit-icon">✎</button>
+                        </div>
+                        <p class="detail-subtext" id="detailTime">All day visit</p>
+                        <a href="#" class="cancel-link">Cancel visit</a>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-header">
+                            <span class="detail-label">Visitor name(s)</span>
+                            <button class="edit-icon">✎</button>
+                        </div>
+                        <p class="detail-value" id="visitorNameDisplay"></p>
+                    </div>
+                    
+                    <button class="back-btn" id="backToVisits">Back to visits</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
+

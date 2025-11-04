@@ -1,0 +1,152 @@
+import { useState } from "react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { ChevronLeft } from "lucide-react"
+import { Step0DateSelect } from "./modal-steps/Step0DateSelect"
+import { Step1VisitorInfo } from "./modal-steps/Step1VisitorInfo"
+import { Step2WhoHosting } from "./modal-steps/Step2WhoHosting"
+import { Step3DateTime } from "./modal-steps/Step3DateTime"
+
+export function VisitorModal({ open, onOpenChange, onSubmit }) {
+  const [currentStep, setCurrentStep] = useState(0)
+  const [formData, setFormData] = useState({
+    visitors: [{ email: '', firstName: '', lastName: '', phone: '' }],
+    checkIn: 'bypass',
+    visitorNote: '',
+    hostType: '',
+    hostName: '',
+    floor: '',
+    suite: '',
+    visitDate: new Date().toISOString().split('T')[0],
+    recurring: false,
+    frequency: '',
+    recurringEnd: '',
+    startTime: '',
+    endTime: '',
+    numEntries: '1'
+  })
+
+  const handleNext = (stepData) => {
+    setFormData(prev => ({ ...prev, ...stepData }))
+    setCurrentStep(prev => prev + 1)
+  }
+
+  const handleBack = () => {
+    setCurrentStep(prev => Math.max(0, prev - 1))
+  }
+
+  const handleFinalSubmit = (stepData) => {
+    const finalData = { ...formData, ...stepData }
+    onSubmit(finalData)
+    // Reset form
+    setCurrentStep(0)
+    setFormData({
+      visitors: [{ email: '', firstName: '', lastName: '', phone: '' }],
+      checkIn: 'bypass',
+      visitorNote: '',
+      hostType: '',
+      hostName: '',
+      floor: '',
+      suite: '',
+      visitDate: new Date().toISOString().split('T')[0],
+      recurring: false,
+      frequency: '',
+      recurringEnd: '',
+      startTime: '',
+      endTime: '',
+      numEntries: '1'
+    })
+  }
+
+  const handleClose = () => {
+    onOpenChange(false)
+    // Reset after close animation
+    setTimeout(() => {
+      setCurrentStep(0)
+      setFormData({
+        visitors: [{ email: '', firstName: '', lastName: '', phone: '' }],
+        checkIn: 'bypass',
+        visitorNote: '',
+        hostType: '',
+        hostName: '',
+        floor: '',
+        suite: '',
+        visitDate: new Date().toISOString().split('T')[0],
+        recurring: false,
+        frequency: '',
+        recurringEnd: '',
+        startTime: '',
+        endTime: '',
+        numEntries: '1'
+      })
+    }, 300)
+  }
+
+  const totalSteps = 4
+  const progress = (currentStep / totalSteps) * 100
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[90vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
+        {currentStep > 0 && (
+          <DialogHeader>
+            <div className="flex items-center gap-4 mb-4">
+              {currentStep > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBack}
+                  data-testid="modal-back"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Back
+                </Button>
+              )}
+              <div className="flex-1">
+                <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                    data-testid="progress-bar"
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground mt-2" data-testid="step-text">
+                  Step {currentStep} of {totalSteps}
+                </p>
+              </div>
+            </div>
+          </DialogHeader>
+        )}
+
+        {currentStep === 0 && (
+          <Step0DateSelect
+            data={formData}
+            onNext={handleNext}
+          />
+        )}
+
+        {currentStep === 1 && (
+          <Step1VisitorInfo
+            data={formData}
+            onNext={handleNext}
+          />
+        )}
+
+        {currentStep === 2 && (
+          <Step2WhoHosting
+            data={formData}
+            onNext={handleNext}
+          />
+        )}
+
+        {currentStep === 3 && (
+          <Step3DateTime
+            data={formData}
+            onSubmit={handleFinalSubmit}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
