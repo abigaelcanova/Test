@@ -1,18 +1,25 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Calendar as CalendarIcon } from "lucide-react"
 
 export function Step0DateSelect({ data, onNext }) {
   const [visitDate, setVisitDate] = useState(data.visitDate)
+  const [recurring, setRecurring] = useState(data.recurring)
+  const [frequency, setFrequency] = useState(data.frequency)
+  const [recurringEnd, setRecurringEnd] = useState(data.recurringEnd)
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!visitDate) {
-      alert('Please select a date from the calendar')
-      return
-    }
-    onNext({ visitDate })
+    onNext({ 
+      visitDate,
+      recurring,
+      frequency: recurring ? frequency : '',
+      recurringEnd: recurring ? recurringEnd : ''
+    })
   }
 
   const formatDisplayDate = (dateStr) => {
@@ -58,10 +65,54 @@ export function Step0DateSelect({ data, onNext }) {
           </div>
         )}
 
+        {/* Recurring Visit Options */}
+        <div className="border-t pt-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="recurring"
+              checked={recurring}
+              onChange={(e) => setRecurring(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300"
+            />
+            <Label htmlFor="recurring" className="cursor-pointer font-medium">
+              Recurring visit
+            </Label>
+          </div>
+
+          {recurring && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="frequency">Frequency</Label>
+                <Select value={frequency} onValueChange={setFrequency}>
+                  <SelectTrigger id="frequency">
+                    <SelectValue placeholder="Select frequency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="biweekly">Every 2 weeks</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="recurringEnd">Repeat until</Label>
+                <Input
+                  id="recurringEnd"
+                  type="date"
+                  value={recurringEnd}
+                  onChange={(e) => setRecurringEnd(e.target.value)}
+                />
+              </div>
+            </>
+          )}
+        </div>
+
         <Button 
           type="submit" 
           className="w-full h-12 text-base"
-          disabled={!visitDate}
         >
           Continue
         </Button>

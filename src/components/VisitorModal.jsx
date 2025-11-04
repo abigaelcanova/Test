@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft } from "lucide-react"
 import { Step0DateSelect } from "./modal-steps/Step0DateSelect"
 import { Step1VisitorInfo } from "./modal-steps/Step1VisitorInfo"
+import { Step1bCheckIn } from "./modal-steps/Step1bCheckIn"
 import { Step2WhoHosting } from "./modal-steps/Step2WhoHosting"
 import { Step3DateTime } from "./modal-steps/Step3DateTime"
 
@@ -82,7 +83,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit }) {
     }, 300)
   }
 
-  const totalSteps = 4
+  const totalSteps = 5
   const progress = (currentStep / totalSteps) * 100
 
   return (
@@ -90,7 +91,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit }) {
       <DialogContent className="sm:max-w-[90vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
         {currentStep > 0 && (
           <DialogHeader>
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-4 mb-4 pr-8">
               {currentStep > 0 && (
                 <Button
                   variant="ghost"
@@ -111,7 +112,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit }) {
                   />
                 </div>
                 <p className="text-sm text-muted-foreground mt-2" data-testid="step-text">
-                  Step {currentStep} of {totalSteps}
+                  Step {currentStep + 1} of {totalSteps}
                 </p>
               </div>
             </div>
@@ -126,21 +127,28 @@ export function VisitorModal({ open, onOpenChange, onSubmit }) {
         )}
 
         {currentStep === 1 && (
-          <Step1VisitorInfo
+          <Step3DateTime
             data={formData}
             onNext={handleNext}
           />
         )}
 
         {currentStep === 2 && (
-          <Step2WhoHosting
+          <Step1VisitorInfo
             data={formData}
             onNext={handleNext}
           />
         )}
 
         {currentStep === 3 && (
-          <Step3DateTime
+          <Step1bCheckIn
+            data={formData}
+            onNext={handleNext}
+          />
+        )}
+
+        {currentStep === 4 && (
+          <Step2WhoHosting
             data={formData}
             onSubmit={handleFinalSubmit}
           />

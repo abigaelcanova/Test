@@ -2,14 +2,10 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { X } from "lucide-react"
 
 export function Step1VisitorInfo({ data, onNext }) {
   const [visitors, setVisitors] = useState(data.visitors)
-  const [checkIn, setCheckIn] = useState(data.checkIn)
-  const [visitorNote, setVisitorNote] = useState(data.visitorNote)
 
   const addVisitor = () => {
     setVisitors([...visitors, { email: '', firstName: '', lastName: '', phone: '' }])
@@ -29,13 +25,7 @@ export function Step1VisitorInfo({ data, onNext }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Validate required fields
-    const hasValidVisitor = visitors.some(v => v.firstName && v.lastName)
-    if (!hasValidVisitor) {
-      alert('Please fill in at least one visitor\'s first and last name')
-      return
-    }
-    onNext({ visitors, checkIn, visitorNote })
+    onNext({ visitors })
   }
 
   return (
@@ -60,7 +50,9 @@ export function Step1VisitorInfo({ data, onNext }) {
               </Button>
             )}
             
-            <h3 className="font-medium">Visitor {index + 1}</h3>
+            {visitors.length > 1 && (
+              <h3 className="font-medium">Visitor {index + 1}</h3>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor={`email-${index}`}>Visitor's email</Label>
@@ -84,7 +76,6 @@ export function Step1VisitorInfo({ data, onNext }) {
                   placeholder="e.g. John"
                   value={visitor.firstName}
                   onChange={(e) => updateVisitor(index, 'firstName', e.target.value)}
-                  required
                   className="visitor-firstname"
                 />
               </div>
@@ -98,7 +89,6 @@ export function Step1VisitorInfo({ data, onNext }) {
                   placeholder="e.g. Smith"
                   value={visitor.lastName}
                   onChange={(e) => updateVisitor(index, 'lastName', e.target.value)}
-                  required
                   className="visitor-lastname"
                 />
               </div>
@@ -134,32 +124,7 @@ export function Step1VisitorInfo({ data, onNext }) {
         + Add another visitor
       </Button>
 
-      <div className="space-y-2">
-        <Label htmlFor="checkIn">
-          Check-in <span className="text-destructive">*</span>
-        </Label>
-        <Select value={checkIn} onValueChange={setCheckIn}>
-          <SelectTrigger id="checkIn">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="desk">Stop at desk</SelectItem>
-            <SelectItem value="bypass">Bypass desk</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="visitorNote">Note for visitor</Label>
-        <Textarea
-          id="visitorNote"
-          placeholder="e.g. Go to security desk"
-          value={visitorNote}
-          onChange={(e) => setVisitorNote(e.target.value)}
-        />
-      </div>
-
-        <Button type="submit" className="w-full">Continue</Button>
+      <Button type="submit" className="w-full">Continue</Button>
     </form>
   )
 }

@@ -1,29 +1,27 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import { formatDate } from "@/lib/utils"
 
-export function Step3DateTime({ data, onSubmit }) {
-  const [recurring, setRecurring] = useState(data.recurring)
-  const [frequency, setFrequency] = useState(data.frequency)
-  const [recurringEnd, setRecurringEnd] = useState(data.recurringEnd)
+export function Step3DateTime({ data, onNext, onSubmit }) {
   const [startTime, setStartTime] = useState(data.startTime)
   const [endTime, setEndTime] = useState(data.endTime)
   const [numEntries, setNumEntries] = useState(data.numEntries)
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit({
-      recurring,
-      frequency: recurring ? frequency : '',
-      recurringEnd: recurring ? recurringEnd : '',
+    const stepData = {
       startTime,
       endTime,
       numEntries
-    })
+    }
+    
+    if (onNext) {
+      onNext(stepData)
+    } else if (onSubmit) {
+      onSubmit(stepData)
+    }
   }
 
   return (
@@ -32,52 +30,9 @@ export function Step3DateTime({ data, onSubmit }) {
         <h2 className="text-xl font-semibold">Visit time details</h2>
         <p className="text-sm text-gray-600 mt-1">
           Visit scheduled for <span className="font-medium text-gray-900">{formatDate(data.visitDate)}</span>
+          {data.recurring && <span className="ml-1">({data.frequency})</span>}
         </p>
       </div>
-
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="recurring"
-          checked={recurring}
-          onChange={(e) => setRecurring(e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300"
-        />
-        <Label htmlFor="recurring" className="cursor-pointer">
-          Recurring visit
-        </Label>
-      </div>
-
-      {recurring && (
-        <>
-          <div className="space-y-2">
-            <Label htmlFor="frequency">Frequency</Label>
-            <Select value={frequency} onValueChange={setFrequency}>
-              <SelectTrigger id="frequency">
-                <SelectValue placeholder="Select frequency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="daily">Daily</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="biweekly">Every 2 weeks</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="recurringEnd">Repeat until</Label>
-            <Input
-              id="recurringEnd"
-              type="date"
-              value={recurringEnd}
-              onChange={(e) => setRecurringEnd(e.target.value)}
-            />
-          </div>
-        </>
-      )}
-
-      <Separator />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -142,7 +97,7 @@ export function Step3DateTime({ data, onSubmit }) {
       </div>
 
       <Button type="submit" className="w-full">
-        Submit Visitor Request
+        Continue
       </Button>
     </form>
   )

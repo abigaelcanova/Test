@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-export function Step2WhoHosting({ data, onNext }) {
+export function Step2WhoHosting({ data, onNext, onSubmit }) {
   const [hostType, setHostType] = useState(data.hostType)
   const [hostName, setHostName] = useState(data.hostName)
   const [floor, setFloor] = useState(data.floor)
@@ -12,54 +12,64 @@ export function Step2WhoHosting({ data, onNext }) {
 
   const handleHostTypeSelect = (type) => {
     setHostType(type)
-    if (type === 'me') {
-      // Auto-proceed for "I am" option
-      setTimeout(() => {
-        onNext({ hostType: 'me', hostName: 'Current User' })
-      }, 300)
+  }
+
+  const handleContinueAsMe = () => {
+    const stepData = { hostType: 'me', hostName: 'Current User' }
+    if (onSubmit) {
+      onSubmit(stepData)
+    } else if (onNext) {
+      onNext(stepData)
     }
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onNext({ hostType, hostName, floor, suite })
-  }
-
-  if (!hostType) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-xl font-semibold">Who is hosting?</h2>
-          <p className="text-sm text-gray-600 mt-1">Select the host for this visit</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Button
-            variant="outline"
-            className="h-20 text-base"
-            onClick={() => handleHostTypeSelect('me')}
-            data-testid="host-me"
-          >
-            I am
-          </Button>
-          <Button
-            variant="outline"
-            className="h-20 text-base"
-            onClick={() => handleHostTypeSelect('someone')}
-            data-testid="host-someone"
-          >
-            Someone else
-          </Button>
-        </div>
-      </div>
-    )
+    const stepData = { hostType, hostName, floor, suite }
+    if (onSubmit) {
+      onSubmit(stepData)
+    } else if (onNext) {
+      onNext(stepData)
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold">Host details</h2>
-        <p className="text-sm text-gray-600 mt-1">Provide information about the host</p>
+        <h2 className="text-xl font-semibold">Who is hosting?</h2>
+        <p className="text-sm text-gray-600 mt-1">Select the host for this visit</p>
       </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Button
+          variant={hostType === 'me' ? 'default' : 'outline'}
+          className="h-20 text-base"
+          onClick={() => handleHostTypeSelect('me')}
+          data-testid="host-me"
+        >
+          I am
+        </Button>
+        <Button
+          variant={hostType === 'someone' ? 'default' : 'outline'}
+          className="h-20 text-base"
+          onClick={() => handleHostTypeSelect('someone')}
+          data-testid="host-someone"
+        >
+          Someone else
+        </Button>
+      </div>
+
+      {hostType === 'me' && (
+        <Button onClick={handleContinueAsMe} className="w-full">
+          Continue
+        </Button>
+      )}
+
+      {hostType === 'someone' && (
+        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Host details</h3>
+          </div>
 
       <div className="space-y-2">
         <Label htmlFor="hostName">Host name</Label>
@@ -114,8 +124,10 @@ export function Step2WhoHosting({ data, onNext }) {
         </div>
       </div>
 
-      <Button type="submit" className="w-full">Continue</Button>
-    </form>
+          <Button type="submit" className="w-full">Continue</Button>
+        </form>
+      )}
+    </div>
   )
 }
 
