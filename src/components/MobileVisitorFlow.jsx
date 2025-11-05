@@ -492,8 +492,6 @@ function WhereSection({ open, onClose, formData, setFormData, activeSection, set
           </div>
         </div>
 
-        <SectionNavigation activeSection={activeSection} setActiveSection={setActiveSection} formData={formData} />
-
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
           <Button onClick={handleSave} className="w-full h-14 text-lg rounded-xl">
             Save
@@ -620,8 +618,6 @@ function HostSection({ open, onClose, formData, setFormData, activeSection, setA
           )}
         </div>
 
-        <SectionNavigation activeSection={activeSection} setActiveSection={setActiveSection} formData={formData} />
-
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
           <Button onClick={handleSave} className="w-full h-14 text-lg rounded-xl">
             Save
@@ -673,8 +669,6 @@ function CheckInSection({ open, onClose, formData, setFormData, activeSection, s
             </p>
           </button>
         </div>
-
-        <SectionNavigation activeSection={activeSection} setActiveSection={setActiveSection} formData={formData} />
 
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
           <Button onClick={handleSave} className="w-full h-14 text-lg rounded-xl">
