@@ -29,8 +29,7 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col h-full">
-      <div className="space-y-6 flex-1">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-xl font-semibold">Visitor information</h2>
@@ -163,18 +162,6 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
       >
         + Add another visitor
       </Button>
-      </div>
-
-      <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-4 -mx-6 px-6 -mb-24 pb-6 z-10">
-        <div className="flex gap-3">
-          {onBack && (
-            <Button type="button" variant="outline" onClick={onBack} className="flex-1">
-              Back
-            </Button>
-          )}
-          <Button type="submit" className="flex-1">Continue</Button>
-        </div>
-      </div>
     </form>
   )
 }

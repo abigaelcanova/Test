@@ -139,8 +139,8 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[90vw] md:max-w-2xl max-h-[90vh] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-0">
+      <DialogContent className="sm:max-w-[90vw] md:max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
+        <DialogHeader className="flex-shrink-0 px-6 pt-6">
           {/* Step Navigation */}
           <div className="flex items-center justify-center gap-2 mb-6">
             {stepLabels.map((label, index) => (
@@ -176,7 +176,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
         </DialogHeader>
 
         <div 
-          className={`relative transition-opacity duration-150 ease-in-out min-h-[500px] overflow-y-auto px-6 pb-24 ${
+          className={`relative transition-opacity duration-150 ease-in-out overflow-y-auto flex-1 px-6 pb-6 ${
             isTransitioning ? 'opacity-0' : 'opacity-100'
           }`}
         >
@@ -237,6 +237,47 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
               />
             </div>
           )}
+        </div>
+
+        {/* Sticky Footer for Buttons */}
+        <div className="flex-shrink-0 border-t bg-white px-6 py-4">
+          <div className="flex gap-3">
+            {currentStep > 0 && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleBack} 
+                className="flex-1"
+                disabled={isTransitioning}
+              >
+                Back
+              </Button>
+            )}
+            {currentStep < 3 ? (
+              <Button 
+                onClick={() => {
+                  // Trigger form submission in the active step
+                  const form = document.querySelector('form');
+                  if (form) form.requestSubmit();
+                }}
+                className="flex-1"
+                disabled={isTransitioning}
+              >
+                Continue
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => {
+                  const form = document.querySelector('form');
+                  if (form) form.requestSubmit();
+                }}
+                className="flex-1"
+                disabled={isTransitioning}
+              >
+                Add visit
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

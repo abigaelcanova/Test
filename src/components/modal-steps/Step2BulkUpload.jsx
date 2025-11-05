@@ -151,8 +151,7 @@ export function Step2BulkUpload({ data, onNext, onSkip, onBack }) {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="space-y-6 flex-1">
+    <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Bulk add visitors</h2>
         <p className="text-sm text-gray-600 mt-1">
@@ -252,37 +251,6 @@ export function Step2BulkUpload({ data, onNext, onSkip, onBack }) {
           </div>
         </div>
       )}
-      </div>
-
-      <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-4 -mx-6 px-6 -mb-24 pb-6 z-10">
-        <div className="flex gap-3">
-          {onBack && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onBack}
-              className="flex-1"
-            >
-              Back
-            </Button>
-          )}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleSkip}
-            className="flex-1"
-          >
-            Skip bulk upload
-          </Button>
-          <Button
-            onClick={handleContinue}
-            disabled={uploadedVisitors.length === 0 || isProcessing}
-            className="flex-1"
-          >
-            {isProcessing ? 'Processing...' : `Continue with ${uploadedVisitors.length} visitor${uploadedVisitors.length !== 1 ? 's' : ''}`}
-          </Button>
-        </div>
-      </div>
     </div>
   )
 }
