@@ -165,7 +165,7 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
       </Button>
       </div>
 
-      <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-4 -mx-6 px-6 -mb-24 pb-6">
+      <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-4 -mx-6 px-6 -mb-24 pb-6 z-10">
         <div className="flex gap-3">
           {onBack && (
             <Button type="button" variant="outline" onClick={onBack} className="flex-1">

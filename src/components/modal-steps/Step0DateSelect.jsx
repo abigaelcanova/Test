@@ -262,8 +262,9 @@ export function Step0DateSelect({ data, onNext }) {
             </div>
           )}
         </div>
+        </div>
 
-        <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-4 -mx-6 px-6 -mb-24 pb-6">
+        <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-4 -mx-6 px-6 -mb-24 pb-6 z-10">
           <div className="max-w-md mx-auto">
             <Button 
               type="submit" 
