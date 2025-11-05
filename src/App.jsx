@@ -411,7 +411,7 @@ function App() {
       <div className="md:hidden sticky top-0 z-10 bg-white border-b shadow-sm">
         <div className="px-4 py-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-800">Visitor Management</h1>
+            <h1 className="text-2xl font-semibold" style={{ color: '#2D3338' }}>Visitor Management</h1>
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -534,7 +534,7 @@ function App() {
         <div className="bg-white border-b">
           <div className="max-w-[1600px] mx-auto px-12 pt-12 pb-0">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold text-gray-800">Visitor Management</h1>
+              <h1 className="text-2xl font-semibold" style={{ color: '#2D3338' }}>Visitor Management</h1>
               <Button onClick={() => setIsModalOpen(true)} data-testid="add-visitor-desktop" className="shadow-sm">
                 Create visit
               </Button>
@@ -563,6 +563,43 @@ function App() {
         </div>
 
         <div className="max-w-[1600px] mx-auto px-12 py-12">
+          {/* Title with Pagination and Export */}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold" style={{ color: '#2D3338' }}>Visits</h2>
+            
+            {totalPages > 0 && (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-700">
+                    {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalFilteredItems)} of {totalFilteredItems}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="h-8 w-8"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="h-8 w-8"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </div>
+            )}
+          </div>
+
           {/* Filters Bar */}
           <div className="mb-6">
             <div className="flex items-center gap-4">
@@ -651,41 +688,6 @@ function App() {
               </div>
             </div>
           </div>
-
-          {/* Pagination Controls - Top */}
-          {totalPages > 0 && (
-            <div className="flex items-center justify-end mb-4">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-700">
-                    {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalFilteredItems)} of {totalFilteredItems}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="h-8 w-8"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="h-8 w-8"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </div>
-            </div>
-          )}
 
           <div className="min-h-[600px]">
 
