@@ -32,7 +32,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
     visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
     checkIn: 'bypass',
     visitorNote: '',
-    hostType: '',
+    hostType: 'me',
     hostName: '',
     floor: '1',
     suite: '1001',
@@ -71,7 +71,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
       visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
       checkIn: 'bypass',
       visitorNote: '',
-      hostType: '',
+      hostType: 'me',
       hostName: '',
       floor: '1',
       suite: '1001',
@@ -100,7 +100,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
         visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
         checkIn: 'bypass',
         visitorNote: '',
-        hostType: '',
+        hostType: 'me',
         hostName: '',
         floor: '1',
         suite: '1001',
@@ -123,7 +123,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
   const totalSteps = 4
   const [showBulkUpload, setShowBulkUpload] = useState(false)
 
-  const stepLabels = ['When', 'Host', 'Visitors', 'Check-in']
+  const stepLabels = ['When', 'Host', 'Visitors', 'Access']
 
   const handleStepChange = (newStep) => {
     if (newStep === currentStep || isTransitioning) return
@@ -176,7 +176,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
         </DialogHeader>
 
         <div 
-          className={`relative transition-opacity duration-150 ease-in-out ${
+          className={`relative transition-opacity duration-150 ease-in-out min-h-[500px] ${
             isTransitioning ? 'opacity-0' : 'opacity-100'
           }`}
         >

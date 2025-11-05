@@ -38,7 +38,7 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
     endTime: defaultTimes.endTime,
     visitors: [{ firstName: '', lastName: '', email: '', phone: '', company: '', visitSummary: '' }],
     checkIn: 'bypass',
-    hostType: '',
+    hostType: 'me',
     hostName: '',
     floor: '1',
     suite: '1001',
@@ -170,7 +170,7 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
               </div>
             </button>
 
-            {/* Check-in Section */}
+            {/* Access Section */}
             <button
               onClick={() => setActiveSection('checkin')}
               className="w-full bg-white border border-gray-200 rounded-2xl p-6 text-left hover:border-gray-900 transition-colors"
@@ -179,7 +179,7 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
                     <CheckSquare className="h-5 w-5 text-gray-600" />
-                    <span className="font-semibold text-lg">Check-in</span>
+                    <span className="font-semibold text-lg">Access</span>
                   </div>
                   <p className="text-gray-600 ml-8">{getSectionSummary('checkin')}</p>
                 </div>
