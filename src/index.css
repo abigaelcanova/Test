@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,25 +7,25 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 210 10% 18%; /* #2D3338 - Primary text color */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 210 10% 18%; /* #2D3338 */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
+    --popover-foreground: 210 10% 18%; /* #2D3338 */
+    --primary: 220 97% 48%; /* #044AEF - Primary color */
+    --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 10% 18%; /* #2D3338 */
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 210 9% 43%; /* #696E72 - Secondary text color */
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --ring: 220 97% 48%; /* #044AEF */
+    --radius: 1rem; /* rounded-2xl */
   }
 
   .dark {
@@ -55,6 +57,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: 14px; /* Body text size as per design specs */
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 18px; /* Header text size as per design specs */
+    font-weight: 400; /* Regular weight */
   }
 }
 

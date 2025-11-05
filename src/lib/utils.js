@@ -10,9 +10,10 @@ export function formatDate(date) {
   const [year, month, day] = date.split('-').map(Number)
   // Create date in local timezone (month is 0-indexed)
   const dateObj = new Date(year, month - 1, day)
+  // Format as MM/DD/YYYY per design specs
   return dateObj.toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
     year: 'numeric'
   })
 }

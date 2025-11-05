@@ -368,7 +368,7 @@ function App() {
       <div className="md:hidden sticky top-0 z-10 bg-white border-b shadow-sm">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Visitor Management</h1>
+            <h1 className="text-2xl font-normal text-gray-900">Visitor Management</h1>
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -388,9 +388,9 @@ function App() {
       <div className="hidden md:block">
         {/* Desktop Header */}
         <div className="bg-white border-b">
-          <div className="max-w-[1600px] mx-auto px-12 py-12">
+          <div className="max-w-[1600px] mx-auto px-12 pt-12 pb-0">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold text-gray-900">Visitor Management</h1>
+              <h1 className="text-3xl font-normal text-gray-900">Visitor Management</h1>
               <Button onClick={() => setIsModalOpen(true)} data-testid="add-visitor-desktop" className="shadow-sm">
                 Create visit
               </Button>
@@ -402,14 +402,14 @@ function App() {
                 <TabsTrigger 
                   value="upcoming" 
                   data-testid="tab-upcoming"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-0 text-base"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary px-4 pb-3 pt-0 text-base text-gray-600"
                 >
                   Upcoming
                 </TabsTrigger>
                 <TabsTrigger 
                   value="past" 
                   data-testid="tab-past"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-0 text-base"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary px-4 pb-3 pt-0 text-base text-gray-600"
                 >
                   Past
                 </TabsTrigger>
@@ -420,7 +420,7 @@ function App() {
 
         <div className="max-w-[1600px] mx-auto px-12 py-12">
           {/* Filters Bar */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+          <div className="mb-6">
             <div className="flex items-center gap-4">
               {/* Search Input */}
               <div className="flex-1 relative">

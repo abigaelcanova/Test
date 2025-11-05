@@ -15,16 +15,29 @@ export function VisitorCard({ visit, onEdit, onCancel }) {
     return variants[status] || 'default'
   }
 
+  const getStatusDotColor = (status) => {
+    const colors = {
+      'expected': 'text-purple-600',
+      'checked-in': 'text-teal-600',
+      'checked-out': 'text-blue-600',
+      'cancelled': 'text-gray-600'
+    }
+    return colors[status] || 'text-blue-600'
+  }
+
   return (
     <Card className="hover:shadow-md transition-all border-gray-200" data-testid="visitor-card">
       <CardContent className="p-5">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg mb-2 text-gray-900" data-testid="visitor-name">
-              {visit.visitorName}
+            <h3 className="font-semibold text-lg mb-2" data-testid="visitor-name">
+              <button className="text-primary hover:text-primary/80 hover:underline text-left">
+                {visit.visitorName}
+              </button>
             </h3>
             <Badge variant={getStatusVariant(visit.status)} data-testid="visitor-status">
-              {visit.status}
+              <span className={`mr-1.5 text-[8px] ${getStatusDotColor(visit.status)}`}>●</span> 
+              {visit.status.charAt(0).toUpperCase() + visit.status.slice(1).replace('-', ' ')}
             </Badge>
           </div>
           {visit.status !== 'cancelled' && (onEdit || onCancel) && (
@@ -74,7 +87,9 @@ export function VisitorCard({ visit, onEdit, onCancel }) {
           {visit.host && (
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-gray-400" />
-              <span data-testid="visitor-host">{visit.host}</span>
+              <button className="text-primary hover:text-primary/80 hover:underline text-left" data-testid="visitor-host">
+                {visit.host}
+              </button>
             </div>
           )}
           

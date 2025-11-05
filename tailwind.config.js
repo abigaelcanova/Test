@@ -23,6 +23,7 @@ export default {
     extend: {
       fontFamily: {
         sans: [
+          'Roboto',
           '-apple-system',
           'BlinkMacSystemFont',
           '"Segoe UI"',
