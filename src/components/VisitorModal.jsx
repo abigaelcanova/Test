@@ -1,15 +1,33 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft } from "lucide-react"
 import { Step0DateSelect } from "./modal-steps/Step0DateSelect"
 import { Step1VisitorInfo } from "./modal-steps/Step1VisitorInfo"
 import { Step1bCheckIn } from "./modal-steps/Step1bCheckIn"
 import { Step2BulkUpload } from "./modal-steps/Step2BulkUpload"
 import { Step3DateTime } from "./modal-steps/Step3DateTime"
 
+// Helper function to get default times (next hour, 1 hour duration)
+const getDefaultTimes = () => {
+  const now = new Date()
+  const nextHour = new Date(now)
+  nextHour.setHours(now.getHours() + 1)
+  nextHour.setMinutes(0)
+  nextHour.setSeconds(0)
+  
+  const endTime = new Date(nextHour)
+  endTime.setHours(nextHour.getHours() + 1)
+  
+  const startTime = nextHour.toTimeString().slice(0, 5) // HH:MM format
+  const endTimeStr = endTime.toTimeString().slice(0, 5) // HH:MM format
+  
+  return { startTime, endTime: endTimeStr }
+}
+
 export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
   const [currentStep, setCurrentStep] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const defaultTimes = getDefaultTimes()
   const [formData, setFormData] = useState({
     visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
     checkIn: 'bypass',
@@ -24,8 +42,8 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
     recurring: false,
     frequency: '',
     recurringEnd: '',
-    startTime: '',
-    endTime: '',
+    startTime: defaultTimes.startTime,
+    endTime: defaultTimes.endTime,
     numEntries: '1',
     receiveCopyInvitation: true,
     receiveCheckInNotifications: true,
@@ -38,13 +56,16 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
   }
 
   const handleBack = () => {
-    setCurrentStep(prev => Math.max(0, prev - 1))
+    if (currentStep > 0 && !isTransitioning) {
+      handleStepChange(currentStep - 1)
+    }
   }
 
   const handleFinalSubmit = (stepData) => {
     const finalData = { ...formData, ...stepData }
     onSubmit(finalData)
-    // Reset form
+    // Reset form with fresh default times
+    const resetTimes = getDefaultTimes()
     setCurrentStep(0)
     setFormData({
       visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
@@ -60,8 +81,8 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
       recurring: false,
       frequency: '',
       recurringEnd: '',
-      startTime: '',
-      endTime: '',
+      startTime: resetTimes.startTime,
+      endTime: resetTimes.endTime,
       numEntries: '1',
       receiveCopyInvitation: true,
       receiveCheckInNotifications: true,
@@ -71,8 +92,9 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
 
   const handleClose = () => {
     onOpenChange(false)
-    // Reset after close animation
+    // Reset after close animation with fresh default times
     setTimeout(() => {
+      const resetTimes = getDefaultTimes()
       setCurrentStep(0)
       setFormData({
         visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
@@ -88,8 +110,8 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
         recurring: false,
         frequency: '',
         recurringEnd: '',
-        startTime: '',
-        endTime: '',
+        startTime: resetTimes.startTime,
+        endTime: resetTimes.endTime,
         numEntries: '1',
         receiveCopyInvitation: true,
         receiveCheckInNotifications: true,
@@ -99,99 +121,123 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
   }
 
   const totalSteps = 4
-  const progress = (currentStep / totalSteps) * 100
   const [showBulkUpload, setShowBulkUpload] = useState(false)
+
+  const stepLabels = ['When', 'Host', 'Visitors', 'Check-in']
+
+  const handleStepChange = (newStep) => {
+    if (newStep === currentStep || isTransitioning) return
+    
+    setIsTransitioning(true)
+    setTimeout(() => {
+      setCurrentStep(newStep)
+      setTimeout(() => {
+        setIsTransitioning(false)
+      }, 30)
+    }, 150)
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[90vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
-        {currentStep > 0 && (
-          <DialogHeader>
-            <div className="flex items-center gap-4 mb-4 pr-8">
-              {currentStep > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleBack}
-                  data-testid="modal-back"
+        <DialogHeader>
+          {/* Step Navigation */}
+          <div className="flex items-center justify-center gap-2 mb-6">
+            {stepLabels.map((label, index) => (
+              <div key={index} className="flex items-center">
+                <button
+                  onClick={() => handleStepChange(index)}
+                  disabled={isTransitioning}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
+                    index === currentStep
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted hover:bg-muted/80'
+                  } ${isTransitioning ? 'opacity-50 pointer-events-none' : ''}`}
                 >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Back
-                </Button>
-              )}
-              <div className="flex-1">
-                <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary transition-all duration-300"
-                    style={{ width: `${progress}%` }}
-                    data-testid="progress-bar"
-                  />
-                </div>
-                <p className="text-sm text-muted-foreground mt-2" data-testid="step-text">
-                  Step {currentStep + 1} of {totalSteps}
-                </p>
+                  <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium transition-all duration-200 ${
+                    index === currentStep
+                      ? 'bg-primary-foreground text-primary'
+                      : index < currentStep
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted-foreground/20 text-muted-foreground'
+                  }`}>
+                    {index + 1}
+                  </span>
+                  <span className="text-sm font-medium">{label}</span>
+                </button>
+                {index < stepLabels.length - 1 && (
+                  <div className={`w-8 h-0.5 mx-1 transition-all duration-300 ${
+                    index < currentStep ? 'bg-primary' : 'bg-muted'
+                  }`} />
+                )}
               </div>
-            </div>
-          </DialogHeader>
-        )}
-
-        {currentStep === 0 && (
-          <Step0DateSelect
-            data={formData}
-            onNext={(data) => {
-              handleNext(data)
-            }}
-          />
-        )}
-
-        {currentStep === 1 && (
-          <Step3DateTime
-            data={formData}
-            onNext={handleNext}
-          />
-        )}
-
-        {/* Bulk upload option appears at step 2 */}
-        {currentStep === 2 && (
-          <div className="mb-4 flex justify-end">
-            <Button
-              type="button"
-              variant="link"
-              size="sm"
-              onClick={() => setShowBulkUpload(!showBulkUpload)}
-              className="text-xs"
-            >
-              {showBulkUpload ? '← Add visitors manually' : 'Upload CSV instead →'}
-            </Button>
+            ))}
           </div>
-        )}
+        </DialogHeader>
 
-        {currentStep === 2 && !showBulkUpload && (
-          <Step1VisitorInfo
-            data={formData}
-            onNext={handleNext}
-          />
-        )}
+        <div 
+          className={`relative transition-opacity duration-150 ease-in-out ${
+            isTransitioning ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          {currentStep === 0 && (
+            <div key="step-0">
+              <Step0DateSelect
+                data={formData}
+                onNext={(data) => {
+                  handleNext(data)
+                }}
+              />
+            </div>
+          )}
 
-        {currentStep === 2 && showBulkUpload && (
-          <Step2BulkUpload
-            data={formData}
-            onNext={(data) => {
-              handleNext(data)
-              setCurrentStep(3) // Skip check-in step for bulk upload
-            }}
-            onSkip={() => {
-              setShowBulkUpload(false)
-            }}
-          />
-        )}
+          {currentStep === 1 && (
+            <div key="step-1">
+              <Step3DateTime
+                data={formData}
+                onNext={handleNext}
+                onBack={handleBack}
+              />
+            </div>
+          )}
 
-        {currentStep === 3 && (
-          <Step1bCheckIn
-            data={formData}
-            onSubmit={handleFinalSubmit}
-          />
-        )}
+          {currentStep === 2 && !showBulkUpload && (
+            <div key="step-2">
+              <Step1VisitorInfo
+                data={formData}
+                onNext={handleNext}
+                onBack={handleBack}
+                onToggleBulkUpload={() => setShowBulkUpload(true)}
+              />
+            </div>
+          )}
+
+          {currentStep === 2 && showBulkUpload && (
+            <div key="step-2-bulk">
+              <Step2BulkUpload
+                data={formData}
+                onNext={(data) => {
+                  handleNext(data)
+                  setCurrentStep(3) // Skip check-in step for bulk upload
+                }}
+                onBack={handleBack}
+                onSkip={() => {
+                  setShowBulkUpload(false)
+                }}
+              />
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <div key="step-3">
+              <Step1bCheckIn
+                data={formData}
+                onSubmit={handleFinalSubmit}
+                onBack={handleBack}
+              />
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   )

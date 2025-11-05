@@ -5,19 +5,37 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Calendar as CalendarIcon, Users, MapPin, User, CheckSquare, ChevronRight, X } from "lucide-react"
+import { Calendar as CalendarIcon, Users, MapPin, User, CheckSquare, ChevronRight } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { formatDate } from "@/lib/utils"
+
+// Helper function to get default times (next hour, 1 hour duration)
+const getDefaultTimes = () => {
+  const now = new Date()
+  const nextHour = new Date(now)
+  nextHour.setHours(now.getHours() + 1)
+  nextHour.setMinutes(0)
+  nextHour.setSeconds(0)
+  
+  const endTime = new Date(nextHour)
+  endTime.setHours(nextHour.getHours() + 1)
+  
+  const startTime = nextHour.toTimeString().slice(0, 5) // HH:MM format
+  const endTimeStr = endTime.toTimeString().slice(0, 5) // HH:MM format
+  
+  return { startTime, endTime: endTimeStr }
+}
 
 export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
   const [isMobile, setIsMobile] = useState(false)
   const [activeSection, setActiveSection] = useState(null)
+  const defaultTimes = getDefaultTimes()
   const [formData, setFormData] = useState({
     visitDate: null,
     selectedDates: [],
     isMultiDay: false,
-    startTime: '',
-    endTime: '',
+    startTime: defaultTimes.startTime,
+    endTime: defaultTimes.endTime,
     visitors: [{ firstName: '', lastName: '', email: '', phone: '', company: '', visitSummary: '' }],
     checkIn: 'bypass',
     hostType: '',
@@ -37,14 +55,13 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
           return `${formData.selectedDates.length} days selected`
         }
         return formData.visitDate ? formatDate(formData.visitDate) : 'Add date'
-      case 'who':
+      case 'host':
+        if (formData.hostType === 'me') return `I am • Floor ${formData.floor}, Suite ${formData.suite}`
+        if (formData.hostName) return `${formData.hostName} • Floor ${formData.floor}, Suite ${formData.suite}`
+        return 'Select host'
+      case 'visitors':
         const validVisitors = formData.visitors.filter(v => v.firstName && v.lastName)
         return validVisitors.length > 0 ? `${validVisitors.length} visitor${validVisitors.length > 1 ? 's' : ''}` : 'Add visitors'
-      case 'where':
-        return formData.floor && formData.suite ? `Floor ${formData.floor}, Suite ${formData.suite}` : 'Add location'
-      case 'host':
-        if (formData.hostType === 'me') return 'I am the host'
-        return formData.hostName || 'Select host'
       case 'checkin':
         return formData.checkIn === 'bypass' ? 'Bypass check-in' : 'Standard check-in'
       default:
@@ -77,22 +94,28 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Auto-open the first step (When) when the modal opens on mobile
+  useEffect(() => {
+    if (open && isMobile) {
+      // Reset activeSection when modal opens
+      setActiveSection('when')
+    } else if (!open) {
+      // Reset when modal closes
+      setActiveSection(null)
+    }
+  }, [open, isMobile])
   
   // Don't render on desktop
   if (!isMobile) return null
 
   return (
     <>
-      {/* Main Sheet */}
-      <Sheet open={open && !activeSection} onOpenChange={onOpenChange}>
+      {/* Main Sheet - Always visible when modal is open */}
+      <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl">
           <SheetHeader className="text-left mb-6">
-            <div className="flex items-center justify-between">
-              <SheetTitle className="text-2xl">Create visit</SheetTitle>
-              <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
+            <SheetTitle className="text-2xl">Create visit</SheetTitle>
           </SheetHeader>
 
           <div className="space-y-3 pb-24">
@@ -113,40 +136,6 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
               </div>
             </button>
 
-            {/* Who Section */}
-            <button
-              onClick={() => setActiveSection('who')}
-              className="w-full bg-white border border-gray-200 rounded-2xl p-6 text-left hover:border-gray-900 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <Users className="h-5 w-5 text-gray-600" />
-                    <span className="font-semibold text-lg">Who</span>
-                  </div>
-                  <p className="text-gray-600 ml-8">{getSectionSummary('who')}</p>
-                </div>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              </div>
-            </button>
-
-            {/* Where Section */}
-            <button
-              onClick={() => setActiveSection('where')}
-              className="w-full bg-white border border-gray-200 rounded-2xl p-6 text-left hover:border-gray-900 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <MapPin className="h-5 w-5 text-gray-600" />
-                    <span className="font-semibold text-lg">Where</span>
-                  </div>
-                  <p className="text-gray-600 ml-8">{getSectionSummary('where')}</p>
-                </div>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              </div>
-            </button>
-
             {/* Host Section */}
             <button
               onClick={() => setActiveSection('host')}
@@ -159,6 +148,23 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
                     <span className="font-semibold text-lg">Host</span>
                   </div>
                   <p className="text-gray-600 ml-8">{getSectionSummary('host')}</p>
+                </div>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
+              </div>
+            </button>
+
+            {/* Visitors Section */}
+            <button
+              onClick={() => setActiveSection('visitors')}
+              className="w-full bg-white border border-gray-200 rounded-2xl p-6 text-left hover:border-gray-900 transition-colors"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <Users className="h-5 w-5 text-gray-600" />
+                    <span className="font-semibold text-lg">Visitors</span>
+                  </div>
+                  <p className="text-gray-600 ml-8">{getSectionSummary('visitors')}</p>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </div>
@@ -201,22 +207,8 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
         onClose={() => setActiveSection(null)}
         formData={formData}
         setFormData={setFormData}
-      />
-
-      {/* Who Section Sheet */}
-      <WhoSection
-        open={activeSection === 'who'}
-        onClose={() => setActiveSection(null)}
-        formData={formData}
-        setFormData={setFormData}
-      />
-
-      {/* Where Section Sheet */}
-      <WhereSection
-        open={activeSection === 'where'}
-        onClose={() => setActiveSection(null)}
-        formData={formData}
-        setFormData={setFormData}
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
       />
 
       {/* Host Section Sheet */}
@@ -225,6 +217,18 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
         onClose={() => setActiveSection(null)}
         formData={formData}
         setFormData={setFormData}
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+      />
+
+      {/* Visitors Section Sheet */}
+      <VisitorsSection
+        open={activeSection === 'visitors'}
+        onClose={() => setActiveSection(null)}
+        formData={formData}
+        setFormData={setFormData}
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
       />
 
       {/* Check-in Section Sheet */}
@@ -233,13 +237,15 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
         onClose={() => setActiveSection(null)}
         formData={formData}
         setFormData={setFormData}
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
       />
     </>
   )
 }
 
 // When Section Component
-function WhenSection({ open, onClose, formData, setFormData }) {
+function WhenSection({ open, onClose, formData, setFormData, activeSection, setActiveSection }) {
   const [localDate, setLocalDate] = useState(formData.visitDate)
   const [localSelectedDates, setLocalSelectedDates] = useState(formData.selectedDates)
   const [isMultiDay, setIsMultiDay] = useState(formData.isMultiDay)
@@ -259,7 +265,7 @@ function WhenSection({ open, onClose, formData, setFormData }) {
   }
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl">
         <SheetHeader className="text-left mb-6">
           <SheetTitle className="text-2xl">When is your visit?</SheetTitle>
@@ -315,8 +321,8 @@ function WhenSection({ open, onClose, formData, setFormData }) {
   )
 }
 
-// Who Section Component
-function WhoSection({ open, onClose, formData, setFormData }) {
+// Visitors Section Component
+function VisitorsSection({ open, onClose, formData, setFormData, activeSection, setActiveSection }) {
   const [visitors, setVisitors] = useState(formData.visitors)
 
   const addVisitor = () => {
@@ -419,8 +425,8 @@ function WhoSection({ open, onClose, formData, setFormData }) {
   )
 }
 
-// Where Section Component
-function WhereSection({ open, onClose, formData, setFormData }) {
+// Host Section (includes floor/suite from desktop)
+function WhereSection({ open, onClose, formData, setFormData, activeSection, setActiveSection }) {
   const [floor, setFloor] = useState(formData.floor)
   const [suite, setSuite] = useState(formData.suite)
   const [numEntries, setNumEntries] = useState(formData.numEntries)
@@ -486,6 +492,8 @@ function WhereSection({ open, onClose, formData, setFormData }) {
           </div>
         </div>
 
+        <SectionNavigation activeSection={activeSection} setActiveSection={setActiveSection} formData={formData} />
+
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
           <Button onClick={handleSave} className="w-full h-14 text-lg rounded-xl">
             Save
@@ -497,7 +505,7 @@ function WhereSection({ open, onClose, formData, setFormData }) {
 }
 
 // Host Section Component
-function HostSection({ open, onClose, formData, setFormData }) {
+function HostSection({ open, onClose, formData, setFormData, activeSection, setActiveSection }) {
   const [hostType, setHostType] = useState(formData.hostType)
   const [hostName, setHostName] = useState(formData.hostName)
   const [receiveCopyInvitation, setReceiveCopyInvitation] = useState(formData.receiveCopyInvitation)
@@ -612,6 +620,8 @@ function HostSection({ open, onClose, formData, setFormData }) {
           )}
         </div>
 
+        <SectionNavigation activeSection={activeSection} setActiveSection={setActiveSection} formData={formData} />
+
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
           <Button onClick={handleSave} className="w-full h-14 text-lg rounded-xl">
             Save
@@ -623,7 +633,7 @@ function HostSection({ open, onClose, formData, setFormData }) {
 }
 
 // Check-in Section Component
-function CheckInSection({ open, onClose, formData, setFormData }) {
+function CheckInSection({ open, onClose, formData, setFormData, activeSection, setActiveSection }) {
   const [checkIn, setCheckIn] = useState(formData.checkIn)
 
   const handleSave = () => {
@@ -663,6 +673,8 @@ function CheckInSection({ open, onClose, formData, setFormData }) {
             </p>
           </button>
         </div>
+
+        <SectionNavigation activeSection={activeSection} setActiveSection={setActiveSection} formData={formData} />
 
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
           <Button onClick={handleSave} className="w-full h-14 text-lg rounded-xl">

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { X } from "lucide-react"
 
-export function Step1VisitorInfo({ data, onNext }) {
+export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
   const [visitors, setVisitors] = useState(data.visitors)
 
   const addVisitor = () => {
@@ -30,9 +30,22 @@ export function Step1VisitorInfo({ data, onNext }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold">Visitor information</h2>
-        <p className="text-sm text-gray-600 mt-1">Who will be visiting?</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Visitor information</h2>
+          <p className="text-sm text-gray-600 mt-1">Who will be visiting?</p>
+        </div>
+        {onToggleBulkUpload && (
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            onClick={onToggleBulkUpload}
+            className="text-xs shrink-0"
+          >
+            Upload CSV instead →
+          </Button>
+        )}
       </div>
 
       <div className="space-y-6">
@@ -150,7 +163,14 @@ export function Step1VisitorInfo({ data, onNext }) {
         + Add another visitor
       </Button>
 
-      <Button type="submit" className="w-full">Continue</Button>
+      <div className="flex gap-3">
+        {onBack && (
+          <Button type="button" variant="outline" onClick={onBack} className="flex-1">
+            Back
+          </Button>
+        )}
+        <Button type="submit" className="flex-1">Continue</Button>
+      </div>
     </form>
   )
 }

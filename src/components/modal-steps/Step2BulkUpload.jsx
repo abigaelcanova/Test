@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label"
 import { Alert } from "@/components/ui/alert"
 import { Upload, X, CheckCircle2, AlertCircle, Download } from "lucide-react"
 
-export function Step2BulkUpload({ data, onNext, onSkip }) {
+export function Step2BulkUpload({ data, onNext, onSkip, onBack }) {
   const [file, setFile] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
   const [uploadedVisitors, setUploadedVisitors] = useState([])
@@ -253,6 +253,16 @@ export function Step2BulkUpload({ data, onNext, onSkip }) {
       )}
 
       <div className="flex gap-3">
+        {onBack && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onBack}
+            className="flex-1"
+          >
+            Back
+          </Button>
+        )}
         <Button
           type="button"
           variant="outline"

@@ -10,20 +10,38 @@ export function Step0DateSelect({ data, onNext }) {
   const [visitDate, setVisitDate] = useState(data.visitDate)
   const [isMultiDay, setIsMultiDay] = useState(data.isMultiDay)
   const [selectedDates, setSelectedDates] = useState(data.selectedDates || [data.visitDate])
-  const [recurring, setRecurring] = useState(data.recurring)
-  const [frequency, setFrequency] = useState(data.frequency)
+  const [repeatOption, setRepeatOption] = useState(data.recurring ? (data.frequency || 'custom') : 'none')
   const [recurringEnd, setRecurringEnd] = useState(data.recurringEnd)
   const [startTime, setStartTime] = useState(data.startTime)
   const [endTime, setEndTime] = useState(data.endTime)
 
+  const getRepeatLabel = () => {
+    if (!visitDate) return 'Does not repeat'
+    const date = new Date(visitDate)
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
+    const monthDay = date.getDate()
+    const monthName = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+    
+    return {
+      none: 'Does not repeat',
+      daily: 'Daily',
+      weekly: `Weekly on ${dayName}`,
+      monthly: `Monthly on day ${monthDay}`,
+      annually: `Annually on ${monthName}`,
+      weekdays: 'Every weekday (Monday to Friday)',
+      custom: 'Custom...'
+    }
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
+    const recurring = repeatOption !== 'none'
     onNext({ 
       visitDate: isMultiDay ? selectedDates[0] : visitDate,
       isMultiDay,
       selectedDates: isMultiDay ? selectedDates : [visitDate],
       recurring,
-      frequency: recurring ? frequency : '',
+      frequency: recurring ? repeatOption : '',
       recurringEnd: recurring ? recurringEnd : '',
       startTime,
       endTime
@@ -99,6 +117,26 @@ export function Step0DateSelect({ data, onNext }) {
           />
         </div>
 
+        {/* Multi-day Visit Option */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="multiDay"
+            checked={isMultiDay}
+            onChange={(e) => {
+              setIsMultiDay(e.target.checked)
+              if (e.target.checked) {
+                // Initialize with current selected date
+                setSelectedDates([visitDate])
+              }
+            }}
+            className="h-4 w-4 rounded border-gray-300"
+          />
+          <Label htmlFor="multiDay" className="cursor-pointer font-medium">
+            Multi-day visit
+          </Label>
+        </div>
+
         {/* Selected Date(s) Display */}
         {!isMultiDay && visitDate && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -144,35 +182,8 @@ export function Step0DateSelect({ data, onNext }) {
           </div>
         )}
 
-        {/* Multi-day Visit Option */}
-        <div className="border-t pt-4 space-y-4">
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="multiDay"
-              checked={isMultiDay}
-              onChange={(e) => {
-                setIsMultiDay(e.target.checked)
-                if (e.target.checked) {
-                  // Initialize with current selected date
-                  setSelectedDates([visitDate])
-                }
-              }}
-              className="h-4 w-4 rounded border-gray-300"
-            />
-            <Label htmlFor="multiDay" className="cursor-pointer font-medium">
-              Multi-day visit
-            </Label>
-          </div>
-          {isMultiDay && (
-            <p className="text-xs text-gray-500 pl-6">
-              Select multiple specific dates on the calendar above (e.g., Nov 5, Nov 12, Nov 20)
-            </p>
-          )}
-        </div>
-
         {/* Start and End Time */}
-        <div className="border-t pt-4 space-y-4">
+        <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startTime">Start time</Label>
@@ -219,47 +230,35 @@ export function Step0DateSelect({ data, onNext }) {
         </div>
 
         {/* Recurring Visit Options */}
-        <div className="border-t pt-4 space-y-4">
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="recurring"
-              checked={recurring}
-              onChange={(e) => setRecurring(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300"
-            />
-            <Label htmlFor="recurring" className="cursor-pointer font-medium">
-              Recurring visit
-            </Label>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="repeat">Repeat</Label>
+            <Select value={repeatOption} onValueChange={setRepeatOption}>
+              <SelectTrigger id="repeat">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{getRepeatLabel().none}</SelectItem>
+                <SelectItem value="daily">{getRepeatLabel().daily}</SelectItem>
+                <SelectItem value="weekly">{getRepeatLabel().weekly}</SelectItem>
+                <SelectItem value="monthly">{getRepeatLabel().monthly}</SelectItem>
+                <SelectItem value="annually">{getRepeatLabel().annually}</SelectItem>
+                <SelectItem value="weekdays">{getRepeatLabel().weekdays}</SelectItem>
+                <SelectItem value="custom">{getRepeatLabel().custom}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          {recurring && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="frequency">Frequency</Label>
-                <Select value={frequency} onValueChange={setFrequency}>
-                  <SelectTrigger id="frequency">
-                    <SelectValue placeholder="Select frequency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="daily">Daily</SelectItem>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="biweekly">Every 2 weeks</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="recurringEnd">Repeat until</Label>
-                <Input
-                  id="recurringEnd"
-                  type="date"
-                  value={recurringEnd}
-                  onChange={(e) => setRecurringEnd(e.target.value)}
-                />
-              </div>
-            </>
+          {repeatOption !== 'none' && (
+            <div className="space-y-2">
+              <Label htmlFor="recurringEnd">Repeat until</Label>
+              <Input
+                id="recurringEnd"
+                type="date"
+                value={recurringEnd}
+                onChange={(e) => setRecurringEnd(e.target.value)}
+              />
+            </div>
           )}
         </div>
 

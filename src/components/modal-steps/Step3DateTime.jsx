@@ -6,8 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDate } from "@/lib/utils"
 
-export function Step3DateTime({ data, onNext, onSubmit }) {
-  const [numEntries, setNumEntries] = useState(data.numEntries)
+export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
   const [floor, setFloor] = useState(data.floor)
   const [suite, setSuite] = useState(data.suite)
   const [hostType, setHostType] = useState(data.hostType)
@@ -19,7 +18,6 @@ export function Step3DateTime({ data, onNext, onSubmit }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     const stepData = {
-      numEntries,
       floor,
       suite,
       hostType,
@@ -38,58 +36,10 @@ export function Step3DateTime({ data, onNext, onSubmit }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold">Visit details</h2>
-        <div className="text-sm text-gray-600 mt-1">
-          {data.isMultiDay && data.selectedDates && data.selectedDates.length > 1 ? (
-            <>
-              <p>Visit scheduled for <span className="font-medium text-gray-900">{data.selectedDates.length} days</span>:</p>
-              <p className="mt-1 text-xs">
-                {data.selectedDates.map((date, i) => (
-                  <span key={i}>
-                    {formatDate(date)}
-                    {i < data.selectedDates.length - 1 ? ', ' : ''}
-                  </span>
-                ))}
-              </p>
-            </>
-          ) : (
-            <p>
-              Visit scheduled for <span className="font-medium text-gray-900">{formatDate(data.visitDate)}</span>
-            </p>
-          )}
-          {data.recurring && <span className="ml-1">({data.frequency})</span>}
-          {data.startTime && data.endTime && (
-            <p className="mt-1">
-              Time: {data.startTime} - {data.endTime}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="numEntries">
-          Number of Entries <span className="text-destructive">*</span>
-        </Label>
-        <Select value={numEntries} onValueChange={setNumEntries}>
-          <SelectTrigger id="numEntries">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">1</SelectItem>
-            <SelectItem value="2">2</SelectItem>
-            <SelectItem value="3">3</SelectItem>
-            <SelectItem value="4">4</SelectItem>
-            <SelectItem value="5">5</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
       {/* Who is hosting section */}
-      <div className="border-t pt-6 space-y-6">
+      <div className="space-y-6">
         <div>
           <h3 className="text-lg font-semibold">Who is hosting?</h3>
-          <p className="text-sm text-gray-600 mt-1">Select the host for this visit</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -227,9 +177,16 @@ export function Step3DateTime({ data, onNext, onSubmit }) {
         </div>
       )}
 
-      <Button type="submit" className="w-full">
-        Continue
-      </Button>
+      <div className="flex gap-3">
+        {onBack && (
+          <Button type="button" variant="outline" onClick={onBack} className="flex-1">
+            Back
+          </Button>
+        )}
+        <Button type="submit" className="flex-1">
+          Continue
+        </Button>
+      </div>
     </form>
   )
 }

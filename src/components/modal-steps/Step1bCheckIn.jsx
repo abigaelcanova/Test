@@ -4,20 +4,20 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-export function Step1bCheckIn({ data, onNext }) {
+export function Step1bCheckIn({ data, onSubmit, onBack }) {
   const [checkIn, setCheckIn] = useState(data.checkIn)
+  const [numEntries, setNumEntries] = useState(data.numEntries)
   const [visitorNote, setVisitorNote] = useState(data.visitorNote)
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onNext({ checkIn, visitorNote })
+    onSubmit({ checkIn, numEntries, visitorNote })
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Check-in preferences</h2>
-        <p className="text-sm text-gray-600 mt-1">Set arrival instructions for your visitor</p>
       </div>
 
       <div className="space-y-2">
@@ -36,6 +36,24 @@ export function Step1bCheckIn({ data, onNext }) {
       </div>
 
       <div className="space-y-2">
+        <Label htmlFor="numEntries">
+          Max number of entries <span className="text-destructive">*</span>
+        </Label>
+        <Select value={numEntries} onValueChange={setNumEntries}>
+          <SelectTrigger id="numEntries">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">1</SelectItem>
+            <SelectItem value="2">2</SelectItem>
+            <SelectItem value="3">3</SelectItem>
+            <SelectItem value="4">4</SelectItem>
+            <SelectItem value="5">5</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="visitorNote">Note for visitor</Label>
         <Textarea
           id="visitorNote"
@@ -46,7 +64,14 @@ export function Step1bCheckIn({ data, onNext }) {
         />
       </div>
 
-      <Button type="submit" className="w-full">Continue</Button>
+      <div className="flex gap-3">
+        {onBack && (
+          <Button type="button" variant="outline" onClick={onBack} className="flex-1">
+            Back
+          </Button>
+        )}
+        <Button type="submit" className="flex-1">Add visit</Button>
+      </div>
     </form>
   )
 }

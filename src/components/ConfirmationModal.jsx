@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Check, Calendar, Pencil, X } from "lucide-react"
+import { Check, Calendar, Pencil } from "lucide-react"
 import { formatDate, formatTime } from "@/lib/utils"
 
 export function ConfirmationModal({ open, onOpenChange, visitData }) {
@@ -15,15 +15,6 @@ export function ConfirmationModal({ open, onOpenChange, visitData }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-4 top-4"
-          onClick={() => onOpenChange(false)}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
           {/* Left column */}
           <div className="space-y-4">
