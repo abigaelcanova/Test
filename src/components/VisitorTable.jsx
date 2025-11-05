@@ -79,7 +79,14 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
                 –
               </td>
               <td className="px-4 py-4 text-sm text-gray-900" data-testid="visitor-floor">
-                {visit.floor ? `Floor ${visit.floor}${visit.suite ? `, Suite ${visit.suite}` : ''}` : '–'}
+                {visit.floor ? (
+                  <div className="flex flex-col">
+                    <span className="text-gray-900">Floor {visit.floor}</span>
+                    {visit.suite && (
+                      <span className="text-gray-600 text-xs">Suite {visit.suite}</span>
+                    )}
+                  </div>
+                ) : '–'}
               </td>
               <td className="px-4 py-4" data-testid="visitor-status">
                 <Badge variant={getStatusVariant(visit.status)}>

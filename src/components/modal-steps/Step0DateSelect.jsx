@@ -28,8 +28,7 @@ export function Step0DateSelect({ data, onNext }) {
       weekly: `Weekly on ${dayName}`,
       monthly: `Monthly on day ${monthDay}`,
       annually: `Annually on ${monthName}`,
-      weekdays: 'Every weekday (Monday to Friday)',
-      custom: 'Custom...'
+      weekdays: 'Every weekday (Monday to Friday)'
     }
   }
 
@@ -85,14 +84,12 @@ export function Step0DateSelect({ data, onNext }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 py-4">
-      <div className="text-center space-y-4">
-        <h2 className="text-3xl font-semibold text-gray-900">
-          When is your visit?
-        </h2>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold">When is your visit?</h3>
       </div>
 
-      <div className="space-y-6 max-w-md mx-auto">
+      <div className="space-y-5">
         {/* Multi-day mode info */}
         {isMultiDay && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -103,7 +100,7 @@ export function Step0DateSelect({ data, onNext }) {
         )}
 
         {/* Calendar Component */}
-        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 w-fit mx-auto">
           <CalendarComponent
             selected={isMultiDay ? selectedDates : visitDate}
             onSelect={(date) => {
@@ -118,7 +115,7 @@ export function Step0DateSelect({ data, onNext }) {
         </div>
 
         {/* Multi-day Visit Option */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           <input
             type="checkbox"
             id="multiDay"
@@ -183,8 +180,8 @@ export function Step0DateSelect({ data, onNext }) {
         )}
 
         {/* Start and End Time */}
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="startTime">Start time</Label>
               <Select value={startTime} onValueChange={setStartTime}>
@@ -230,7 +227,7 @@ export function Step0DateSelect({ data, onNext }) {
         </div>
 
         {/* Recurring Visit Options */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="space-y-2">
             <Label htmlFor="repeat">Repeat</Label>
             <Select value={repeatOption} onValueChange={setRepeatOption}>
@@ -244,7 +241,6 @@ export function Step0DateSelect({ data, onNext }) {
                 <SelectItem value="monthly">{getRepeatLabel().monthly}</SelectItem>
                 <SelectItem value="annually">{getRepeatLabel().annually}</SelectItem>
                 <SelectItem value="weekdays">{getRepeatLabel().weekdays}</SelectItem>
-                <SelectItem value="custom">{getRepeatLabel().custom}</SelectItem>
               </SelectContent>
             </Select>
           </div>

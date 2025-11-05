@@ -181,7 +181,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
           }`}
         >
           {currentStep === 0 && (
-            <div key="step-0">
+            <div key="step-0" className="min-h-[500px]">
               <Step0DateSelect
                 data={formData}
                 onNext={(data) => {
@@ -192,7 +192,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
           )}
 
           {currentStep === 1 && (
-            <div key="step-1">
+            <div key="step-1" className="min-h-[500px]">
               <Step3DateTime
                 data={formData}
                 onNext={handleNext}
@@ -202,7 +202,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
           )}
 
           {currentStep === 2 && !showBulkUpload && (
-            <div key="step-2">
+            <div key="step-2" className="min-h-[500px]">
               <Step1VisitorInfo
                 data={formData}
                 onNext={handleNext}
@@ -213,7 +213,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
           )}
 
           {currentStep === 2 && showBulkUpload && (
-            <div key="step-2-bulk">
+            <div key="step-2-bulk" className="min-h-[500px]">
               <Step2BulkUpload
                 data={formData}
                 onNext={(data) => {
@@ -229,7 +229,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
           )}
 
           {currentStep === 3 && (
-            <div key="step-3">
+            <div key="step-3" className="min-h-[500px]">
               <Step1bCheckIn
                 data={formData}
                 onSubmit={handleFinalSubmit}
