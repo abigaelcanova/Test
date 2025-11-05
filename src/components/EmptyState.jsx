@@ -10,8 +10,15 @@ export function EmptyState() {
         </div>
         <h2 className="text-2xl font-semibold mb-3 text-gray-900">No visitors</h2>
         <p className="text-center text-gray-600 max-w-md leading-relaxed">
-          You have no upcoming visitors.<br />
-          Click button above or "+" on the top right to register a new visitor.
+          You have no upcoming visitors.
+        </p>
+        {/* Mobile helper text */}
+        <p className="md:hidden text-center text-gray-600 max-w-md leading-relaxed mt-2">
+          Click the "+" button at the bottom right to register a new visitor.
+        </p>
+        {/* Desktop helper text */}
+        <p className="hidden md:block text-center text-gray-600 max-w-md leading-relaxed mt-2">
+          Click "Add new visitor" at the top right to register a new visitor.
         </p>
       </CardContent>
     </Card>

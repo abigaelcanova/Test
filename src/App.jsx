@@ -90,7 +90,7 @@ function App() {
       <div className="md:hidden sticky top-0 z-10 bg-white border-b shadow-sm">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Visitor registration</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Visitor Management</h1>
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -112,7 +112,7 @@ function App() {
         <div className="bg-white border-b">
           <div className="max-w-[1400px] mx-auto px-6 py-6">
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-gray-900">Visitor registration</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Visitor Management</h1>
               <Button onClick={() => setIsModalOpen(true)} data-testid="add-visitor-desktop" className="shadow-sm">
                 <Plus className="h-4 w-4 mr-2" />
                 Add new visitor
