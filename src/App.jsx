@@ -232,7 +232,7 @@ function App() {
   const [editingVisit, setEditingVisit] = useState(null)
   const [initialStep, setInitialStep] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
-  const [filterDate, setFilterDate] = useState("")
+  const [filterDate, setFilterDate] = useState("") // Default to empty (show all)
   const [filterHosts, setFilterHosts] = useState([])
   const [filterHostCompanies, setFilterHostCompanies] = useState([])
   const [filterStatuses, setFilterStatuses] = useState([])
@@ -381,12 +381,13 @@ function App() {
 
   const clearFilters = () => {
     setSearchQuery("")
-    setFilterDate("")
+    setFilterDate("") // Clear date to show all
     setFilterHosts([])
     setFilterHostCompanies([])
     setFilterStatuses([])
   }
 
+  const getTodayDate = () => new Date().toISOString().split('T')[0]
   const hasActiveFilters = searchQuery || filterDate || filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0
 
   // Load pinned filters from localStorage on mount
@@ -447,6 +448,40 @@ function App() {
             </TabsList>
           </Tabs>
 
+          {/* Mobile Date Picker - Prominent Position */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <label className="text-sm font-medium text-gray-700 shrink-0">Date:</label>
+              <Input
+                type="date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                placeholder="Select date"
+                className="flex-1"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setFilterDate(getTodayDate())}
+                className="flex-1"
+              >
+                Today
+              </Button>
+              {filterDate && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setFilterDate("")}
+                  className="flex-1 text-gray-500 hover:text-gray-700"
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
+          </div>
+
           {/* Mobile Search and Filters */}
           <div className="flex items-center gap-2">
             {/* Search Input */}
@@ -470,9 +505,9 @@ function App() {
                 >
                   <SlidersHorizontal className="h-4 w-4" />
                   <span className="font-semibold">Filters</span>
-                  {hasActiveFilters && (
+                  {(filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0) && (
                     <span className="bg-primary text-white text-xs font-semibold rounded-md px-2 py-0.5 min-w-[20px] text-center">
-                      {[filterDate, ...filterHosts, ...filterHostCompanies, ...filterStatuses].filter(Boolean).length}
+                      {[...filterHosts, ...filterHostCompanies, ...filterStatuses].filter(Boolean).length}
                     </span>
                   )}
                 </Button>
@@ -482,17 +517,6 @@ function App() {
                   <SheetTitle>Filters</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 space-y-6">
-                  {/* Date Picker */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Date</label>
-                    <Input
-                      type="date"
-                      value={filterDate}
-                      onChange={(e) => setFilterDate(e.target.value)}
-                      placeholder="Filter by date"
-                    />
-                  </div>
-
                   {/* Host Filter */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Host</label>
@@ -531,11 +555,13 @@ function App() {
                   </div>
 
                   {/* Clear Filters Button */}
-                  {hasActiveFilters && (
+                  {(filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0) && (
                     <Button
                       variant="outline"
                       onClick={() => {
-                        clearFilters()
+                        setFilterHosts([])
+                        setFilterHostCompanies([])
+                        setFilterStatuses([])
                         setIsFiltersOpen(false)
                       }}
                       className="w-full"
@@ -554,37 +580,49 @@ function App() {
       <div className="hidden md:block">
         {/* Desktop Header */}
         <div className="bg-white border-b">
-          <div className="max-w-[1600px] mx-auto px-12 pt-12 pb-0">
-            <div className="flex justify-between items-center mb-6">
+          <div className="max-w-[1600px] mx-auto px-12 pt-12 pb-6">
+            <div className="flex justify-between items-center">
               <h1 className="text-2xl font-semibold" style={{ color: '#2D3338' }}>Visitor Management</h1>
               <Button onClick={() => setIsModalOpen(true)} data-testid="add-visitor-desktop" className="shadow-sm">
                 Create visit
               </Button>
             </div>
-            
-            {/* Horizontal Navigation Tabs */}
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="bg-transparent p-0 h-auto border-b border-gray-200 rounded-none w-auto items-end">
-                <TabsTrigger 
-                  value="upcoming" 
-                  data-testid="tab-upcoming"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary px-4 pb-3 pt-0 text-base text-gray-600"
-                >
-                  Upcoming
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="past" 
-                  data-testid="tab-past"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary px-4 pb-3 pt-0 text-base text-gray-600"
-                >
-                  Past
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
           </div>
         </div>
 
         <div className="max-w-[1600px] mx-auto px-12 py-12">
+          {/* Date Picker - Prominent Position */}
+          <div className="mb-6">
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-700">Date:</label>
+              <Input
+                type="date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                placeholder="Select date"
+                className="w-64"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setFilterDate(getTodayDate())}
+                className="whitespace-nowrap"
+              >
+                Today
+              </Button>
+              {filterDate && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setFilterDate("")}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
+          </div>
+
           {/* Filters Bar */}
           <div className="mb-6">
             <div className="flex items-center gap-4">
@@ -621,15 +659,6 @@ function App() {
 
               {/* Desktop Filters */}
               <div className="flex items-center gap-4">
-                {/* Date Picker */}
-                <Input
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  placeholder="Filter by date"
-                  className="w-48"
-                />
-
                 {/* Host Filter */}
                 <MultiSelectFilter
                   options={uniqueHosts}
@@ -680,52 +709,16 @@ function App() {
           </div>
 
           <div className="min-h-[600px]">
-
                 {isLoading ? (
                   <LoadingSkeleton />
-                ) : activeTab === 'upcoming' ? (
-                  filteredUpcomingVisits.length === 0 ? (
-                    <EmptyState filtered={hasActiveFilters && allUpcomingVisits.length > 0} />
-                  ) : (
-                    <>
-                      {/* Mobile: Cards */}
-                      <div className="md:hidden space-y-3">
-                        {upcomingVisits.map(visit => (
-                          <VisitorCard 
-                            key={visit.id} 
-                            visit={visit}
-                            onEdit={handleEditVisit}
-                            onCancel={handleCancelVisit}
-                          />
-                        ))}
-                      </div>
-                      {/* Desktop: Table */}
-                      <div className="hidden md:block">
-                        <VisitorTable 
-                          visits={upcomingVisits}
-                          onEdit={handleEditVisit}
-                          onCancel={handleCancelVisit}
-                        />
-                      </div>
-                    </>
-                  )
+                ) : filteredUpcomingVisits.length === 0 ? (
+                  <EmptyState filtered={hasActiveFilters && allUpcomingVisits.length > 0} />
                 ) : (
-                  filteredPastVisits.length === 0 ? (
-                    <EmptyState type="past" filtered={hasActiveFilters && allPastVisits.length > 0} />
-                  ) : (
-                    <>
-                      {/* Mobile: Cards */}
-                      <div className="md:hidden space-y-3">
-                        {pastVisits.map(visit => (
-                          <VisitorCard key={visit.id} visit={visit} />
-                        ))}
-                      </div>
-                      {/* Desktop: Table */}
-                      <div className="hidden md:block">
-                        <VisitorTable visits={pastVisits} />
-                      </div>
-                    </>
-                  )
+                  <VisitorTable 
+                    visits={upcomingVisits}
+                    onEdit={handleEditVisit}
+                    onCancel={handleCancelVisit}
+                  />
                 )}
           </div>
         </div>
