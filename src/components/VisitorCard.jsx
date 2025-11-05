@@ -7,11 +7,10 @@ import { formatDate, formatTime } from "@/lib/utils"
 export function VisitorCard({ visit, onEdit, onCancel }) {
   const getStatusVariant = (status) => {
     const variants = {
-      'invited': 'secondary',
-      'confirmed': 'default',
+      'expected': 'secondary',
       'checked-in': 'success',
-      'cancelled': 'destructive',
-      'late': 'warning'
+      'checked-out': 'default',
+      'cancelled': 'destructive'
     }
     return variants[status] || 'default'
   }
