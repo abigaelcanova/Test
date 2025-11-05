@@ -114,8 +114,7 @@ function App() {
             <div className="flex justify-between items-center">
               <h1 className="text-3xl font-bold text-gray-900">Visitor Management</h1>
               <Button onClick={() => setIsModalOpen(true)} data-testid="add-visitor-desktop" className="shadow-sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add new visitor
+                Create visit
               </Button>
             </div>
           </div>
@@ -187,7 +186,7 @@ function App() {
                   )
                 ) : (
                   pastVisits.length === 0 ? (
-                    <EmptyState />
+                    <EmptyState type="past" />
                   ) : (
                     <>
                       {/* Mobile: Cards */}
@@ -230,7 +229,7 @@ function App() {
           )
         ) : (
           pastVisits.length === 0 ? (
-            <EmptyState />
+            <EmptyState type="past" />
           ) : (
             <div className="space-y-3">
               {pastVisits.map(visit => (
