@@ -133,9 +133,6 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
                 <Label htmlFor="receiveCopyInvitation" className="cursor-pointer font-medium">
                   Receive copy of invitation
                 </Label>
-                <p className="text-sm text-gray-600 mt-1">
-                  Get an email copy when visitors are invited
-                </p>
               </div>
             </div>
 
@@ -153,9 +150,6 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
                 <Label htmlFor="receiveCheckInNotifications" className="cursor-pointer font-medium">
                   Receive check-in notifications
                 </Label>
-                <p className="text-sm text-gray-600 mt-1">
-                  Get notified when visitors arrive and check in
-                </p>
               </div>
             </div>
           </div>
@@ -164,7 +158,7 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
             <Label htmlFor="additionalOrganizers">Additional organizers (optional)</Label>
             <Textarea
               id="additionalOrganizers"
-              placeholder="Enter email addresses separated by commas&#10;e.g. john@example.com, jane@example.com"
+              placeholder="Enter email addresses separated by commas"
               value={additionalOrganizers}
               onChange={(e) => setAdditionalOrganizers(e.target.value)}
               rows={3}

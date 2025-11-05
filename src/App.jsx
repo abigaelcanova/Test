@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Plus, Search, X, ChevronLeft, ChevronRight, Download, Pin, SlidersHorizontal } from "lucide-react"
+import { Plus, Search, X, Download, Pin, SlidersHorizontal, Repeat } from "lucide-react"
 import { VisitorCard } from "@/components/VisitorCard"
 import { VisitorTable } from "@/components/VisitorTable"
 import { EmptyState } from "@/components/EmptyState"
@@ -29,7 +29,10 @@ function App() {
       suite: '301',
       status: 'expected',
       checkIn: 'standard',
-      numEntries: '1'
+      numEntries: '1',
+      recurring: true,
+      frequency: 'weekly',
+      visitSummary: 'Quarterly business review'
     },
     {
       id: 2,
@@ -43,7 +46,8 @@ function App() {
       suite: '502',
       status: 'expected',
       checkIn: 'standard',
-      numEntries: '1'
+      numEntries: '1',
+      visitSummary: 'Product demo and partnership discussion'
     },
     {
       id: 3,
@@ -57,7 +61,8 @@ function App() {
       suite: '205',
       status: 'expected',
       checkIn: 'bypass',
-      numEntries: '2'
+      numEntries: '2',
+      visitSummary: 'Contract negotiation and lunch meeting'
     },
     {
       id: 4,
@@ -71,7 +76,10 @@ function App() {
       suite: '401',
       status: 'expected',
       checkIn: 'standard',
-      numEntries: '1'
+      numEntries: '1',
+      recurring: true,
+      frequency: 'daily',
+      visitSummary: 'Design consultation'
     },
     {
       id: 5,
@@ -85,7 +93,8 @@ function App() {
       suite: '102',
       status: 'expected',
       checkIn: 'standard',
-      numEntries: '1'
+      numEntries: '1',
+      visitSummary: 'Marketing campaign review'
     },
     {
       id: 6,
@@ -99,7 +108,8 @@ function App() {
       suite: '310',
       status: 'expected',
       checkIn: 'standard',
-      numEntries: '1'
+      numEntries: '1',
+      visitSummary: 'Strategic planning session'
     },
     {
       id: 7,
@@ -113,7 +123,8 @@ function App() {
       suite: '505',
       status: 'expected',
       checkIn: 'bypass',
-      numEntries: '3'
+      numEntries: '3',
+      visitSummary: 'Financial audit and compliance review'
     },
     // Past visits
     {
@@ -128,7 +139,10 @@ function App() {
       suite: '201',
       status: 'checked-in',
       checkIn: 'standard',
-      numEntries: '1'
+      numEntries: '1',
+      recurring: true,
+      frequency: 'monthly',
+      visitSummary: 'Monthly check-in meeting'
     },
     {
       id: 9,
@@ -142,7 +156,8 @@ function App() {
       suite: '402',
       status: 'checked-in',
       checkIn: 'standard',
-      numEntries: '1'
+      numEntries: '1',
+      visitSummary: 'Healthcare partnership proposal'
     },
     {
       id: 10,
@@ -156,7 +171,8 @@ function App() {
       suite: '105',
       status: 'cancelled',
       checkIn: 'standard',
-      numEntries: '1'
+      numEntries: '1',
+      visitSummary: 'Property investment discussion'
     },
     {
       id: 11,
@@ -170,7 +186,10 @@ function App() {
       suite: '305',
       status: 'checked-in',
       checkIn: 'standard',
-      numEntries: '1'
+      numEntries: '1',
+      recurring: true,
+      frequency: 'weekdays',
+      visitSummary: 'Training session'
     },
     {
       id: 12,
@@ -184,7 +203,8 @@ function App() {
       suite: '501',
       status: 'checked-out',
       checkIn: 'standard',
-      numEntries: '1'
+      numEntries: '1',
+      visitSummary: 'Supply chain optimization meeting'
     },
     {
       id: 13,
@@ -198,7 +218,8 @@ function App() {
       suite: '208',
       status: 'checked-in',
       checkIn: 'bypass',
-      numEntries: '2'
+      numEntries: '2',
+      visitSummary: 'Legal compliance and contract review'
     }
   ])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -207,15 +228,14 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("upcoming")
   const [editingVisit, setEditingVisit] = useState(null)
+  const [initialStep, setInitialStep] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterDate, setFilterDate] = useState("")
   const [filterHosts, setFilterHosts] = useState([])
   const [filterHostCompanies, setFilterHostCompanies] = useState([])
   const [filterStatuses, setFilterStatuses] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
   const [isPinned, setIsPinned] = useState(false)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
-  const itemsPerPage = 10
 
   const handleAddVisitor = (formData) => {
     // Create visit entries from form data
@@ -266,6 +286,14 @@ function App() {
 
   const handleEditVisit = (visit) => {
     setEditingVisit(visit)
+    setIsModalOpen(true)
+  }
+
+  const handleEditStep = (step) => {
+    // Close confirmation modal and reopen visitor modal at specific step
+    setIsConfirmationOpen(false)
+    setEditingVisit(confirmedVisit)
+    setInitialStep(step)
     setIsModalOpen(true)
   }
 
@@ -324,20 +352,8 @@ function App() {
   const filteredUpcomingVisits = filterVisits(allUpcomingVisits)
   const filteredPastVisits = filterVisits(allPastVisits)
 
-  // Pagination logic
-  const paginateVisits = (visitsList) => {
-    const startIndex = (currentPage - 1) * itemsPerPage
-    const endIndex = startIndex + itemsPerPage
-    return visitsList.slice(startIndex, endIndex)
-  }
-
-  const upcomingVisits = paginateVisits(filteredUpcomingVisits)
-  const pastVisits = paginateVisits(filteredPastVisits)
-
-  const totalUpcomingPages = Math.ceil(filteredUpcomingVisits.length / itemsPerPage)
-  const totalPastPages = Math.ceil(filteredPastVisits.length / itemsPerPage)
-  const totalPages = activeTab === 'upcoming' ? totalUpcomingPages : totalPastPages
-  const totalFilteredItems = activeTab === 'upcoming' ? filteredUpcomingVisits.length : filteredPastVisits.length
+  const upcomingVisits = filteredUpcomingVisits
+  const pastVisits = filteredPastVisits
 
   const clearFilters = () => {
     setSearchQuery("")
@@ -345,27 +361,9 @@ function App() {
     setFilterHosts([])
     setFilterHostCompanies([])
     setFilterStatuses([])
-    setCurrentPage(1)
   }
 
   const hasActiveFilters = searchQuery || filterDate || filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0
-
-  // Reset to page 1 when switching tabs or filters change
-  const handleTabChange = (tab) => {
-    setActiveTab(tab)
-    setCurrentPage(1)
-  }
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage)
-    }
-  }
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery, filterDate, filterHosts, filterHostCompanies, filterStatuses])
 
   // Load pinned filters from localStorage on mount
   useEffect(() => {
@@ -541,7 +539,7 @@ function App() {
             </div>
             
             {/* Horizontal Navigation Tabs */}
-            <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="bg-transparent p-0 h-auto border-b border-gray-200 rounded-none w-auto items-end">
                 <TabsTrigger 
                   value="upcoming" 
@@ -563,42 +561,6 @@ function App() {
         </div>
 
         <div className="max-w-[1600px] mx-auto px-12 py-12">
-          {/* Title with Pagination and Export */}
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold" style={{ color: '#2D3338' }}>Visits</h2>
-            
-            {totalPages > 0 && (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-700">
-                    {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalFilteredItems)} of {totalFilteredItems}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="h-8 w-8"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="h-8 w-8"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-                <Button variant="ghost" size="icon">
-                  <Download className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </div>
-
           {/* Filters Bar */}
           <div className="mb-6">
             <div className="flex items-center gap-4">
@@ -684,6 +646,11 @@ function App() {
                     Clear filters
                   </Button>
                 )}
+
+                {/* Download Button */}
+                <Button variant="ghost" size="icon">
+                  <Download className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
@@ -791,10 +758,14 @@ function App() {
           open={isModalOpen}
           onOpenChange={(open) => {
             setIsModalOpen(open)
-            if (!open) setEditingVisit(null)
+            if (!open) {
+              setEditingVisit(null)
+              setInitialStep(0)
+            }
           }}
           onSubmit={handleAddVisitor}
           editingVisit={editingVisit}
+          initialStep={initialStep}
         />
       </div>
 
@@ -814,6 +785,7 @@ function App() {
         open={isConfirmationOpen}
         onOpenChange={setIsConfirmationOpen}
         visitData={confirmedVisit}
+        onEditStep={handleEditStep}
       />
     </div>
   )

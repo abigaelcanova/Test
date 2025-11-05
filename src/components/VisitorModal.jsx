@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Step0DateSelect } from "./modal-steps/Step0DateSelect"
@@ -24,13 +24,13 @@ const getDefaultTimes = () => {
   return { startTime, endTime: endTimeStr }
 }
 
-export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
-  const [currentStep, setCurrentStep] = useState(0)
+export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit, initialStep = 0 }) {
+  const [currentStep, setCurrentStep] = useState(initialStep)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const defaultTimes = getDefaultTimes()
   const [formData, setFormData] = useState({
     visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
-    checkIn: 'bypass',
+    checkIn: '',
     visitorNote: '',
     hostType: 'me',
     hostName: '',
@@ -49,6 +49,23 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
     receiveCheckInNotifications: true,
     additionalOrganizers: ''
   })
+
+  // Update current step when initialStep prop changes
+  useEffect(() => {
+    if (open) {
+      setCurrentStep(initialStep)
+    }
+  }, [initialStep, open])
+
+  // Populate form data when editing a visit
+  useEffect(() => {
+    if (editingVisit && open) {
+      setFormData(prev => ({
+        ...prev,
+        ...editingVisit
+      }))
+    }
+  }, [editingVisit, open])
 
   const handleNext = (stepData) => {
     setFormData(prev => ({ ...prev, ...stepData }))
@@ -69,7 +86,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
     setCurrentStep(0)
     setFormData({
       visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
-      checkIn: 'bypass',
+      checkIn: '',
       visitorNote: '',
       hostType: 'me',
       hostName: '',
@@ -98,7 +115,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
       setCurrentStep(0)
       setFormData({
         visitors: [{ email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }],
-        checkIn: 'bypass',
+        checkIn: '',
         visitorNote: '',
         hostType: 'me',
         hostName: '',

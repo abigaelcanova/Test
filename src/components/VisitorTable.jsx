@@ -6,7 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Edit2, XCircle, MoreVertical } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Edit2, XCircle, MoreVertical, Repeat } from "lucide-react"
 import { formatDate, formatTime } from "@/lib/utils"
 
 export function VisitorTable({ visits, onEdit, onCancel }) {
@@ -30,6 +31,12 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
     return colors[status] || 'text-blue-600'
   }
 
+  const formatFrequency = (frequency) => {
+    if (!frequency) return ''
+    if (frequency === 'weekdays') return 'Repeats every weekday (Monday to Friday)'
+    return `Repeats ${frequency}`
+  }
+
   return (
     <div className="overflow-hidden rounded border border-gray-200 bg-white" data-testid="visitor-table">
       <table className="w-full">
@@ -37,11 +44,10 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
           <tr className="border-b border-gray-200">
             <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Visitor</th>
             <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Expected</th>
+            <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Visit summary</th>
             <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Host</th>
-            <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Invite</th>
             <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Floor</th>
             <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Status</th>
-            <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Badge</th>
             <th className="px-4 py-3.5 text-right text-sm font-medium text-gray-900">Actions</th>
           </tr>
         </thead>
@@ -54,12 +60,29 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
                 </button>
               </td>
               <td className="px-4 py-4 text-sm text-gray-900" data-testid="visitor-date">
-                <div className="flex flex-col">
-                  <span className="text-gray-900">{formatDate(visit.date)}, {visit.startTime ? formatTime(visit.startTime) : 'All day'}</span>
-                  {visit.endTime && (
-                    <span className="text-gray-600 text-xs">End time: {formatTime(visit.endTime)}</span>
+                <div className="flex items-start gap-2">
+                  <div className="flex flex-col">
+                    <span className="text-gray-900">{formatDate(visit.date)}, {visit.startTime ? formatTime(visit.startTime) : 'All day'}</span>
+                    {visit.endTime && (
+                      <span className="text-gray-600 text-xs">End time: {formatTime(visit.endTime)}</span>
+                    )}
+                  </div>
+                  {visit.recurring && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Repeat className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{formatFrequency(visit.frequency)}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   )}
                 </div>
+              </td>
+              <td className="px-4 py-4 text-sm text-gray-900" data-testid="visitor-summary">
+                {visit.visitSummary || '–'}
               </td>
               <td className="px-4 py-4 text-sm text-gray-600" data-testid="visitor-host">
                 <div className="flex flex-col">
@@ -74,9 +97,6 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
                     <span className="text-gray-600 text-xs">{visit.company}</span>
                   )}
                 </div>
-              </td>
-              <td className="px-4 py-4 text-sm text-gray-900">
-                –
               </td>
               <td className="px-4 py-4 text-sm text-gray-900" data-testid="visitor-floor">
                 {visit.floor ? (
@@ -93,9 +113,6 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
                   <span className={`mr-1.5 text-[8px] ${getStatusDotColor(visit.status)}`}>●</span> 
                   {visit.status.charAt(0).toUpperCase() + visit.status.slice(1).replace('-', ' ')}
                 </Badge>
-              </td>
-              <td className="px-4 py-4 text-sm text-gray-900">
-                –
               </td>
               <td className="px-4 py-4 text-right">
                 {visit.status !== 'cancelled' && (onEdit || onCancel) && (

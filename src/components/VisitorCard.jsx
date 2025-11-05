@@ -1,7 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Clock, MapPin, User, Edit2, XCircle } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Calendar, Clock, MapPin, User, Edit2, XCircle, Repeat } from "lucide-react"
 import { formatDate, formatTime } from "@/lib/utils"
 
 export function VisitorCard({ visit, onEdit, onCancel }) {
@@ -23,6 +24,12 @@ export function VisitorCard({ visit, onEdit, onCancel }) {
       'cancelled': 'text-gray-600'
     }
     return colors[status] || 'text-blue-600'
+  }
+
+  const formatFrequency = (frequency) => {
+    if (!frequency) return ''
+    if (frequency === 'weekdays') return 'Repeats every weekday (Monday to Friday)'
+    return `Repeats ${frequency}`
   }
 
   return (
@@ -72,6 +79,18 @@ export function VisitorCard({ visit, onEdit, onCancel }) {
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-gray-400" />
             <span data-testid="visitor-date">{formatDate(visit.date)}</span>
+            {visit.recurring && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Repeat className="h-4 w-4 text-gray-500" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{formatFrequency(visit.frequency)}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
           
           {visit.startTime && (

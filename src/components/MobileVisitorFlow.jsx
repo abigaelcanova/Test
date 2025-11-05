@@ -37,7 +37,7 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
     startTime: defaultTimes.startTime,
     endTime: defaultTimes.endTime,
     visitors: [{ firstName: '', lastName: '', email: '', phone: '', company: '', visitSummary: '' }],
-    checkIn: 'bypass',
+    checkIn: '',
     hostType: 'me',
     hostName: '',
     floor: '1',
@@ -63,6 +63,7 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
         const validVisitors = formData.visitors.filter(v => v.firstName && v.lastName)
         return validVisitors.length > 0 ? `${validVisitors.length} visitor${validVisitors.length > 1 ? 's' : ''}` : 'Add visitors'
       case 'checkin':
+        if (!formData.checkIn) return 'Select check-in preference'
         return formData.checkIn === 'bypass' ? 'Bypass check-in' : 'Standard check-in'
       default:
         return 'Add details'
@@ -577,9 +578,6 @@ function HostSection({ open, onClose, formData, setFormData, activeSection, setA
                     <Label htmlFor="invitation" className="cursor-pointer font-medium">
                       Receive copy of invitation
                     </Label>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Get an email copy when visitors are invited
-                    </p>
                   </div>
                 </div>
 
@@ -595,9 +593,6 @@ function HostSection({ open, onClose, formData, setFormData, activeSection, setA
                     <Label htmlFor="notifications" className="cursor-pointer font-medium">
                       Receive check-in notifications
                     </Label>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Get notified when visitors arrive and check in
-                    </p>
                   </div>
                 </div>
               </div>

@@ -126,7 +126,7 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
 
             <div className="space-y-2">
               <Label htmlFor={`company-${index}`}>
-                Affiliation / Company Name <span className="text-destructive">*</span>
+                Affiliation / company name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id={`company-${index}`}
@@ -139,7 +139,7 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
 
             <div className="space-y-2">
               <Label htmlFor={`visitSummary-${index}`}>
-                Visit Summary <span className="text-destructive">*</span>
+                Visit summary <span className="text-destructive">*</span>
               </Label>
               <Input
                 id={`visitSummary-${index}`}

@@ -4,13 +4,21 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Check, Calendar, Pencil } from "lucide-react"
 import { formatDate, formatTime } from "@/lib/utils"
 
-export function ConfirmationModal({ open, onOpenChange, visitData }) {
+export function ConfirmationModal({ open, onOpenChange, visitData, onEditStep }) {
   if (!visitData) return null
 
   const visitorNames = visitData.visitors
     .filter(v => v.firstName && v.lastName)
     .map(v => `${v.firstName} ${v.lastName}`)
     .join(', ')
+
+  const handleEditDate = () => {
+    onEditStep(0) // Go to date/time step
+  }
+
+  const handleEditVisitors = () => {
+    onEditStep(1) // Go to visitor info step
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -49,7 +57,7 @@ export function ConfirmationModal({ open, onOpenChange, visitData }) {
                         {formatDate(visitData.visitDate)}
                       </span>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleEditDate}>
                       <Pencil className="h-4 w-4" />
                     </Button>
                   </div>
@@ -66,7 +74,7 @@ export function ConfirmationModal({ open, onOpenChange, visitData }) {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Visitor name(s)</span>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleEditVisitors}>
                       <Pencil className="h-4 w-4" />
                     </Button>
                   </div>

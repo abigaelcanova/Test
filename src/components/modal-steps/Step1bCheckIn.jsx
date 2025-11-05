@@ -26,7 +26,7 @@ export function Step1bCheckIn({ data, onSubmit, onBack }) {
           </Label>
           <Select value={checkIn} onValueChange={setCheckIn}>
             <SelectTrigger id="checkIn">
-              <SelectValue />
+              <SelectValue placeholder="Select check-in preference" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="desk">Stop at desk</SelectItem>
