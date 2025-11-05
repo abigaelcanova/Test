@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Plus, Search, X, Download, Pin, SlidersHorizontal, Repeat } from "lucide-react"
 import { VisitorCard } from "@/components/VisitorCard"
 import { VisitorTable } from "@/components/VisitorTable"
@@ -13,6 +14,7 @@ import { VisitorModal } from "@/components/VisitorModal"
 import { MobileVisitorFlow } from "@/components/MobileVisitorFlow"
 import { ConfirmationModal } from "@/components/ConfirmationModal"
 import { MultiSelectFilter } from "@/components/MultiSelectFilter"
+import { formatDate, formatTime } from "@/lib/utils"
 
 function App() {
   const [visits, setVisits] = useState([
@@ -236,6 +238,8 @@ function App() {
   const [filterStatuses, setFilterStatuses] = useState([])
   const [isPinned, setIsPinned] = useState(false)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
+  const [visitToCancel, setVisitToCancel] = useState(null)
 
   const handleAddVisitor = (formData) => {
     // Create visit entries from form data
@@ -298,9 +302,29 @@ function App() {
   }
 
   const handleCancelVisit = (visitId) => {
-    setVisits(prev => prev.map(v => 
-      v.id === visitId ? { ...v, status: 'cancelled' } : v
-    ))
+    const visit = visits.find(v => v.id === visitId)
+    setVisitToCancel(visit)
+    setIsCancelDialogOpen(true)
+  }
+
+  const confirmCancelVisit = (cancelAllFuture = false) => {
+    if (visitToCancel) {
+      if (cancelAllFuture && visitToCancel.recurring) {
+        // Cancel this visit and all future recurring visits
+        // For this demo, we'll just cancel the current visit and mark it
+        // In a real app, you'd cancel all future instances
+        setVisits(prev => prev.map(v => 
+          v.id === visitToCancel.id ? { ...v, status: 'cancelled', recurring: false } : v
+        ))
+      } else {
+        // Cancel just this single visit
+        setVisits(prev => prev.map(v => 
+          v.id === visitToCancel.id ? { ...v, status: 'cancelled' } : v
+        ))
+      }
+    }
+    setIsCancelDialogOpen(false)
+    setVisitToCancel(null)
   }
 
   // Get unique values for filter dropdowns
@@ -787,6 +811,93 @@ function App() {
         visitData={confirmedVisit}
         onEditStep={handleEditStep}
       />
+
+      {/* Cancel Confirmation Dialog */}
+      <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Cancel visit</DialogTitle>
+            <DialogDescription>
+              {visitToCancel?.recurring 
+                ? "This is a recurring visit. Would you like to cancel only this visit or all future visits?"
+                : "Are you sure you want to cancel this visit? This action cannot be undone."}
+            </DialogDescription>
+          </DialogHeader>
+          {visitToCancel && (
+            <div className="py-4 space-y-2 text-sm">
+              <div>
+                <span className="font-medium">Visitor: </span>
+                <span>{visitToCancel.visitorName}</span>
+              </div>
+              <div>
+                <span className="font-medium">Date: </span>
+                <span>{formatDate(visitToCancel.date)}</span>
+              </div>
+              {visitToCancel.startTime && (
+                <div>
+                  <span className="font-medium">Time: </span>
+                  <span>
+                    {formatTime(visitToCancel.startTime)}
+                    {visitToCancel.endTime && ` - ${formatTime(visitToCancel.endTime)}`}
+                  </span>
+                </div>
+              )}
+              {visitToCancel.recurring && visitToCancel.frequency && (
+                <div className="flex items-center gap-2 pt-2">
+                  <Repeat className="h-4 w-4 text-gray-500" />
+                  <span className="text-gray-600">
+                    {visitToCancel.frequency === 'weekdays' 
+                      ? 'Repeats every weekday (Monday to Friday)'
+                      : `Repeats ${visitToCancel.frequency}`}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+          {visitToCancel?.recurring ? (
+            <DialogFooter className="flex flex-col gap-2 sm:flex-col">
+              <div className="flex flex-col sm:flex-row gap-2 w-full">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsCancelDialogOpen(false)}
+                  className="flex-1"
+                >
+                  Keep visit
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => confirmCancelVisit(false)}
+                  className="flex-1"
+                >
+                  Cancel only this visit
+                </Button>
+              </div>
+              <Button
+                variant="destructive"
+                onClick={() => confirmCancelVisit(true)}
+                className="w-full"
+              >
+                Cancel all future visits
+              </Button>
+            </DialogFooter>
+          ) : (
+            <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsCancelDialogOpen(false)}
+              >
+                Keep visit
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => confirmCancelVisit(false)}
+              >
+                Cancel visit
+              </Button>
+            </DialogFooter>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

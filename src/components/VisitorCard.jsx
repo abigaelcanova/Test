@@ -75,6 +75,10 @@ export function VisitorCard({ visit, onEdit, onCancel }) {
           )}
         </div>
         
+        {visit.visitSummary && (
+          <p className="text-sm text-gray-700 mb-3">{visit.visitSummary}</p>
+        )}
+        
         <div className="space-y-2.5 text-sm text-gray-600">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-gray-400" />
