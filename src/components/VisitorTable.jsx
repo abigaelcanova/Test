@@ -31,23 +31,23 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
   }
 
   return (
-    <div className="overflow-hidden rounded border border-gray-200" data-testid="visitor-table">
+    <div className="overflow-hidden rounded border border-gray-200 bg-white" data-testid="visitor-table">
       <table className="w-full">
         <thead>
-          <tr className="border-b bg-gray-50">
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider">Visitor</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider">Expected</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider">Host</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider">Invite</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider">Floor</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider">Status</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider">Badge</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 tracking-wider">Actions</th>
+          <tr className="border-b border-gray-200">
+            <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Visitor</th>
+            <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Expected</th>
+            <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Host</th>
+            <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Invite</th>
+            <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Floor</th>
+            <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Status</th>
+            <th className="px-4 py-3.5 text-left text-sm font-medium text-gray-900">Badge</th>
+            <th className="px-4 py-3.5 text-right text-sm font-medium text-gray-900">Actions</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="divide-y divide-gray-200">
           {visits.map((visit, index) => (
-            <tr key={index} className="hover:bg-gray-50 transition-colors">
+            <tr key={index} className="hover:bg-gray-50/50 transition-colors">
               <td className="px-4 py-4 text-sm font-medium" data-testid="visitor-name">
                 <button className="text-primary hover:text-primary/80 hover:underline text-left">
                   {visit.visitorName}
@@ -55,9 +55,9 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
               </td>
               <td className="px-4 py-4 text-sm text-gray-900" data-testid="visitor-date">
                 <div className="flex flex-col">
-                  <span>{formatDate(visit.date)}, {visit.startTime ? formatTime(visit.startTime) : 'All day'}</span>
+                  <span className="text-gray-900">{formatDate(visit.date)}, {visit.startTime ? formatTime(visit.startTime) : 'All day'}</span>
                   {visit.endTime && (
-                    <span className="text-gray-500 text-xs">End time: {formatTime(visit.endTime)}</span>
+                    <span className="text-gray-600 text-xs">End time: {formatTime(visit.endTime)}</span>
                   )}
                 </div>
               </td>
@@ -71,14 +71,14 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
                     <span className="text-gray-600">–</span>
                   )}
                   {visit.company && (
-                    <span className="text-gray-500 text-xs">{visit.company}</span>
+                    <span className="text-gray-600 text-xs">{visit.company}</span>
                   )}
                 </div>
               </td>
-              <td className="px-4 py-4 text-sm text-gray-600">
+              <td className="px-4 py-4 text-sm text-gray-900">
                 –
               </td>
-              <td className="px-4 py-4 text-sm text-gray-600" data-testid="visitor-floor">
+              <td className="px-4 py-4 text-sm text-gray-900" data-testid="visitor-floor">
                 {visit.floor ? `Floor ${visit.floor}${visit.suite ? `, Suite ${visit.suite}` : ''}` : '–'}
               </td>
               <td className="px-4 py-4" data-testid="visitor-status">
@@ -87,7 +87,7 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
                   {visit.status.charAt(0).toUpperCase() + visit.status.slice(1).replace('-', ' ')}
                 </Badge>
               </td>
-              <td className="px-4 py-4 text-sm text-gray-600">
+              <td className="px-4 py-4 text-sm text-gray-900">
                 –
               </td>
               <td className="px-4 py-4 text-right">

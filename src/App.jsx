@@ -1,15 +1,17 @@
 import { useState, useMemo, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Search, X, ChevronLeft, ChevronRight, Download } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Plus, Search, X, ChevronLeft, ChevronRight, Download, Pin, SlidersHorizontal } from "lucide-react"
 import { VisitorCard } from "@/components/VisitorCard"
 import { VisitorTable } from "@/components/VisitorTable"
 import { EmptyState } from "@/components/EmptyState"
 import { LoadingSkeleton } from "@/components/LoadingSkeleton"
 import { VisitorModal } from "@/components/VisitorModal"
 import { ConfirmationModal } from "@/components/ConfirmationModal"
+import { MultiSelectFilter } from "@/components/MultiSelectFilter"
 
 function App() {
   const [visits, setVisits] = useState([
@@ -206,10 +208,12 @@ function App() {
   const [editingVisit, setEditingVisit] = useState(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterDate, setFilterDate] = useState("")
-  const [filterHost, setFilterHost] = useState("")
-  const [filterHostCompany, setFilterHostCompany] = useState("")
-  const [filterStatus, setFilterStatus] = useState("")
+  const [filterHosts, setFilterHosts] = useState([])
+  const [filterHostCompanies, setFilterHostCompanies] = useState([])
+  const [filterStatuses, setFilterStatuses] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
+  const [isPinned, setIsPinned] = useState(false)
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const itemsPerPage = 10
 
   const handleAddVisitor = (formData) => {
@@ -295,14 +299,14 @@ function App() {
       // Date filter
       const dateMatch = !filterDate || visit.date === filterDate
       
-      // Host filter
-      const hostMatch = !filterHost || visit.host === filterHost
+      // Host filter (multi-select)
+      const hostMatch = filterHosts.length === 0 || filterHosts.includes(visit.host)
       
-      // Host Company filter
-      const companyMatch = !filterHostCompany || visit.company === filterHostCompany
+      // Host Company filter (multi-select)
+      const companyMatch = filterHostCompanies.length === 0 || filterHostCompanies.includes(visit.company)
       
-      // Status filter
-      const statusMatch = !filterStatus || visit.status === filterStatus
+      // Status filter (multi-select)
+      const statusMatch = filterStatuses.length === 0 || filterStatuses.includes(visit.status)
       
       return searchMatch && dateMatch && hostMatch && companyMatch && statusMatch
     })
@@ -337,13 +341,13 @@ function App() {
   const clearFilters = () => {
     setSearchQuery("")
     setFilterDate("")
-    setFilterHost("")
-    setFilterHostCompany("")
-    setFilterStatus("")
+    setFilterHosts([])
+    setFilterHostCompanies([])
+    setFilterStatuses([])
     setCurrentPage(1)
   }
 
-  const hasActiveFilters = searchQuery || filterDate || filterHost || filterHostCompany || filterStatus
+  const hasActiveFilters = searchQuery || filterDate || filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0
 
   // Reset to page 1 when switching tabs or filters change
   const handleTabChange = (tab) => {
@@ -360,7 +364,45 @@ function App() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchQuery, filterDate, filterHost, filterHostCompany, filterStatus])
+  }, [searchQuery, filterDate, filterHosts, filterHostCompanies, filterStatuses])
+
+  // Load pinned filters from localStorage on mount
+  useEffect(() => {
+    const savedPinned = localStorage.getItem('visitorFilters:pinned')
+    if (savedPinned === 'true') {
+      setIsPinned(true)
+      const savedFilters = localStorage.getItem('visitorFilters:data')
+      if (savedFilters) {
+        try {
+          const filters = JSON.parse(savedFilters)
+          setSearchQuery(filters.searchQuery || "")
+          setFilterDate(filters.filterDate || "")
+          setFilterHosts(filters.filterHosts || [])
+          setFilterHostCompanies(filters.filterHostCompanies || [])
+          setFilterStatuses(filters.filterStatuses || [])
+        } catch (e) {
+          console.error('Failed to load saved filters:', e)
+        }
+      }
+    }
+  }, [])
+
+  // Save filters to localStorage when pinned
+  useEffect(() => {
+    if (isPinned) {
+      localStorage.setItem('visitorFilters:pinned', 'true')
+      localStorage.setItem('visitorFilters:data', JSON.stringify({
+        searchQuery,
+        filterDate,
+        filterHosts,
+        filterHostCompanies,
+        filterStatuses
+      }))
+    } else {
+      localStorage.removeItem('visitorFilters:pinned')
+      localStorage.removeItem('visitorFilters:data')
+    }
+  }, [isPinned, searchQuery, filterDate, filterHosts, filterHostCompanies, filterStatuses])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -434,8 +476,113 @@ function App() {
                 />
               </div>
 
-              {/* Right-aligned filters */}
-              <div className="flex items-center gap-4">
+              {/* Pin Button - Desktop only */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setIsPinned(!isPinned)}
+                      className={`hidden lg:flex ${isPinned ? "bg-gray-100" : ""}`}
+                    >
+                      <Pin className={`h-4 w-4 ${isPinned ? "fill-current" : ""}`} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Pin filters to make them persist</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {/* Mobile Filters Button */}
+              <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+                <SheetTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="lg:hidden gap-2 bg-blue-50 border-blue-100 text-primary hover:bg-blue-100 hover:text-primary"
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    <span className="font-semibold">Filters</span>
+                    {hasActiveFilters && (
+                      <span className="bg-primary text-white text-xs font-semibold rounded-md px-2 py-0.5 min-w-[20px] text-center">
+                        {[filterDate, ...filterHosts, ...filterHostCompanies, ...filterStatuses].filter(Boolean).length}
+                      </span>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full sm:w-[400px]">
+                  <SheetHeader>
+                    <SheetTitle>Filters</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6 space-y-6">
+                    {/* Date Picker */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Date</label>
+                      <Input
+                        type="date"
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                        placeholder="Filter by date"
+                      />
+                    </div>
+
+                    {/* Host Filter */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Host</label>
+                      <MultiSelectFilter
+                        options={uniqueHosts}
+                        selectedValues={filterHosts}
+                        onChange={setFilterHosts}
+                        placeholder="Host"
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Host Company Filter */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Company</label>
+                      <MultiSelectFilter
+                        options={uniqueHostCompanies}
+                        selectedValues={filterHostCompanies}
+                        onChange={setFilterHostCompanies}
+                        placeholder="Company"
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Status Filter */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Status</label>
+                      <MultiSelectFilter
+                        options={availableStatuses}
+                        selectedValues={filterStatuses}
+                        onChange={setFilterStatuses}
+                        placeholder="Status"
+                        className="w-full"
+                        formatLabel={(status) => status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
+                      />
+                    </div>
+
+                    {/* Clear Filters Button */}
+                    {hasActiveFilters && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          clearFilters()
+                          setIsFiltersOpen(false)
+                        }}
+                        className="w-full"
+                      >
+                        Clear all
+                      </Button>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              {/* Desktop Filters - Hidden on mobile/tablet */}
+              <div className="hidden lg:flex items-center gap-4">
                 {/* Date Picker */}
                 <Input
                   type="date"
@@ -446,58 +593,32 @@ function App() {
                 />
 
                 {/* Host Filter */}
-                <Select 
-                  value={filterHost || "all"} 
-                  onValueChange={(value) => setFilterHost(value === "all" ? "" : value)}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="All hosts" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All hosts</SelectItem>
-                    {uniqueHosts.map(host => (
-                      <SelectItem key={host} value={host}>
-                        {host}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <MultiSelectFilter
+                  options={uniqueHosts}
+                  selectedValues={filterHosts}
+                  onChange={setFilterHosts}
+                  placeholder="Host"
+                  className="w-[200px]"
+                />
 
                 {/* Host Company Filter */}
-                <Select 
-                  value={filterHostCompany || "all"} 
-                  onValueChange={(value) => setFilterHostCompany(value === "all" ? "" : value)}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="All companies" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All companies</SelectItem>
-                    {uniqueHostCompanies.map(company => (
-                      <SelectItem key={company} value={company}>
-                        {company}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <MultiSelectFilter
+                  options={uniqueHostCompanies}
+                  selectedValues={filterHostCompanies}
+                  onChange={setFilterHostCompanies}
+                  placeholder="Company"
+                  className="w-[200px]"
+                />
 
                 {/* Status Filter */}
-                <Select 
-                  value={filterStatus || "all"} 
-                  onValueChange={(value) => setFilterStatus(value === "all" ? "" : value)}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="All statuses" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All statuses</SelectItem>
-                    {availableStatuses.map(status => (
-                      <SelectItem key={status} value={status}>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <MultiSelectFilter
+                  options={availableStatuses}
+                  selectedValues={filterStatuses}
+                  onChange={setFilterStatuses}
+                  placeholder="Status"
+                  className="w-[200px]"
+                  formatLabel={(status) => status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
+                />
 
                 {/* Clear Filters Button */}
                 {hasActiveFilters && (
@@ -517,28 +638,27 @@ function App() {
 
           {/* Pagination Controls - Top */}
           {totalPages > 0 && (
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-sm text-gray-600">
-                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalFilteredItems)} of {totalFilteredItems} results
-              </div>
+            <div className="flex items-center justify-end mb-4">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-700">
+                    {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalFilteredItems)} of {totalFilteredItems}
+                  </span>
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
+                    className="h-8 w-8"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <span className="text-sm text-gray-600 px-3">
-                    {currentPage} of {totalPages}
-                  </span>
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
+                    className="h-8 w-8"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
