@@ -85,14 +85,15 @@ export function Step0DateSelect({ data, onNext }) {
   }
 
   return (
-    <div className="space-y-8 py-4">
+    <div className="flex flex-col h-full py-4">
       <div className="text-center space-y-4">
         <h2 className="text-3xl font-semibold text-gray-900">
           When is your visit?
         </h2>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
+      <form onSubmit={handleSubmit} className="flex flex-col flex-1 mt-8">
+        <div className="space-y-6 max-w-md mx-auto flex-1">
         {/* Multi-day mode info */}
         {isMultiDay && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -262,12 +263,16 @@ export function Step0DateSelect({ data, onNext }) {
           )}
         </div>
 
-        <Button 
-          type="submit" 
-          className="w-full h-12 text-base"
-        >
-          Continue
-        </Button>
+        <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-4 -mx-6 px-6 -mb-24 pb-6">
+          <div className="max-w-md mx-auto">
+            <Button 
+              type="submit" 
+              className="w-full h-12 text-base"
+            >
+              Continue
+            </Button>
+          </div>
+        </div>
       </form>
     </div>
   )

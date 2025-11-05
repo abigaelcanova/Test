@@ -35,7 +35,8 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="flex flex-col h-full">
+      <div className="space-y-6 flex-1">
       {/* Who is hosting section */}
       <div className="space-y-6">
         <div>
@@ -176,16 +177,19 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
           </div>
         </div>
       )}
+      </div>
 
-      <div className="flex gap-3">
-        {onBack && (
-          <Button type="button" variant="outline" onClick={onBack} className="flex-1">
-            Back
+      <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-4 -mx-6 px-6 -mb-24 pb-6">
+        <div className="flex gap-3">
+          {onBack && (
+            <Button type="button" variant="outline" onClick={onBack} className="flex-1">
+              Back
+            </Button>
+          )}
+          <Button type="submit" className="flex-1">
+            Continue
           </Button>
-        )}
-        <Button type="submit" className="flex-1">
-          Continue
-        </Button>
+        </div>
       </div>
     </form>
   )

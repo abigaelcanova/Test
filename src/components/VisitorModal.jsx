@@ -139,8 +139,8 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[90vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[90vw] md:max-w-2xl max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6 pb-0">
           {/* Step Navigation */}
           <div className="flex items-center justify-center gap-2 mb-6">
             {stepLabels.map((label, index) => (
@@ -176,7 +176,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
         </DialogHeader>
 
         <div 
-          className={`relative transition-opacity duration-150 ease-in-out min-h-[500px] ${
+          className={`relative transition-opacity duration-150 ease-in-out min-h-[500px] overflow-y-auto px-6 pb-24 ${
             isTransitioning ? 'opacity-0' : 'opacity-100'
           }`}
         >
