@@ -10,6 +10,7 @@ import { VisitorTable } from "@/components/VisitorTable"
 import { EmptyState } from "@/components/EmptyState"
 import { LoadingSkeleton } from "@/components/LoadingSkeleton"
 import { VisitorModal } from "@/components/VisitorModal"
+import { MobileVisitorFlow } from "@/components/MobileVisitorFlow"
 import { ConfirmationModal } from "@/components/ConfirmationModal"
 import { MultiSelectFilter } from "@/components/MultiSelectFilter"
 
@@ -408,8 +409,8 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Header */}
       <div className="md:hidden sticky top-0 z-10 bg-white border-b shadow-sm">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="px-4 py-4 space-y-4">
+          <div className="flex items-center justify-between">
             <h1 className="text-2xl font-normal text-gray-900">Visitor Management</h1>
           </div>
           
@@ -423,6 +424,107 @@ function App() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
+
+          {/* Mobile Search and Filters */}
+          <div className="flex items-center gap-2">
+            {/* Search Input */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search by visitor name, host, or location..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4"
+              />
+            </div>
+
+            {/* Filters Button */}
+            <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="gap-2 bg-blue-50 border-blue-100 text-primary hover:bg-blue-100 hover:text-primary shrink-0"
+                >
+                  <SlidersHorizontal className="h-4 w-4" />
+                  <span className="font-semibold">Filters</span>
+                  {hasActiveFilters && (
+                    <span className="bg-primary text-white text-xs font-semibold rounded-md px-2 py-0.5 min-w-[20px] text-center">
+                      {[filterDate, ...filterHosts, ...filterHostCompanies, ...filterStatuses].filter(Boolean).length}
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:w-[400px]">
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6 space-y-6">
+                  {/* Date Picker */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Date</label>
+                    <Input
+                      type="date"
+                      value={filterDate}
+                      onChange={(e) => setFilterDate(e.target.value)}
+                      placeholder="Filter by date"
+                    />
+                  </div>
+
+                  {/* Host Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Host</label>
+                    <MultiSelectFilter
+                      options={uniqueHosts}
+                      selectedValues={filterHosts}
+                      onChange={setFilterHosts}
+                      placeholder="Host"
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Host Company Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Company</label>
+                    <MultiSelectFilter
+                      options={uniqueHostCompanies}
+                      selectedValues={filterHostCompanies}
+                      onChange={setFilterHostCompanies}
+                      placeholder="Company"
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Status Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Status</label>
+                    <MultiSelectFilter
+                      options={availableStatuses}
+                      selectedValues={filterStatuses}
+                      onChange={setFilterStatuses}
+                      placeholder="Status"
+                      className="w-full"
+                      formatLabel={(status) => status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
+                    />
+                  </div>
+
+                  {/* Clear Filters Button */}
+                  {hasActiveFilters && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        clearFilters()
+                        setIsFiltersOpen(false)
+                      }}
+                      className="w-full"
+                    >
+                      Clear all
+                    </Button>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
 
@@ -484,7 +586,7 @@ function App() {
                       variant="outline"
                       size="icon"
                       onClick={() => setIsPinned(!isPinned)}
-                      className={`hidden lg:flex ${isPinned ? "bg-gray-100" : ""}`}
+                      className={isPinned ? "bg-gray-100" : ""}
                     >
                       <Pin className={`h-4 w-4 ${isPinned ? "fill-current" : ""}`} />
                     </Button>
@@ -495,94 +597,8 @@ function App() {
                 </Tooltip>
               </TooltipProvider>
 
-              {/* Mobile Filters Button */}
-              <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-                <SheetTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="lg:hidden gap-2 bg-blue-50 border-blue-100 text-primary hover:bg-blue-100 hover:text-primary"
-                  >
-                    <SlidersHorizontal className="h-4 w-4" />
-                    <span className="font-semibold">Filters</span>
-                    {hasActiveFilters && (
-                      <span className="bg-primary text-white text-xs font-semibold rounded-md px-2 py-0.5 min-w-[20px] text-center">
-                        {[filterDate, ...filterHosts, ...filterHostCompanies, ...filterStatuses].filter(Boolean).length}
-                      </span>
-                    )}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-full sm:w-[400px]">
-                  <SheetHeader>
-                    <SheetTitle>Filters</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6 space-y-6">
-                    {/* Date Picker */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Date</label>
-                      <Input
-                        type="date"
-                        value={filterDate}
-                        onChange={(e) => setFilterDate(e.target.value)}
-                        placeholder="Filter by date"
-                      />
-                    </div>
-
-                    {/* Host Filter */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Host</label>
-                      <MultiSelectFilter
-                        options={uniqueHosts}
-                        selectedValues={filterHosts}
-                        onChange={setFilterHosts}
-                        placeholder="Host"
-                        className="w-full"
-                      />
-                    </div>
-
-                    {/* Host Company Filter */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Company</label>
-                      <MultiSelectFilter
-                        options={uniqueHostCompanies}
-                        selectedValues={filterHostCompanies}
-                        onChange={setFilterHostCompanies}
-                        placeholder="Company"
-                        className="w-full"
-                      />
-                    </div>
-
-                    {/* Status Filter */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Status</label>
-                      <MultiSelectFilter
-                        options={availableStatuses}
-                        selectedValues={filterStatuses}
-                        onChange={setFilterStatuses}
-                        placeholder="Status"
-                        className="w-full"
-                        formatLabel={(status) => status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
-                      />
-                    </div>
-
-                    {/* Clear Filters Button */}
-                    {hasActiveFilters && (
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          clearFilters()
-                          setIsFiltersOpen(false)
-                        }}
-                        className="w-full"
-                      >
-                        Clear all
-                      </Button>
-                    )}
-                  </div>
-                </SheetContent>
-              </Sheet>
-
-              {/* Desktop Filters - Hidden on mobile/tablet */}
-              <div className="hidden lg:flex items-center gap-4">
+              {/* Desktop Filters */}
+              <div className="flex items-center gap-4">
                 {/* Date Picker */}
                 <Input
                   type="date"
@@ -768,15 +784,30 @@ function App() {
       </div>
 
       {/* Modals */}
-      <VisitorModal
-        open={isModalOpen}
-        onOpenChange={(open) => {
-          setIsModalOpen(open)
-          if (!open) setEditingVisit(null)
-        }}
-        onSubmit={handleAddVisitor}
-        editingVisit={editingVisit}
-      />
+      {/* Desktop Modal */}
+      <div className="hidden md:block">
+        <VisitorModal
+          open={isModalOpen}
+          onOpenChange={(open) => {
+            setIsModalOpen(open)
+            if (!open) setEditingVisit(null)
+          }}
+          onSubmit={handleAddVisitor}
+          editingVisit={editingVisit}
+        />
+      </div>
+
+      {/* Mobile Flow */}
+      <div className="md:hidden">
+        <MobileVisitorFlow
+          open={isModalOpen}
+          onOpenChange={(open) => {
+            setIsModalOpen(open)
+            if (!open) setEditingVisit(null)
+          }}
+          onSubmit={handleAddVisitor}
+        />
+      </div>
 
       <ConfirmationModal
         open={isConfirmationOpen}
