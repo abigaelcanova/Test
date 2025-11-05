@@ -3,12 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { formatDate } from "@/lib/utils"
 
 export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
-  const [floor, setFloor] = useState(data.floor)
-  const [suite, setSuite] = useState(data.suite)
   const [hostType, setHostType] = useState(data.hostType)
   const [hostName, setHostName] = useState(data.hostName)
   const [receiveCopyInvitation, setReceiveCopyInvitation] = useState(data.receiveCopyInvitation)
@@ -18,8 +14,6 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     const stepData = {
-      floor,
-      suite,
       hostType,
       hostName,
       receiveCopyInvitation,
@@ -62,53 +56,14 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
         </div>
 
         {hostType === 'someone' && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="hostName">Host name <span className="text-destructive">*</span></Label>
-              <Input
-                id="hostName"
-                placeholder="Search or enter host name"
-                value={hostName}
-                onChange={(e) => setHostName(e.target.value)}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="floor">
-                  Floor <span className="text-destructive">*</span>
-                </Label>
-                <Select value={floor} onValueChange={setFloor}>
-                  <SelectTrigger id="floor">
-                    <SelectValue placeholder="Select floor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1</SelectItem>
-                    <SelectItem value="2">2</SelectItem>
-                    <SelectItem value="3">3</SelectItem>
-                    <SelectItem value="14">14</SelectItem>
-                    <SelectItem value="15">15</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="suite">
-                  Suite <span className="text-destructive">*</span>
-                </Label>
-                <Select value={suite} onValueChange={setSuite}>
-                  <SelectTrigger id="suite">
-                    <SelectValue placeholder="Select suite" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1001">#1001</SelectItem>
-                    <SelectItem value="1002">#1002</SelectItem>
-                    <SelectItem value="1003">#1003</SelectItem>
-                    <SelectItem value="1004">#1004</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="hostName">Host name <span className="text-destructive">*</span></Label>
+            <Input
+              id="hostName"
+              placeholder="Search or enter host name"
+              value={hostName}
+              onChange={(e) => setHostName(e.target.value)}
+            />
           </div>
         )}
       </div>
