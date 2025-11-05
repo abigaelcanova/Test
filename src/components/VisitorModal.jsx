@@ -176,7 +176,7 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
         </DialogHeader>
 
         <div 
-          className={`relative transition-opacity duration-150 ease-in-out overflow-y-auto flex-1 px-6 pb-6 ${
+          className={`relative transition-opacity duration-150 ease-in-out overflow-y-auto flex-1 px-6 pb-6 min-h-[500px] ${
             isTransitioning ? 'opacity-0' : 'opacity-100'
           }`}
         >
