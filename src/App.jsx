@@ -108,12 +108,24 @@ function App() {
 
       {/* Desktop Layout */}
       <div className="hidden md:block">
+        {/* Desktop Header */}
+        <div className="bg-white border-b">
+          <div className="max-w-[1400px] mx-auto px-6 py-6">
+            <div className="flex justify-between items-center">
+              <h1 className="text-3xl font-bold text-gray-900">Visitor registration</h1>
+              <Button onClick={() => setIsModalOpen(true)} data-testid="add-visitor-desktop" className="shadow-sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add new visitor
+              </Button>
+            </div>
+          </div>
+        </div>
+
         <div className="max-w-[1400px] mx-auto px-6 py-8">
           <div className="grid grid-cols-12 gap-8">
             {/* Left Sidebar - Desktop Navigation */}
             <div className="col-span-3 lg:col-span-2">
               <div className="sticky top-8">
-                <h1 className="text-xl font-bold text-gray-900 mb-6 px-3">Visitor registration</h1>
                 <nav className="space-y-1">
                   <button
                     className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all ${
@@ -144,15 +156,6 @@ function App() {
             {/* Main Content */}
             <div className="col-span-9 lg:col-span-10">
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 min-h-[600px]">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-semibold text-gray-900">
-                    {activeTab === 'upcoming' ? 'Upcoming Visits' : 'Past Visits'}
-                  </h2>
-                  <Button onClick={() => setIsModalOpen(true)} data-testid="add-visitor-desktop" className="shadow-sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add new visitor
-                  </Button>
-                </div>
 
                 {isLoading ? (
                   <LoadingSkeleton />
