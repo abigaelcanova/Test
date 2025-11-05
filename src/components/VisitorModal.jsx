@@ -196,4 +196,3 @@ export function VisitorModal({ open, onOpenChange, onSubmit, editingVisit }) {
     </Dialog>
   )
 }
-

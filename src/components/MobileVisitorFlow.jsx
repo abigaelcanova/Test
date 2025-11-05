@@ -10,6 +10,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { formatDate } from "@/lib/utils"
 
 export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
+  const [isMobile, setIsMobile] = useState(false)
   const [activeSection, setActiveSection] = useState(null)
   const [formData, setFormData] = useState({
     visitDate: null,
@@ -66,6 +67,19 @@ export function MobileVisitorFlow({ open, onOpenChange, onSubmit }) {
       onOpenChange(false)
     }
   }
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  
+  // Don't render on desktop
+  if (!isMobile) return null
 
   return (
     <>

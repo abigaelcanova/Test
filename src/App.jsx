@@ -592,9 +592,8 @@ function App() {
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
+                <Button variant="outline" size="icon">
+                  <Download className="h-4 w-4" />
                 </Button>
               </div>
             )}
