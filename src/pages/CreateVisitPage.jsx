@@ -117,51 +117,53 @@ export function CreateVisitPage() {
   return (
     <div className="h-full bg-white">
       {/* Header */}
-      <div className="bg-white border-b">
-        <div className="px-6 lg:px-12 py-6">
-          {/* Breadcrumb */}
-          <button
-            onClick={handleCancel}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="text-sm font-medium">Visitor Management</span>
-          </button>
-          
-          {/* Main Heading */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-semibold text-gray-900">
-              {editingVisit ? 'Edit visit' : 'New visit'}
-            </h1>
-            <Button
-              variant="outline"
+      <div className="bg-white">
+        <div className="px-4 sm:px-6 lg:px-12 py-4 sm:py-6 flex justify-center">
+          <div className="w-full max-w-6xl">
+            {/* Breadcrumb */}
+            <button
               onClick={handleCancel}
-              className="hidden sm:block"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
             >
-              Cancel
-            </Button>
+              <ArrowLeft className="h-4 w-4" />
+              <span className="text-sm font-medium">Visitor Management</span>
+            </button>
+            
+            {/* Main Heading */}
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
+                {editingVisit ? 'Edit visit' : 'New visit'}
+              </h1>
+              <Button
+                variant="outline"
+                onClick={handleCancel}
+                className="hidden sm:block"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="px-6 lg:px-12 py-8 bg-white flex justify-center">
-        <div className="w-full max-w-4xl">
-          {/* Progress Steps */}
-          <div className="bg-white rounded-lg border shadow-sm mb-6 p-6">
-          <div className="flex items-center justify-center gap-2">
+      <div className="px-4 sm:px-6 lg:px-12 py-6 sm:py-8 bg-white flex justify-center">
+        <div className="w-full max-w-6xl">
+        {/* Progress Steps */}
+        <div className="bg-white rounded-lg border shadow-sm mb-6 p-3 sm:p-6">
+          <div className="flex items-center justify-center gap-1 sm:gap-2 overflow-x-auto">
             {stepLabels.map((label, index) => (
-              <div key={index} className="flex items-center">
+              <div key={index} className="flex items-center flex-shrink-0">
                 <button
                   onClick={() => handleStepChange(index)}
                   disabled={isTransitioning}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
+                  className={`flex items-center gap-1 sm:gap-2 p-2 sm:px-3 sm:py-2 rounded-lg transition-all duration-200 cursor-pointer ${
                     index === currentStep
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted hover:bg-muted/80'
                   } ${isTransitioning ? 'opacity-50 pointer-events-none' : ''}`}
                 >
-                  <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium transition-all duration-200 ${
+                  <span className={`flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full text-xs font-medium transition-all duration-200 ${
                     index === currentStep
                       ? 'bg-primary-foreground text-primary'
                       : index < currentStep
@@ -170,10 +172,10 @@ export function CreateVisitPage() {
                   }`}>
                     {index + 1}
                   </span>
-                  <span className="text-sm font-medium">{label}</span>
+                  <span className="hidden md:inline text-xs sm:text-sm font-medium">{label}</span>
                 </button>
                 {index < stepLabels.length - 1 && (
-                  <div className={`w-8 h-0.5 mx-1 transition-all duration-300 ${
+                  <div className={`w-2 sm:w-8 h-0.5 mx-0.5 sm:mx-1 transition-all duration-300 ${
                     index < currentStep ? 'bg-primary' : 'bg-muted'
                   }`} />
                 )}
@@ -183,7 +185,7 @@ export function CreateVisitPage() {
         </div>
 
         {/* Form Content */}
-        <div className="bg-white rounded-lg border shadow-sm p-6">
+        <div className="bg-white rounded-lg border shadow-sm p-4 sm:p-6">
           <div 
             className={`transition-opacity duration-150 ease-in-out min-h-[500px] ${
               isTransitioning ? 'opacity-0' : 'opacity-100'
