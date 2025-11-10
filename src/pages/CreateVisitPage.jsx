@@ -115,10 +115,10 @@ export function CreateVisitPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-full bg-white">
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="bg-white border-b">
+        <div className="px-6 lg:px-12 py-6">
           {/* Breadcrumb */}
           <button
             onClick={handleCancel}
@@ -145,9 +145,10 @@ export function CreateVisitPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Progress Steps */}
-        <div className="bg-white rounded-lg border shadow-sm mb-6 p-6">
+      <div className="px-6 lg:px-12 py-8 bg-white flex justify-center">
+        <div className="w-full max-w-4xl">
+          {/* Progress Steps */}
+          <div className="bg-white rounded-lg border shadow-sm mb-6 p-6">
           <div className="flex items-center justify-center gap-2">
             {stepLabels.map((label, index) => (
               <div key={index} className="flex items-center">
@@ -285,6 +286,7 @@ export function CreateVisitPage() {
               </Button>
             )}
           </div>
+        </div>
         </div>
       </div>
     </div>

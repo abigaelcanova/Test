@@ -99,39 +99,144 @@ export function Step0DateSelect({ data, onNext }) {
           </div>
         )}
 
-        {/* Calendar Component */}
-        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 w-fit mx-auto">
-          <CalendarComponent
-            selected={isMultiDay ? selectedDates : visitDate}
-            onSelect={(date) => {
-              if (isMultiDay) {
-                handleDateToggle(date)
-              } else {
-                setVisitDate(date)
-              }
-            }}
-            isMultiSelect={isMultiDay}
-          />
-        </div>
+        {/* Calendar and Time Selection */}
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          {/* Left Side - Calendar */}
+          <div className="w-full md:flex-shrink-0 md:w-auto">
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 w-full md:w-fit">
+              <CalendarComponent
+                selected={isMultiDay ? selectedDates : visitDate}
+                onSelect={(date) => {
+                  if (isMultiDay) {
+                    handleDateToggle(date)
+                  } else {
+                    setVisitDate(date)
+                  }
+                }}
+                isMultiSelect={isMultiDay}
+              />
+            </div>
 
-        {/* Multi-day Visit Option */}
-        <div className="flex items-center justify-center gap-2">
-          <input
-            type="checkbox"
-            id="multiDay"
-            checked={isMultiDay}
-            onChange={(e) => {
-              setIsMultiDay(e.target.checked)
-              if (e.target.checked) {
-                // Initialize with current selected date
-                setSelectedDates([visitDate])
-              }
-            }}
-            className="h-4 w-4 rounded border-gray-300"
-          />
-          <Label htmlFor="multiDay" className="cursor-pointer font-medium">
-            Multi-day visit
-          </Label>
+            {/* Multi-day Visit Option */}
+            <div className="flex items-center gap-2 mt-4">
+              <input
+                type="checkbox"
+                id="multiDay"
+                checked={isMultiDay}
+                onChange={(e) => {
+                  setIsMultiDay(e.target.checked)
+                  if (e.target.checked) {
+                    // Initialize with current selected date
+                    setSelectedDates([visitDate])
+                  }
+                }}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              <Label htmlFor="multiDay" className="cursor-pointer font-medium">
+                Multi-day visit
+              </Label>
+            </div>
+          </div>
+
+          {/* Right Side - Time Selection */}
+          <div className="w-full md:flex-1 space-y-4">
+            {/* Start and End Date/Time */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="startDate">Start date</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={visitDate}
+                    onChange={(e) => setVisitDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="startTime">Start time</Label>
+                  <Select value={startTime} onValueChange={setStartTime}>
+                    <SelectTrigger id="startTime">
+                      <SelectValue placeholder="Select start time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="08:00">8:00 AM</SelectItem>
+                      <SelectItem value="09:00">9:00 AM</SelectItem>
+                      <SelectItem value="10:00">10:00 AM</SelectItem>
+                      <SelectItem value="11:00">11:00 AM</SelectItem>
+                      <SelectItem value="12:00">12:00 PM</SelectItem>
+                      <SelectItem value="13:00">1:00 PM</SelectItem>
+                      <SelectItem value="14:00">2:00 PM</SelectItem>
+                      <SelectItem value="15:00">3:00 PM</SelectItem>
+                      <SelectItem value="16:00">4:00 PM</SelectItem>
+                      <SelectItem value="17:00">5:00 PM</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="endDate">End date</Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={visitDate}
+                    onChange={(e) => setVisitDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endTime">End time</Label>
+                  <Select value={endTime} onValueChange={setEndTime}>
+                    <SelectTrigger id="endTime">
+                      <SelectValue placeholder="Select end time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="09:00">9:00 AM</SelectItem>
+                      <SelectItem value="10:00">10:00 AM</SelectItem>
+                      <SelectItem value="11:00">11:00 AM</SelectItem>
+                      <SelectItem value="12:00">12:00 PM</SelectItem>
+                      <SelectItem value="13:00">1:00 PM</SelectItem>
+                      <SelectItem value="14:00">2:00 PM</SelectItem>
+                      <SelectItem value="15:00">3:00 PM</SelectItem>
+                      <SelectItem value="16:00">4:00 PM</SelectItem>
+                      <SelectItem value="17:00">5:00 PM</SelectItem>
+                      <SelectItem value="18:00">6:00 PM</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Repeat Dropdown */}
+            <div className="space-y-2">
+              <Label htmlFor="repeat">Repeat</Label>
+              <Select value={repeatOption} onValueChange={setRepeatOption}>
+                <SelectTrigger id="repeat">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{getRepeatLabel().none}</SelectItem>
+                  <SelectItem value="daily">{getRepeatLabel().daily}</SelectItem>
+                  <SelectItem value="weekly">{getRepeatLabel().weekly}</SelectItem>
+                  <SelectItem value="monthly">{getRepeatLabel().monthly}</SelectItem>
+                  <SelectItem value="annually">{getRepeatLabel().annually}</SelectItem>
+                  <SelectItem value="weekdays">{getRepeatLabel().weekdays}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {repeatOption !== 'none' && (
+              <div className="space-y-2">
+                <Label htmlFor="recurringEnd">Repeat until</Label>
+                <Input
+                  id="recurringEnd"
+                  type="date"
+                  value={recurringEnd}
+                  onChange={(e) => setRecurringEnd(e.target.value)}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Selected Date(s) Display */}
@@ -178,85 +283,6 @@ export function Step0DateSelect({ data, onNext }) {
             </div>
           </div>
         )}
-
-        {/* Start and End Time */}
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="startTime">Start time</Label>
-              <Select value={startTime} onValueChange={setStartTime}>
-                <SelectTrigger id="startTime">
-                  <SelectValue placeholder="Select start time" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="08:00">8:00 AM</SelectItem>
-                  <SelectItem value="09:00">9:00 AM</SelectItem>
-                  <SelectItem value="10:00">10:00 AM</SelectItem>
-                  <SelectItem value="11:00">11:00 AM</SelectItem>
-                  <SelectItem value="12:00">12:00 PM</SelectItem>
-                  <SelectItem value="13:00">1:00 PM</SelectItem>
-                  <SelectItem value="14:00">2:00 PM</SelectItem>
-                  <SelectItem value="15:00">3:00 PM</SelectItem>
-                  <SelectItem value="16:00">4:00 PM</SelectItem>
-                  <SelectItem value="17:00">5:00 PM</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="endTime">End time</Label>
-              <Select value={endTime} onValueChange={setEndTime}>
-                <SelectTrigger id="endTime">
-                  <SelectValue placeholder="Select end time" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="09:00">9:00 AM</SelectItem>
-                  <SelectItem value="10:00">10:00 AM</SelectItem>
-                  <SelectItem value="11:00">11:00 AM</SelectItem>
-                  <SelectItem value="12:00">12:00 PM</SelectItem>
-                  <SelectItem value="13:00">1:00 PM</SelectItem>
-                  <SelectItem value="14:00">2:00 PM</SelectItem>
-                  <SelectItem value="15:00">3:00 PM</SelectItem>
-                  <SelectItem value="16:00">4:00 PM</SelectItem>
-                  <SelectItem value="17:00">5:00 PM</SelectItem>
-                  <SelectItem value="18:00">6:00 PM</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
-        {/* Recurring Visit Options */}
-        <div className="space-y-3">
-          <div className="space-y-2">
-            <Label htmlFor="repeat">Repeat</Label>
-            <Select value={repeatOption} onValueChange={setRepeatOption}>
-              <SelectTrigger id="repeat">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{getRepeatLabel().none}</SelectItem>
-                <SelectItem value="daily">{getRepeatLabel().daily}</SelectItem>
-                <SelectItem value="weekly">{getRepeatLabel().weekly}</SelectItem>
-                <SelectItem value="monthly">{getRepeatLabel().monthly}</SelectItem>
-                <SelectItem value="annually">{getRepeatLabel().annually}</SelectItem>
-                <SelectItem value="weekdays">{getRepeatLabel().weekdays}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {repeatOption !== 'none' && (
-            <div className="space-y-2">
-              <Label htmlFor="recurringEnd">Repeat until</Label>
-              <Input
-                id="recurringEnd"
-                type="date"
-                value={recurringEnd}
-                onChange={(e) => setRecurringEnd(e.target.value)}
-              />
-            </div>
-          )}
-        </div>
       </div>
     </form>
   )

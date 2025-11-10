@@ -228,7 +228,7 @@ function App() {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
   const [confirmedVisit, setConfirmedVisit] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState("upcoming")
+  const [activeTab, setActiveTab] = useState("visits")
   const [searchQuery, setSearchQuery] = useState("")
   const [filterDate, setFilterDate] = useState("") // Default to empty (show all)
   const [filterHosts, setFilterHosts] = useState([])
@@ -431,24 +431,161 @@ function App() {
   }, [isPinned, searchQuery, filterDate, filterHosts, filterHostCompanies, filterStatuses])
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header */}
-      <div className="md:hidden sticky top-0 z-10 bg-white border-b shadow-sm">
-        <div className="px-4 py-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold" style={{ color: '#2D3338' }}>Visitor Management</h1>
+    <div className="h-full bg-white">
+      {/* Page Header */}
+      <div className="border-b">
+        <div className="px-6 pt-6 pb-4">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-semibold text-gray-900">Visitor Management</h1>
+              <button className="text-gray-400 hover:text-gray-600">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" className="gap-2">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Scan LP
+              </Button>
+              <Button variant="outline" className="gap-2">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                </svg>
+                Scan QR
+              </Button>
+              <Button variant="outline" className="gap-2">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                </svg>
+                Scan ID
+              </Button>
+              <Button onClick={() => navigate('/visits/new')} className="gap-1">
+                Create visit
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </Button>
+            </div>
           </div>
           
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full">
-              <TabsTrigger value="upcoming" className="flex-1" data-testid="tab-upcoming">
-                Upcoming
+          {/* Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full justify-start bg-transparent border-b-0 h-auto p-0 space-x-6">
+              <TabsTrigger 
+                value="visits" 
+                className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none bg-transparent pb-3"
+              >
+                Visits
               </TabsTrigger>
-              <TabsTrigger value="past" className="flex-1" data-testid="tab-past">
-                Past
+              <TabsTrigger 
+                value="visitors" 
+                className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none bg-transparent pb-3"
+              >
+                Visitors
+              </TabsTrigger>
+              <TabsTrigger 
+                value="vendors" 
+                className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none bg-transparent pb-3"
+              >
+                Vendors
+              </TabsTrigger>
+              <TabsTrigger 
+                value="employees" 
+                className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none bg-transparent pb-3"
+              >
+                Tenant Employees
+              </TabsTrigger>
+              <TabsTrigger 
+                value="requests" 
+                className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none bg-transparent pb-3"
+              >
+                Requests
+              </TabsTrigger>
+              <TabsTrigger 
+                value="watchlist" 
+                className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none bg-transparent pb-3"
+              >
+                <span className="flex items-center gap-2">
+                  Watchlist
+                  <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">1</span>
+                </span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="groups" 
+                className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none bg-transparent pb-3"
+              >
+                Groups
               </TabsTrigger>
             </TabsList>
           </Tabs>
+        </div>
+      </div>
+      
+      {/* Stats Bar */}
+      <div className="border-b bg-white px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {/* Date Selector */}
+            <div className="flex items-center gap-2 text-sm">
+              <button className="p-1 hover:bg-gray-100 rounded">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <span className="flex items-center gap-2">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Nov 10, 2025
+              </span>
+              <button className="p-1 hover:bg-gray-100 rounded">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Stats */}
+            <div className="flex items-center gap-6 ml-8">
+              <div className="text-sm">
+                <span className="font-semibold text-2xl">{visits.length}</span>
+                <span className="text-gray-600 ml-2">Total Visits</span>
+              </div>
+              <div className="text-sm flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                <span className="font-semibold">{allUpcomingVisits.length}</span>
+                <span className="text-gray-600">Expected</span>
+              </div>
+              <div className="text-sm flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-teal-500"></div>
+                <span className="font-semibold">0</span>
+                <span className="text-gray-600">Checked-in</span>
+              </div>
+              <div className="text-sm flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                <span className="font-semibold">{visits.filter(v => v.status === 'cancelled').length}</span>
+                <span className="text-gray-600">Cancelled</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Color Bar */}
+          <div className="flex h-2 w-64 rounded-full overflow-hidden">
+            <div className="bg-purple-500 flex-1"></div>
+            <div className="bg-teal-500 flex-1"></div>
+            <div className="bg-gray-400 flex-1"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Filters and Search */}
+      <div className="md:hidden bg-gray-50 border-b">
+        <div className="px-4 py-4 space-y-4">
 
           {/* Mobile Date Picker - Prominent Position */}
           <div className="mb-4">
@@ -578,55 +715,11 @@ function App() {
         </div>
       </div>
 
-      {/* Desktop Layout */}
-      <div className="hidden md:block">
-        {/* Desktop Header */}
-        <div className="bg-white border-b">
-          <div className="max-w-[1600px] mx-auto px-12 pt-12 pb-6">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-semibold" style={{ color: '#2D3338' }}>Visitor Management</h1>
-              <Button onClick={() => navigate('/visits/new')} data-testid="add-visitor-desktop" className="shadow-sm">
-                Create visit
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-[1600px] mx-auto px-12 py-12">
-          {/* Date Picker - Prominent Position */}
-          <div className="mb-6">
-            <div className="flex items-center gap-3">
-              <label className="text-sm font-medium text-gray-700">Date:</label>
-              <Input
-                type="date"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
-                placeholder="Select date"
-                className="w-64"
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setFilterDate(getTodayDate())}
-                className="whitespace-nowrap"
-              >
-                Today
-              </Button>
-              {filterDate && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setFilterDate("")}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Clear
-                </Button>
-              )}
-            </div>
-          </div>
-
+      {/* Main Content - Desktop */}
+      <div className="hidden md:block bg-gray-50">
+        <div className="px-6 py-6">
           {/* Filters Bar */}
-          <div className="mb-6">
+          <div className="mb-4">
             <div className="flex items-center gap-4">
               {/* Search Input */}
               <div className="flex-1 relative">
@@ -727,10 +820,10 @@ function App() {
       </div>
 
       {/* Mobile Content */}
-      <div className="md:hidden px-4 py-4 pb-24">
+      <div className="md:hidden px-4 py-4 pb-24 bg-gray-50">
         {isLoading ? (
           <LoadingSkeleton />
-        ) : activeTab === 'upcoming' ? (
+        ) : activeTab === 'visits' ? (
           upcomingVisits.length === 0 ? (
             <EmptyState />
           ) : (
@@ -746,15 +839,9 @@ function App() {
             </div>
           )
         ) : (
-          pastVisits.length === 0 ? (
-            <EmptyState type="past" />
-          ) : (
-            <div className="space-y-3">
-              {pastVisits.map(visit => (
-                <VisitorCard key={visit.id} visit={visit} />
-              ))}
-            </div>
-          )
+          <div className="text-center py-12 text-gray-500">
+            <p>Select a tab to view content</p>
+          </div>
         )}
       </div>
 
