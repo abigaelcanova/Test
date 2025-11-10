@@ -251,7 +251,7 @@ export function CreateVisitPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-8 pt-6 border-t flex gap-3">
+          <div className="mt-8 pt-6 flex gap-3">
             {currentStep > 0 && (
               <Button 
                 type="button" 
