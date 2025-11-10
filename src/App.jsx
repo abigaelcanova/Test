@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,13 +11,13 @@ import { VisitorCard } from "@/components/VisitorCard"
 import { VisitorTable } from "@/components/VisitorTable"
 import { EmptyState } from "@/components/EmptyState"
 import { LoadingSkeleton } from "@/components/LoadingSkeleton"
-import { VisitorModal } from "@/components/VisitorModal"
-import { MobileVisitorFlow } from "@/components/MobileVisitorFlow"
 import { ConfirmationModal } from "@/components/ConfirmationModal"
 import { MultiSelectFilter } from "@/components/MultiSelectFilter"
 import { formatDate, formatTime } from "@/lib/utils"
 
 function App() {
+  const navigate = useNavigate()
+  const location = useLocation()
   const [visits, setVisits] = useState([
     // Upcoming visits
     {
@@ -224,13 +225,10 @@ function App() {
       visitSummary: 'Legal compliance and contract review'
     }
   ])
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
   const [confirmedVisit, setConfirmedVisit] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("upcoming")
-  const [editingVisit, setEditingVisit] = useState(null)
-  const [initialStep, setInitialStep] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterDate, setFilterDate] = useState("") // Default to empty (show all)
   const [filterHosts, setFilterHosts] = useState([])
@@ -241,65 +239,69 @@ function App() {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
   const [visitToCancel, setVisitToCancel] = useState(null)
 
-  const handleAddVisitor = (formData) => {
-    // Create visit entries from form data
-    const visitorNames = formData.visitors
-      .filter(v => v.firstName && v.lastName)
-      .map(v => `${v.firstName} ${v.lastName}`)
-      .join(', ')
-
-    if (editingVisit) {
-      // Update existing visit
-      const updatedVisit = {
-        ...editingVisit,
-        visitorName: visitorNames,
-        date: formData.visitDate,
-        startTime: formData.startTime,
-        endTime: formData.endTime,
-        host: formData.hostName,
-        floor: formData.floor,
-        suite: formData.suite,
-        checkIn: formData.checkIn,
-        note: formData.visitorNote,
-        numEntries: formData.numEntries
-      }
-      setVisits(prev => prev.map(v => v.id === editingVisit.id ? updatedVisit : v))
-      setEditingVisit(null)
-    } else {
-      // Create new visit
-      const newVisit = {
-        id: Date.now(),
-        visitorName: visitorNames,
-        date: formData.visitDate,
-        startTime: formData.startTime,
-        endTime: formData.endTime,
-        host: formData.hostName,
-        floor: formData.floor,
-        suite: formData.suite,
-        status: 'expected',
-        checkIn: formData.checkIn,
-        note: formData.visitorNote,
-        numEntries: formData.numEntries
-      }
-      setVisits(prev => [...prev, newVisit])
-      setConfirmedVisit({ ...formData, visitorName: visitorNames })
-      setIsConfirmationOpen(true)
-    }
-    setIsModalOpen(false)
-  }
-
   const handleEditVisit = (visit) => {
-    setEditingVisit(visit)
-    setIsModalOpen(true)
+    navigate('/visits/new', { state: { editingVisit: visit } })
   }
 
   const handleEditStep = (step) => {
-    // Close confirmation modal and reopen visitor modal at specific step
+    // Close confirmation modal and navigate to visit creation at specific step
     setIsConfirmationOpen(false)
-    setEditingVisit(confirmedVisit)
-    setInitialStep(step)
-    setIsModalOpen(true)
+    navigate('/visits/new', { state: { editingVisit: confirmedVisit, initialStep: step } })
   }
+
+  // Handle incoming visits from CreateVisitPage
+  useEffect(() => {
+    if (location.state?.newVisit) {
+      const formData = location.state.newVisit
+      const editingVisitId = location.state.editingVisitId
+      
+      // Create visit entries from form data
+      const visitorNames = formData.visitors
+        .filter(v => v.firstName && v.lastName)
+        .map(v => `${v.firstName} ${v.lastName}`)
+        .join(', ')
+
+      if (editingVisitId) {
+        // Update existing visit
+        const updatedVisit = {
+          id: editingVisitId,
+          visitorName: visitorNames,
+          date: formData.visitDate,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          host: formData.hostName,
+          floor: formData.floor,
+          suite: formData.suite,
+          checkIn: formData.checkIn,
+          note: formData.visitorNote,
+          numEntries: formData.numEntries
+        }
+        setVisits(prev => prev.map(v => v.id === editingVisitId ? updatedVisit : v))
+      } else {
+        // Create new visit
+        const newVisit = {
+          id: Date.now(),
+          visitorName: visitorNames,
+          date: formData.visitDate,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          host: formData.hostName,
+          floor: formData.floor,
+          suite: formData.suite,
+          status: 'expected',
+          checkIn: formData.checkIn,
+          note: formData.visitorNote,
+          numEntries: formData.numEntries
+        }
+        setVisits(prev => [...prev, newVisit])
+        setConfirmedVisit({ ...formData, visitorName: visitorNames })
+        setIsConfirmationOpen(true)
+      }
+      
+      // Clear the location state
+      window.history.replaceState({}, document.title)
+    }
+  }, [location.state])
 
   const handleCancelVisit = (visitId) => {
     const visit = visits.find(v => v.id === visitId)
@@ -583,7 +585,7 @@ function App() {
           <div className="max-w-[1600px] mx-auto px-12 pt-12 pb-6">
             <div className="flex justify-between items-center">
               <h1 className="text-2xl font-semibold" style={{ color: '#2D3338' }}>Visitor Management</h1>
-              <Button onClick={() => setIsModalOpen(true)} data-testid="add-visitor-desktop" className="shadow-sm">
+              <Button onClick={() => navigate('/visits/new')} data-testid="add-visitor-desktop" className="shadow-sm">
                 Create visit
               </Button>
             </div>
@@ -761,43 +763,14 @@ function App() {
         <Button
           size="icon"
           className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl"
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => navigate('/visits/new')}
           data-testid="add-visitor-fab"
         >
           <Plus className="h-6 w-6 text-white" />
         </Button>
       </div>
 
-      {/* Modals */}
-      {/* Desktop Modal */}
-      <div className="hidden md:block">
-        <VisitorModal
-          open={isModalOpen}
-          onOpenChange={(open) => {
-            setIsModalOpen(open)
-            if (!open) {
-              setEditingVisit(null)
-              setInitialStep(0)
-            }
-          }}
-          onSubmit={handleAddVisitor}
-          editingVisit={editingVisit}
-          initialStep={initialStep}
-        />
-      </div>
-
-      {/* Mobile Flow */}
-      <div className="md:hidden">
-        <MobileVisitorFlow
-          open={isModalOpen}
-          onOpenChange={(open) => {
-            setIsModalOpen(open)
-            if (!open) setEditingVisit(null)
-          }}
-          onSubmit={handleAddVisitor}
-        />
-      </div>
-
+      {/* Confirmation Modal */}
       <ConfirmationModal
         open={isConfirmationOpen}
         onOpenChange={setIsConfirmationOpen}
