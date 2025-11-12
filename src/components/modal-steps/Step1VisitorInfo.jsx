@@ -127,18 +127,6 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
               <h3 className="font-medium">Visitor {index + 1}</h3>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor={`email-${index}`}>Visitor's email</Label>
-              <Input
-                id={`email-${index}`}
-                type="email"
-                placeholder="Enter email address"
-                value={visitor.email}
-                onChange={(e) => updateVisitor(index, 'email', e.target.value)}
-                className="visitor-email"
-              />
-            </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor={`firstName-${index}`}>
@@ -168,7 +156,19 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`phone-${index}`}>Phone number (optional)</Label>
+              <Label htmlFor={`email-${index}`}>Visitor's email</Label>
+              <Input
+                id={`email-${index}`}
+                type="email"
+                placeholder="Enter email address"
+                value={visitor.email}
+                onChange={(e) => updateVisitor(index, 'email', e.target.value)}
+                className="visitor-email"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`phone-${index}`}>Phone number</Label>
               <div className="flex gap-2">
                 <div className="w-12 h-10 flex items-center justify-center border rounded-md bg-muted">
                   🇺🇸
