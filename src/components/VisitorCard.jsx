@@ -37,10 +37,8 @@ export function VisitorCard({ visit, onEdit, onCancel }) {
       <CardContent className="p-5">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg mb-2" data-testid="visitor-name">
-              <button className="text-primary hover:text-primary/80 hover:underline text-left">
-                {visit.visitorName}
-              </button>
+            <h3 className="font-semibold text-lg mb-2 text-gray-900" data-testid="visitor-name">
+              {visit.visitorName}
             </h3>
             <Badge variant={getStatusVariant(visit.status)} data-testid="visitor-status">
               <span className={`mr-1.5 text-[8px] ${getStatusDotColor(visit.status)}`}>●</span> 
@@ -110,9 +108,9 @@ export function VisitorCard({ visit, onEdit, onCancel }) {
           {visit.host && (
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-gray-400" />
-              <button className="text-primary hover:text-primary/80 hover:underline text-left" data-testid="visitor-host">
+              <span className="text-gray-600" data-testid="visitor-host">
                 {visit.host}
-              </button>
+              </span>
             </div>
           )}
           

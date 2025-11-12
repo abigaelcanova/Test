@@ -54,17 +54,20 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
         <tbody className="divide-y divide-gray-200">
           {visits.map((visit, index) => (
             <tr key={index} className="hover:bg-gray-50/50 transition-colors">
-              <td className="px-4 py-4 text-sm font-medium" data-testid="visitor-name">
-                <button className="text-primary hover:text-primary/80 hover:underline text-left">
-                  {visit.visitorName}
-                </button>
+              <td className="px-4 py-4 text-sm font-medium text-gray-900" data-testid="visitor-name">
+                {visit.visitorName}
               </td>
               <td className="px-4 py-4 text-sm text-gray-900" data-testid="visitor-date">
                 <div className="flex items-start gap-2">
                   <div className="flex flex-col">
-                    <span className="text-gray-900">{formatDate(visit.date)}, {visit.startTime ? formatTime(visit.startTime) : 'All day'}</span>
-                    {visit.endTime && (
-                      <span className="text-gray-600 text-xs">End time: {formatTime(visit.endTime)}</span>
+                    <span className="text-gray-900">{formatDate(visit.date)}</span>
+                    {visit.startTime ? (
+                      <span className="text-gray-600 text-xs">
+                        {formatTime(visit.startTime)}
+                        {visit.endTime && ` - ${formatTime(visit.endTime)}`}
+                      </span>
+                    ) : (
+                      <span className="text-gray-600 text-xs">All day</span>
                     )}
                   </div>
                   {visit.recurring && (
@@ -87,9 +90,7 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
               <td className="px-4 py-4 text-sm text-gray-600" data-testid="visitor-host">
                 <div className="flex flex-col">
                   {visit.host ? (
-                    <button className="text-primary hover:text-primary/80 hover:underline text-left">
-                      {visit.host}
-                    </button>
+                    <span className="text-gray-600">{visit.host}</span>
                   ) : (
                     <span className="text-gray-600">–</span>
                   )}
