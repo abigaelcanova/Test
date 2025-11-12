@@ -173,7 +173,7 @@ export function CreateVisitPage() {
                   }`}>
                     {index + 1}
                   </span>
-                  <span className="hidden md:inline text-xs sm:text-sm font-medium">{label}</span>
+                  <span className="text-xs sm:text-sm font-medium">{label}</span>
                 </button>
                 {index < stepLabels.length - 1 && (
                   <div className={`w-2 sm:w-8 h-0.5 mx-0.5 sm:mx-1 transition-all duration-300 ${
