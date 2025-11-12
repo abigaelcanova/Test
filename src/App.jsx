@@ -12,6 +12,7 @@ import { VisitorTable } from "@/components/VisitorTable"
 import { EmptyState } from "@/components/EmptyState"
 import { LoadingSkeleton } from "@/components/LoadingSkeleton"
 import { ConfirmationModal } from "@/components/ConfirmationModal"
+import { UpdateConfirmationModal } from "@/components/UpdateConfirmationModal"
 import { MultiSelectFilter } from "@/components/MultiSelectFilter"
 import { formatDate, formatTime } from "@/lib/utils"
 
@@ -23,6 +24,7 @@ function App() {
     {
       id: 1,
       visitorName: 'Jennifer Lee',
+      visitorCompany: 'CloudTech Solutions',
       date: '2025-11-05',
       startTime: '09:00',
       endTime: '10:00',
@@ -40,6 +42,7 @@ function App() {
     {
       id: 2,
       visitorName: 'Christopher Taylor',
+      visitorCompany: 'Digital Ventures',
       date: '2025-11-08',
       startTime: '14:00',
       endTime: '15:30',
@@ -55,6 +58,7 @@ function App() {
     {
       id: 3,
       visitorName: 'Amanda Anderson',
+      visitorCompany: 'Strategic Partners Inc',
       date: '2025-11-12',
       startTime: '11:30',
       endTime: '13:00',
@@ -70,6 +74,7 @@ function App() {
     {
       id: 4,
       visitorName: 'Matthew Thomas',
+      visitorCompany: 'Creative Design Co',
       date: '2025-11-15',
       startTime: '15:30',
       endTime: '17:00',
@@ -87,6 +92,7 @@ function App() {
     {
       id: 5,
       visitorName: 'Lisa Rodriguez',
+      visitorCompany: 'Brand Marketing Group',
       date: '2025-11-20',
       startTime: '10:00',
       endTime: '11:30',
@@ -102,6 +108,7 @@ function App() {
     {
       id: 6,
       visitorName: 'Robert Brown',
+      visitorCompany: 'Business Strategy LLC',
       date: '2025-11-22',
       startTime: '13:00',
       endTime: '14:30',
@@ -117,6 +124,7 @@ function App() {
     {
       id: 7,
       visitorName: 'Jessica Martinez',
+      visitorCompany: 'Finance & Audit Corp',
       date: '2025-11-25',
       startTime: '09:30',
       endTime: '11:00',
@@ -133,6 +141,7 @@ function App() {
     {
       id: 8,
       visitorName: 'Daniel Garcia',
+      visitorCompany: 'Innovation Labs',
       date: '2024-10-15',
       startTime: '10:00',
       endTime: '11:00',
@@ -150,6 +159,7 @@ function App() {
     {
       id: 9,
       visitorName: 'Patricia White',
+      visitorCompany: 'Health Systems Inc',
       date: '2024-10-20',
       startTime: '14:30',
       endTime: '16:00',
@@ -165,6 +175,7 @@ function App() {
     {
       id: 10,
       visitorName: 'James Miller',
+      visitorCompany: 'Property Development Group',
       date: '2024-10-22',
       startTime: '11:00',
       endTime: '12:30',
@@ -180,6 +191,7 @@ function App() {
     {
       id: 11,
       visitorName: 'Maria Lopez',
+      visitorCompany: 'Learning Solutions',
       date: '2024-10-28',
       startTime: '09:00',
       endTime: '10:30',
@@ -197,6 +209,7 @@ function App() {
     {
       id: 12,
       visitorName: 'Thomas Scott',
+      visitorCompany: 'Industrial Systems Co',
       date: '2024-11-01',
       startTime: '15:00',
       endTime: '16:30',
@@ -212,6 +225,7 @@ function App() {
     {
       id: 13,
       visitorName: 'Sandra Hall',
+      visitorCompany: 'Legal Advisory Services',
       date: '2024-11-02',
       startTime: '10:30',
       endTime: '12:00',
@@ -226,6 +240,7 @@ function App() {
     }
   ])
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
+  const [isUpdateConfirmationOpen, setIsUpdateConfirmationOpen] = useState(false)
   const [confirmedVisit, setConfirmedVisit] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("upcoming")
@@ -246,6 +261,7 @@ function App() {
   const handleEditStep = (step) => {
     // Close confirmation modal and navigate to visit creation at specific step
     setIsConfirmationOpen(false)
+    setIsUpdateConfirmationOpen(false)
     navigate('/visits/new', { state: { editingVisit: confirmedVisit, initialStep: step } })
   }
 
@@ -260,35 +276,50 @@ function App() {
         .filter(v => v.firstName && v.lastName)
         .map(v => `${v.firstName} ${v.lastName}`)
         .join(', ')
+      
+      // Extract visitor company (use first visitor's company, or join if multiple)
+      const visitorCompanies = formData.visitors
+        .filter(v => v.company)
+        .map(v => v.company)
+      const visitorCompany = visitorCompanies.length > 0 
+        ? (visitorCompanies.length === 1 ? visitorCompanies[0] : visitorCompanies.join(', '))
+        : undefined
 
       if (editingVisitId) {
-        // Update existing visit
+        // Update existing visit - preserve existing fields like status, company, etc.
+        const existingVisit = visits.find(v => v.id === editingVisitId)
         const updatedVisit = {
-          id: editingVisitId,
+          ...existingVisit,
           visitorName: visitorNames,
-          date: formData.visitDate,
-          startTime: formData.startTime,
-          endTime: formData.endTime,
-          host: formData.hostName,
-          floor: formData.floor,
-          suite: formData.suite
-        }
-        setVisits(prev => prev.map(v => v.id === editingVisitId ? updatedVisit : v))
-      } else {
-        // Create new visit
-        const newVisit = {
-          id: Date.now(),
-          visitorName: visitorNames,
+          visitorCompany: visitorCompany,
           date: formData.visitDate,
           startTime: formData.startTime,
           endTime: formData.endTime,
           host: formData.hostName,
           floor: formData.floor,
           suite: formData.suite,
-          status: 'expected'
+          visitSummary: formData.visitors?.[0]?.visitSummary || existingVisit?.visitSummary
+        }
+        setVisits(prev => prev.map(v => v.id === editingVisitId ? updatedVisit : v))
+        setConfirmedVisit({ ...formData, visitorName: visitorNames, visitorCompany: visitorCompany })
+        setIsUpdateConfirmationOpen(true)
+      } else {
+        // Create new visit
+        const newVisit = {
+          id: Date.now(),
+          visitorName: visitorNames,
+          visitorCompany: visitorCompany,
+          date: formData.visitDate,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          host: formData.hostName,
+          floor: formData.floor,
+          suite: formData.suite,
+          status: 'expected',
+          visitSummary: formData.visitors?.[0]?.visitSummary || formData.visitSummary
         }
         setVisits(prev => [...prev, newVisit])
-        setConfirmedVisit({ ...formData, visitorName: visitorNames })
+        setConfirmedVisit({ ...formData, visitorName: visitorNames, visitorCompany: visitorCompany })
         setIsConfirmationOpen(true)
       }
       
@@ -741,6 +772,14 @@ function App() {
       <ConfirmationModal
         open={isConfirmationOpen}
         onOpenChange={setIsConfirmationOpen}
+        visitData={confirmedVisit}
+        onEditStep={handleEditStep}
+      />
+
+      {/* Update Confirmation Modal */}
+      <UpdateConfirmationModal
+        open={isUpdateConfirmationOpen}
+        onOpenChange={setIsUpdateConfirmationOpen}
         visitData={confirmedVisit}
         onEditStep={handleEditStep}
       />

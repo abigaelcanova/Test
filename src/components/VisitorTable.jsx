@@ -55,7 +55,12 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
           {visits.map((visit, index) => (
             <tr key={index} className="hover:bg-gray-50/50 transition-colors">
               <td className="px-4 py-4 text-sm font-medium text-gray-900" data-testid="visitor-name">
-                {visit.visitorName}
+                <div className="flex flex-col">
+                  <span className="text-gray-900">{visit.visitorName}</span>
+                  {visit.visitorCompany && (
+                    <span className="text-gray-600 text-xs">{visit.visitorCompany}</span>
+                  )}
+                </div>
               </td>
               <td className="px-4 py-4 text-sm text-gray-900" data-testid="visitor-date">
                 <div className="flex items-start gap-2">

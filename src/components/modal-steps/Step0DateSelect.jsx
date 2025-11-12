@@ -6,6 +6,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Calendar as CalendarIcon } from "lucide-react"
 
+// Helper function to generate time options in 15-minute increments
+const generateTimeOptions = (startHour = 8, endHour = 18) => {
+  const options = []
+  for (let hour = startHour; hour <= endHour; hour++) {
+    for (let minute = 0; minute < 60; minute += 15) {
+      const hour24 = hour
+      const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
+      const ampm = hour < 12 ? 'AM' : 'PM'
+      const time24 = `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+      const time12 = `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`
+      options.push({ value: time24, label: time12 })
+    }
+  }
+  return options
+}
+
 export function Step0DateSelect({ data, onNext }) {
   const [dateRange, setDateRange] = useState({ 
     from: data.visitDate || new Date().toISOString().split('T')[0], 
@@ -118,16 +134,11 @@ export function Step0DateSelect({ data, onNext }) {
                       <SelectValue placeholder="Select start time" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="08:00">8:00 AM</SelectItem>
-                      <SelectItem value="09:00">9:00 AM</SelectItem>
-                      <SelectItem value="10:00">10:00 AM</SelectItem>
-                      <SelectItem value="11:00">11:00 AM</SelectItem>
-                      <SelectItem value="12:00">12:00 PM</SelectItem>
-                      <SelectItem value="13:00">1:00 PM</SelectItem>
-                      <SelectItem value="14:00">2:00 PM</SelectItem>
-                      <SelectItem value="15:00">3:00 PM</SelectItem>
-                      <SelectItem value="16:00">4:00 PM</SelectItem>
-                      <SelectItem value="17:00">5:00 PM</SelectItem>
+                      {generateTimeOptions(8, 18).map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -150,16 +161,11 @@ export function Step0DateSelect({ data, onNext }) {
                       <SelectValue placeholder="Select end time" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="09:00">9:00 AM</SelectItem>
-                      <SelectItem value="10:00">10:00 AM</SelectItem>
-                      <SelectItem value="11:00">11:00 AM</SelectItem>
-                      <SelectItem value="12:00">12:00 PM</SelectItem>
-                      <SelectItem value="13:00">1:00 PM</SelectItem>
-                      <SelectItem value="14:00">2:00 PM</SelectItem>
-                      <SelectItem value="15:00">3:00 PM</SelectItem>
-                      <SelectItem value="16:00">4:00 PM</SelectItem>
-                      <SelectItem value="17:00">5:00 PM</SelectItem>
-                      <SelectItem value="18:00">6:00 PM</SelectItem>
+                      {generateTimeOptions(8, 18).map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
