@@ -45,7 +45,7 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
           <Button
             type="button"
             variant={hostType === 'me' ? 'default' : 'outline'}
-            className="h-20 text-base"
+            className="h-12 text-base"
             onClick={() => setHostType('me')}
           >
             I am
@@ -53,7 +53,7 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
           <Button
             type="button"
             variant={hostType === 'someone' ? 'default' : 'outline'}
-            className="h-20 text-base"
+            className="h-12 text-base"
             onClick={() => setHostType('someone')}
           >
             Someone else

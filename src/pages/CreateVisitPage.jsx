@@ -273,7 +273,11 @@ export function CreateVisitPage() {
                 className="flex-1"
                 disabled={isTransitioning}
               >
-                {editingVisit ? 'Update visit' : 'Add visit'}
+                {editingVisit 
+                  ? 'Update visit' 
+                  : (formData.multipleVisitors || formData.visitors?.length > 1 || formData.uploadedFile)
+                    ? 'Add visits'
+                    : 'Add visit'}
               </Button>
             )}
           </div>

@@ -13,6 +13,7 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
   
   // Multiple visitors group fields
   const [uploadedFile, setUploadedFile] = useState(null)
+  const [guestCount, setGuestCount] = useState(null)
 
   const addVisitor = () => {
     setVisitors([...visitors, { email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }])
@@ -27,6 +28,9 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
       // Add a second visitor when switching to multiple
       addVisitor()
     }
+    // Reset file upload when switching modes
+    setUploadedFile(null)
+    setGuestCount(null)
   }
 
   const removeVisitor = (index) => {
@@ -70,10 +74,22 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
     window.URL.revokeObjectURL(url)
   }
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files?.[0]
     if (file) {
       setUploadedFile(file)
+      
+      // Parse CSV to count guests
+      try {
+        const text = await file.text()
+        const lines = text.split('\n').filter(line => line.trim() !== '')
+        // Subtract 1 for header row, but ensure at least 0
+        const count = Math.max(0, lines.length - 1)
+        setGuestCount(count)
+      } catch (error) {
+        console.error('Error parsing CSV:', error)
+        setGuestCount(0)
+      }
     }
   }
 
@@ -266,10 +282,10 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
               </div>
             </div>
 
-            {uploadedFile && (
+            {uploadedFile && guestCount !== null && (
               <div className="text-sm text-green-600 flex items-center gap-2">
                 <span>✓</span>
-                <span>File uploaded: {uploadedFile.name}</span>
+                <span>{guestCount} {guestCount === 1 ? 'guest' : 'guests'} found in your file</span>
               </div>
             )}
           </div>
