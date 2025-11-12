@@ -246,8 +246,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("upcoming")
   const [searchQuery, setSearchQuery] = useState("")
-  const [filterDate, setFilterDate] = useState("") // Default to empty (show all)
-  const [selectedTimeFrame, setSelectedTimeFrame] = useState("custom") // Track selected time frame
+  const [filterDate, setFilterDate] = useState(() => new Date().toISOString().split('T')[0]) // Default to today
+  const [selectedTimeFrame, setSelectedTimeFrame] = useState("today") // Default to today
   const [filterHosts, setFilterHosts] = useState([])
   const [filterHostCompanies, setFilterHostCompanies] = useState([])
   const [filterStatuses, setFilterStatuses] = useState([])
@@ -569,13 +569,15 @@ function App() {
           <div className="mb-4">
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700 shrink-0">Date:</label>
-              <Input
-                type="date"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
-                placeholder="Select date"
-                className="flex-1"
-              />
+              <div className="flex-1 relative">
+                <Input
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  placeholder="Select date"
+                  className="w-full pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
+                />
+              </div>
               <Select value={getCurrentTimeFrame()} onValueChange={handleTimeFrameChange}>
                 <SelectTrigger className="w-[120px] shrink-0">
                   <SelectValue />
@@ -693,13 +695,15 @@ function App() {
           <div className="mb-6">
             <div className="flex items-center gap-3">
               <label className="text-sm font-medium text-gray-700">Date:</label>
-              <Input
-                type="date"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
-                placeholder="Select date"
-                className="w-64"
-              />
+              <div className="relative">
+                <Input
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  placeholder="Select date"
+                  className="w-64 pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
+                />
+              </div>
               <Select value={getCurrentTimeFrame()} onValueChange={handleTimeFrameChange}>
                 <SelectTrigger className="w-[140px]">
                   <SelectValue />
