@@ -100,7 +100,7 @@ export function CreateVisitPage() {
 
   const [showBulkUpload, setShowBulkUpload] = useState(false)
 
-  const stepLabels = ['When & where', 'Host', 'Visitors']
+  const stepLabels = ['When', 'Host', 'Visitors']
 
   const handleStepChange = (newStep) => {
     if (newStep === currentStep || isTransitioning) return

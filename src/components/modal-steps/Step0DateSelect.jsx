@@ -31,8 +31,6 @@ export function Step0DateSelect({ data, onNext }) {
   const [recurringEnd, setRecurringEnd] = useState(data.recurringEnd || '')
   const [startTime, setStartTime] = useState(data.startTime || '09:00')
   const [endTime, setEndTime] = useState(data.endTime || '17:00')
-  const [floor, setFloor] = useState(data.floor || '1')
-  const [suite, setSuite] = useState(data.suite || '1001')
 
   const getRepeatLabel = () => {
     if (!dateRange.from) return 'Does not repeat'
@@ -61,9 +59,7 @@ export function Step0DateSelect({ data, onNext }) {
       frequency: recurring ? repeatOption : '',
       recurringEnd: recurring ? recurringEnd : '',
       startTime,
-      endTime,
-      floor,
-      suite
+      endTime
     })
   }
 
@@ -201,44 +197,6 @@ export function Step0DateSelect({ data, onNext }) {
                 />
               </div>
             )}
-
-            {/* Floor and Suite */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-4 border-t">
-              <div className="space-y-2">
-                <Label htmlFor="floor">
-                  Floor <span className="text-destructive">*</span>
-                </Label>
-                <Select value={floor} onValueChange={setFloor}>
-                  <SelectTrigger id="floor">
-                    <SelectValue placeholder="Select floor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1</SelectItem>
-                    <SelectItem value="2">2</SelectItem>
-                    <SelectItem value="3">3</SelectItem>
-                    <SelectItem value="14">14</SelectItem>
-                    <SelectItem value="15">15</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="suite">
-                  Suite <span className="text-destructive">*</span>
-                </Label>
-                <Select value={suite} onValueChange={setSuite}>
-                  <SelectTrigger id="suite">
-                    <SelectValue placeholder="Select suite" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1001">#1001</SelectItem>
-                    <SelectItem value="1002">#1002</SelectItem>
-                    <SelectItem value="1003">#1003</SelectItem>
-                    <SelectItem value="1004">#1004</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
           </div>
         </div>
       </div>
