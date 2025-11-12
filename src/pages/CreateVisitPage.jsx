@@ -151,20 +151,20 @@ export function CreateVisitPage() {
       <div className="px-4 sm:px-6 lg:px-12 py-6 sm:py-8 bg-white flex justify-center">
         <div className="w-full max-w-6xl">
         {/* Progress Steps */}
-        <div className="bg-white rounded-lg border shadow-sm mb-6 p-3 sm:p-6">
-          <div className="flex items-center justify-center gap-1 sm:gap-2 overflow-x-auto">
+        <div className="bg-white rounded-lg border shadow-sm mb-6 p-2 sm:p-6">
+          <div className="flex items-center justify-center gap-1 sm:gap-2 scale-[0.5] sm:scale-100 origin-center w-full">
             {stepLabels.map((label, index) => (
               <div key={index} className="flex items-center flex-shrink-0">
                 <button
                   onClick={() => handleStepChange(index)}
                   disabled={isTransitioning}
-                  className={`flex items-center gap-1 sm:gap-2 p-2 sm:px-3 sm:py-2 rounded-lg transition-all duration-200 cursor-pointer ${
+                  className={`flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg transition-all duration-200 cursor-pointer ${
                     index === currentStep
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted hover:bg-muted/80'
                   } ${isTransitioning ? 'opacity-50 pointer-events-none' : ''}`}
                 >
-                  <span className={`flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full text-xs font-medium transition-all duration-200 ${
+                  <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium transition-all duration-200 ${
                     index === currentStep
                       ? 'bg-primary-foreground text-primary'
                       : index < currentStep
@@ -173,7 +173,7 @@ export function CreateVisitPage() {
                   }`}>
                     {index + 1}
                   </span>
-                  <span className="text-xs sm:text-sm font-medium">{label}</span>
+                  <span className="text-xs sm:text-sm font-medium whitespace-nowrap">{label}</span>
                 </button>
                 {index < stepLabels.length - 1 && (
                   <div className={`w-2 sm:w-8 h-0.5 mx-0.5 sm:mx-1 transition-all duration-300 ${
