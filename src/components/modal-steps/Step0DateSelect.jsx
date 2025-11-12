@@ -193,24 +193,6 @@ export function Step0DateSelect({ data, onNext }) {
             )}
           </div>
         </div>
-
-        {/* Selected Date Range Display */}
-        {dateRange.from && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <CalendarIcon className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-xs font-medium text-gray-600 uppercase">Selected Date Range</p>
-                <p className="text-base font-semibold text-gray-900">
-                  {formatDisplayDate(dateRange.from)}
-                  {dateRange.to && dateRange.to !== dateRange.from && (
-                    <span> → {formatDisplayDate(dateRange.to)}</span>
-                  )}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </form>
   )
