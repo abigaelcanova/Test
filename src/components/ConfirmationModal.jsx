@@ -23,27 +23,16 @@ export function ConfirmationModal({ open, onOpenChange, visitData, onEditStep })
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
-          {/* Left column */}
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                <Check className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-semibold mb-2">Visit confirmed</h2>
-                <p className="text-muted-foreground">
-                  Your visitor registration is confirmed for{' '}
-                  <span className="font-medium text-foreground">
-                    {formatDate(visitData.visitDate)}
-                  </span>
-                  .
-                </p>
-              </div>
+        <div className="space-y-6 pt-6">
+          {/* Centered confirmation header */}
+          <div className="flex flex-col items-center gap-3 text-center">
+            <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
+              <Check className="w-6 h-6 text-white" />
             </div>
+            <h2 className="text-2xl font-semibold">Visit confirmed</h2>
           </div>
 
-          {/* Right column - Visit details */}
+          {/* Visit details */}
           <Card>
             <CardContent className="p-6 space-y-6">
               <h3 className="font-semibold text-lg">Visit details</h3>

@@ -43,6 +43,7 @@ export function CreateVisitPage() {
     floor: '1',
     suite: '1001',
     visitDate: new Date().toISOString().split('T')[0],
+    visitDateEnd: new Date().toISOString().split('T')[0],
     isMultiDay: false,
     selectedDates: [new Date().toISOString().split('T')[0]],
     recurring: false,

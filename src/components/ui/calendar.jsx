@@ -3,10 +3,29 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-export function Calendar({ selected, onSelect, className, isMultiSelect = false }) {
-  const [currentMonth, setCurrentMonth] = React.useState(
-    selected ? (Array.isArray(selected) ? new Date(selected[0]) : new Date(selected)) : new Date()
-  )
+export function Calendar({ selected, onSelect, className, isMultiSelect = false, mode = 'single' }) {
+  const [currentMonth, setCurrentMonth] = React.useState(() => {
+    try {
+      if (!selected) return new Date()
+      if (mode === 'range' && selected?.from) return new Date(selected.from)
+      if (Array.isArray(selected) && selected[0]) return new Date(selected[0])
+      if (typeof selected === 'string') return new Date(selected)
+      return new Date()
+    } catch (e) {
+      return new Date()
+    }
+  })
+  
+  const [rangeStart, setRangeStart] = React.useState(null)
+  const [rangeEnd, setRangeEnd] = React.useState(null)
+
+  // Initialize and sync range state
+  React.useEffect(() => {
+    if (mode === 'range' && selected) {
+      setRangeStart(selected.from || null)
+      setRangeEnd(selected.to || null)
+    }
+  }, [mode, selected])
 
   const daysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
@@ -36,11 +55,69 @@ export function Calendar({ selected, onSelect, className, isMultiSelect = false 
     const month = String(currentMonth.getMonth() + 1).padStart(2, '0')
     const dayStr = String(day).padStart(2, '0')
     const dateString = `${year}-${month}-${dayStr}`
-    onSelect(dateString)
+    
+    if (mode === 'range') {
+      if (!rangeStart || (rangeStart && rangeEnd)) {
+        // Start new range
+        setRangeStart(dateString)
+        setRangeEnd(null)
+        onSelect({ from: dateString, to: null })
+      } else {
+        // Complete the range
+        const start = new Date(rangeStart)
+        const end = new Date(dateString)
+        
+        if (end >= start) {
+          setRangeEnd(dateString)
+          onSelect({ from: rangeStart, to: dateString })
+        } else {
+          // If end is before start, swap them
+          setRangeStart(dateString)
+          setRangeEnd(rangeStart)
+          onSelect({ from: dateString, to: rangeStart })
+        }
+      }
+    } else {
+      onSelect(dateString)
+    }
+  }
+
+  const isInRange = (day) => {
+    if (mode !== 'range' || !rangeStart) return false
+    
+    const year = currentMonth.getFullYear()
+    const month = String(currentMonth.getMonth() + 1).padStart(2, '0')
+    const dayStr = String(day).padStart(2, '0')
+    const dateString = `${year}-${month}-${dayStr}`
+    const current = new Date(dateString)
+    
+    if (!rangeEnd) {
+      return dateString === rangeStart
+    }
+    
+    const start = new Date(rangeStart)
+    const end = new Date(rangeEnd)
+    
+    return current >= start && current <= end
+  }
+
+  const isRangeEdge = (day) => {
+    if (mode !== 'range' || !rangeStart) return false
+    
+    const year = currentMonth.getFullYear()
+    const month = String(currentMonth.getMonth() + 1).padStart(2, '0')
+    const dayStr = String(day).padStart(2, '0')
+    const dateString = `${year}-${month}-${dayStr}`
+    
+    return dateString === rangeStart || dateString === rangeEnd
   }
 
   const isSelected = (day) => {
     if (!selected) return false
+    
+    if (mode === 'range') {
+      return isInRange(day)
+    }
     
     if (Array.isArray(selected)) {
       // Multi-select mode
@@ -91,6 +168,8 @@ export function Calendar({ selected, onSelect, className, isMultiSelect = false 
       const selected = isSelected(day)
       const today = isToday(day)
       const past = isPast(day)
+      const inRange = mode === 'range' && isInRange(day)
+      const rangeEdge = mode === 'range' && isRangeEdge(day)
 
       days.push(
         <div key={day} className="flex items-center justify-center">
@@ -100,10 +179,12 @@ export function Calendar({ selected, onSelect, className, isMultiSelect = false 
             disabled={past}
             className={cn(
               "w-10 h-10 rounded-lg text-sm font-medium transition-all hover:bg-gray-100 flex items-center justify-center",
-              selected && "bg-primary text-white hover:bg-primary/90",
-              today && !selected && "border-2 border-primary text-primary",
+              rangeEdge && "bg-primary text-white hover:bg-primary/90",
+              inRange && !rangeEdge && "bg-primary/20 text-primary hover:bg-primary/30",
+              selected && mode !== 'range' && "bg-primary text-white hover:bg-primary/90",
+              today && !selected && !inRange && "border-2 border-primary text-primary",
               past && "text-gray-300 cursor-not-allowed hover:bg-transparent",
-              !selected && !today && !past && "text-gray-700"
+              !selected && !today && !past && !inRange && "text-gray-700"
             )}
           >
             {day}

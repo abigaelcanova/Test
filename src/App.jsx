@@ -447,24 +447,9 @@ function App() {
       {/* Mobile Header */}
       <div className="md:hidden sticky top-0 z-10 bg-white border-b shadow-sm">
         <div className="px-4 py-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold" style={{ color: '#2D3338' }}>Visitor Management</h1>
-          </div>
-          
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full">
-              <TabsTrigger value="upcoming" className="flex-1" data-testid="tab-upcoming">
-                Upcoming
-              </TabsTrigger>
-              <TabsTrigger value="past" className="flex-1" data-testid="tab-past">
-                Past
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
           {/* Mobile Date Picker - Prominent Position */}
           <div className="mb-4">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700 shrink-0">Date:</label>
               <Input
                 type="date"
@@ -473,26 +458,14 @@ function App() {
                 placeholder="Select date"
                 className="flex-1"
               />
-            </div>
-            <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setFilterDate(getTodayDate())}
-                className="flex-1"
+                className="shrink-0"
               >
                 Today
               </Button>
-              {filterDate && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setFilterDate("")}
-                  className="flex-1 text-gray-500 hover:text-gray-700"
-                >
-                  Clear
-                </Button>
-              )}
             </div>
           </div>
 

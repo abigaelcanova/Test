@@ -7,17 +7,18 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Calendar as CalendarIcon } from "lucide-react"
 
 export function Step0DateSelect({ data, onNext }) {
-  const [visitDate, setVisitDate] = useState(data.visitDate)
-  const [isMultiDay, setIsMultiDay] = useState(data.isMultiDay)
-  const [selectedDates, setSelectedDates] = useState(data.selectedDates || [data.visitDate])
+  const [dateRange, setDateRange] = useState({ 
+    from: data.visitDate || new Date().toISOString().split('T')[0], 
+    to: data.visitDateEnd || data.visitDate || new Date().toISOString().split('T')[0]
+  })
   const [repeatOption, setRepeatOption] = useState(data.recurring ? (data.frequency || 'custom') : 'none')
-  const [recurringEnd, setRecurringEnd] = useState(data.recurringEnd)
-  const [startTime, setStartTime] = useState(data.startTime)
-  const [endTime, setEndTime] = useState(data.endTime)
+  const [recurringEnd, setRecurringEnd] = useState(data.recurringEnd || '')
+  const [startTime, setStartTime] = useState(data.startTime || '09:00')
+  const [endTime, setEndTime] = useState(data.endTime || '17:00')
 
   const getRepeatLabel = () => {
-    if (!visitDate) return 'Does not repeat'
-    const date = new Date(visitDate)
+    if (!dateRange.from) return 'Does not repeat'
+    const date = new Date(dateRange.from)
     const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
     const monthDay = date.getDate()
     const monthName = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
@@ -36,37 +37,14 @@ export function Step0DateSelect({ data, onNext }) {
     e.preventDefault()
     const recurring = repeatOption !== 'none'
     onNext({ 
-      visitDate: isMultiDay ? selectedDates[0] : visitDate,
-      isMultiDay,
-      selectedDates: isMultiDay ? selectedDates : [visitDate],
+      visitDate: dateRange.from,
+      visitDateEnd: dateRange.to,
       recurring,
       frequency: recurring ? repeatOption : '',
       recurringEnd: recurring ? recurringEnd : '',
       startTime,
       endTime
     })
-  }
-
-  const handleDateToggle = (date) => {
-    if (!isMultiDay) return
-    
-    const dateIndex = selectedDates.indexOf(date)
-    if (dateIndex > -1) {
-      // Remove date if already selected
-      const newDates = selectedDates.filter(d => d !== date)
-      setSelectedDates(newDates.length > 0 ? newDates : [visitDate])
-    } else {
-      // Add date and sort chronologically
-      const newDates = [...selectedDates, date].sort()
-      setSelectedDates(newDates)
-    }
-  }
-
-  const isDateSelected = (date) => {
-    if (isMultiDay) {
-      return selectedDates.includes(date)
-    }
-    return visitDate === date
   }
 
   const formatDisplayDate = (dateStr) => {
@@ -90,14 +68,12 @@ export function Step0DateSelect({ data, onNext }) {
       </div>
 
       <div className="space-y-5">
-        {/* Multi-day mode info */}
-        {isMultiDay && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm font-medium text-blue-900">
-              Multi-day mode: Click multiple dates to select specific days for this visit
-            </p>
-          </div>
-        )}
+        {/* Date range mode info */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-sm font-medium text-blue-900">
+            Select a date range: Click a start date, then click an end date
+          </p>
+        </div>
 
         {/* Calendar and Time Selection */}
         <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -105,37 +81,16 @@ export function Step0DateSelect({ data, onNext }) {
           <div className="w-full md:flex-shrink-0 md:w-auto">
             <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 w-full md:w-fit">
               <CalendarComponent
-                selected={isMultiDay ? selectedDates : visitDate}
-                onSelect={(date) => {
-                  if (isMultiDay) {
-                    handleDateToggle(date)
-                  } else {
-                    setVisitDate(date)
+                mode="range"
+                selected={dateRange}
+                onSelect={(range) => {
+                  if (range) {
+                    setDateRange(range)
                   }
                 }}
-                isMultiSelect={isMultiDay}
               />
             </div>
 
-            {/* Multi-day Visit Option */}
-            <div className="flex items-center gap-2 mt-4">
-              <input
-                type="checkbox"
-                id="multiDay"
-                checked={isMultiDay}
-                onChange={(e) => {
-                  setIsMultiDay(e.target.checked)
-                  if (e.target.checked) {
-                    // Initialize with current selected date
-                    setSelectedDates([visitDate])
-                  }
-                }}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              <Label htmlFor="multiDay" className="cursor-pointer font-medium">
-                Multi-day visit
-              </Label>
-            </div>
           </div>
 
           {/* Right Side - Time Selection */}
@@ -148,8 +103,8 @@ export function Step0DateSelect({ data, onNext }) {
                   <Input
                     id="startDate"
                     type="date"
-                    value={visitDate}
-                    onChange={(e) => setVisitDate(e.target.value)}
+                    value={dateRange.from}
+                    onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -180,8 +135,8 @@ export function Step0DateSelect({ data, onNext }) {
                   <Input
                     id="endDate"
                     type="date"
-                    value={visitDate}
-                    onChange={(e) => setVisitDate(e.target.value)}
+                    value={dateRange.to || dateRange.from}
+                    onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -239,46 +194,19 @@ export function Step0DateSelect({ data, onNext }) {
           </div>
         </div>
 
-        {/* Selected Date(s) Display */}
-        {!isMultiDay && visitDate && (
+        {/* Selected Date Range Display */}
+        {dateRange.from && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <CalendarIcon className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-xs font-medium text-gray-600 uppercase">Selected Date</p>
+                <p className="text-xs font-medium text-gray-600 uppercase">Selected Date Range</p>
                 <p className="text-base font-semibold text-gray-900">
-                  {formatDisplayDate(visitDate)}
+                  {formatDisplayDate(dateRange.from)}
+                  {dateRange.to && dateRange.to !== dateRange.from && (
+                    <span> → {formatDisplayDate(dateRange.to)}</span>
+                  )}
                 </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {isMultiDay && selectedDates.length > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <CalendarIcon className="h-5 w-5 text-primary mt-0.5" />
-              <div className="flex-1">
-                <p className="text-xs font-medium text-gray-600 uppercase mb-2">
-                  Selected Dates ({selectedDates.length})
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {selectedDates.map((date, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-white border border-blue-300 rounded-full text-sm font-medium text-gray-900"
-                    >
-                      {formatDisplayDate(date)}
-                      <button
-                        type="button"
-                        onClick={() => handleDateToggle(date)}
-                        className="ml-1 text-gray-500 hover:text-gray-700"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
