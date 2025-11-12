@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import { Step0DateSelect } from "@/components/modal-steps/Step0DateSelect"
 import { Step1VisitorInfo } from "@/components/modal-steps/Step1VisitorInfo"
-import { Step1bCheckIn } from "@/components/modal-steps/Step1bCheckIn"
 import { Step2BulkUpload } from "@/components/modal-steps/Step2BulkUpload"
 import { Step3DateTime } from "@/components/modal-steps/Step3DateTime"
 
@@ -101,7 +100,7 @@ export function CreateVisitPage() {
 
   const [showBulkUpload, setShowBulkUpload] = useState(false)
 
-  const stepLabels = ['When', 'Host', 'Visitors', 'Access']
+  const stepLabels = ['When & where', 'Host', 'Visitors']
 
   const handleStepChange = (newStep) => {
     if (newStep === currentStep || isTransitioning) return
@@ -217,7 +216,7 @@ export function CreateVisitPage() {
               <div key="step-2">
                 <Step1VisitorInfo
                   data={formData}
-                  onNext={handleNext}
+                  onNext={handleFinalSubmit}
                   onBack={handleBack}
                   onToggleBulkUpload={() => setShowBulkUpload(true)}
                 />
@@ -229,23 +228,12 @@ export function CreateVisitPage() {
                 <Step2BulkUpload
                   data={formData}
                   onNext={(data) => {
-                    handleNext(data)
-                    setCurrentStep(3) // Skip check-in step for bulk upload
+                    handleFinalSubmit(data)
                   }}
                   onBack={handleBack}
                   onSkip={() => {
                     setShowBulkUpload(false)
                   }}
-                />
-              </div>
-            )}
-
-            {currentStep === 3 && (
-              <div key="step-3">
-                <Step1bCheckIn
-                  data={formData}
-                  onSubmit={handleFinalSubmit}
-                  onBack={handleBack}
                 />
               </div>
             )}
@@ -264,7 +252,7 @@ export function CreateVisitPage() {
                 Back
               </Button>
             )}
-            {currentStep < 3 ? (
+            {currentStep < 2 ? (
               <Button 
                 onClick={() => {
                   // Trigger form submission in the active step

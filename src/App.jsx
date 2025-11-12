@@ -271,10 +271,7 @@ function App() {
           endTime: formData.endTime,
           host: formData.hostName,
           floor: formData.floor,
-          suite: formData.suite,
-          checkIn: formData.checkIn,
-          note: formData.visitorNote,
-          numEntries: formData.numEntries
+          suite: formData.suite
         }
         setVisits(prev => prev.map(v => v.id === editingVisitId ? updatedVisit : v))
       } else {
@@ -288,10 +285,7 @@ function App() {
           host: formData.hostName,
           floor: formData.floor,
           suite: formData.suite,
-          status: 'expected',
-          checkIn: formData.checkIn,
-          note: formData.visitorNote,
-          numEntries: formData.numEntries
+          status: 'expected'
         }
         setVisits(prev => [...prev, newVisit])
         setConfirmedVisit({ ...formData, visitorName: visitorNames })
