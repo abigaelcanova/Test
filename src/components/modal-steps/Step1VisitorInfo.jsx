@@ -81,7 +81,6 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Visitor information</h2>
-        <p className="text-sm text-gray-600 mt-1">Who will be visiting?</p>
       </div>
 
       {/* Visitor Mode Selection */}
