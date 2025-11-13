@@ -62,11 +62,32 @@ export function DatePickerWithPresets({
     }
   }
 
-  const displayValue = value ? formatDate(value) : "Select date"
+  // Get the label for the selected time frame
+  const getTimeFrameLabel = () => {
+    const option = timeFrameOptions.find(opt => opt.value === selectedTimeFrame)
+    return option ? option.label : null
+  }
+
+  // Display the date(s) in the button - always show just the start date
+  const getDisplayValue = () => {
+    if (!value) return "Select date"
+    return formatDate(value)
+  }
+
+  const displayValue = getDisplayValue()
   const showEndDate = (selectedTimeFrame === 'thisWeek' || selectedTimeFrame === 'thisMonth' || selectedTimeFrame === 'nextWeek' || selectedTimeFrame === 'nextMonth') && valueEnd
+  const timeFrameLabel = getTimeFrameLabel()
+  const showTimeFrameLabel = selectedTimeFrame && selectedTimeFrame !== 'custom' && timeFrameLabel
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex flex-col gap-1", className)}>
+      {/* Time frame label above the date picker */}
+      {showTimeFrameLabel && (
+        <div className="text-sm font-medium text-gray-700">
+          {timeFrameLabel}
+        </div>
+      )}
+      <div className="flex items-center gap-2">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -143,6 +164,7 @@ export function DatePickerWithPresets({
           </Popover>
         </>
       )}
+      </div>
     </div>
   )
 }
