@@ -107,8 +107,8 @@ export function DatePickerWithPresets({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <div className="flex">
-            {/* Calendar on the left */}
+          <div className="flex flex-col md:flex-row">
+            {/* Calendar on the left / top */}
             <div className="p-4">
               <Calendar
                 mode="single"
@@ -118,8 +118,8 @@ export function DatePickerWithPresets({
               />
             </div>
             
-            {/* Time frame options on the right */}
-            <div className="border-l border-gray-200 p-4 min-w-[160px] flex items-start">
+            {/* Time frame options on the right (desktop) / below (mobile) */}
+            <div className="border-t md:border-t-0 md:border-l border-gray-200 p-4 min-w-[160px] flex items-start">
               <div className="w-full space-y-0.5">
                 {timeFrameOptions.map((option) => (
                   <button
