@@ -16,7 +16,7 @@ import { UpdateConfirmationModal } from "@/components/UpdateConfirmationModal"
 import { MultiSelectFilter } from "@/components/MultiSelectFilter"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DatePickerWithPresets } from "@/components/DatePickerWithPresets"
-import { formatDate, formatTime } from "@/lib/utils"
+import { formatDate, formatTime, cn } from "@/lib/utils"
 
 function App() {
   const navigate = useNavigate()
@@ -613,7 +613,7 @@ function App() {
     <div className="h-full bg-white">
       {/* Page Header */}
       <div className="bg-white border-b">
-        <div className="max-w-[1600px] mx-auto px-12 pt-12 pb-6">
+        <div className="max-w-[1600px] mx-auto px-4 md:px-12 pt-4 md:pt-12 pb-4 md:pb-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-semibold" style={{ color: '#2D3338' }}>Visitor Management</h1>
             <Button onClick={() => navigate('/visits/new')} data-testid="add-visitor-desktop" className="shadow-sm">
@@ -670,63 +670,91 @@ function App() {
                   )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:w-[400px]">
-                <SheetHeader>
-                  <SheetTitle>Filters</SheetTitle>
-                </SheetHeader>
-                <div className="mt-6 space-y-6">
-                  {/* Host Filter */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Host</label>
-                    <MultiSelectFilter
-                      options={uniqueHosts}
-                      selectedValues={filterHosts}
-                      onChange={setFilterHosts}
-                      placeholder="Host"
-                      className="w-full"
-                    />
+              <SheetContent 
+                side="bottom" 
+                className="md:!inset-y-0 md:!inset-x-auto md:!right-0 md:!left-auto md:!top-0 md:!bottom-auto md:!h-full md:!w-[400px] md:!border-l md:!border-t-0 md:!rounded-none w-full h-[85vh] rounded-t-3xl border-t-4 border-gray-200 [&>button]:hidden md:[&>button]:block"
+              >
+                <div className="flex flex-col h-full">
+                  <SheetHeader className="pb-4 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <SheetTitle className="text-xl font-semibold">Filters</SheetTitle>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsFiltersOpen(false)}
+                        className="h-8 w-8"
+                      >
+                        <X className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </SheetHeader>
+                  
+                  <div className="flex-1 overflow-y-auto mt-6 space-y-6 pb-24">
+                    {/* Host Filter */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Host</label>
+                      <MultiSelectFilter
+                        options={uniqueHosts}
+                        selectedValues={filterHosts}
+                        onChange={setFilterHosts}
+                        placeholder="Host"
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Host Company Filter */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Company</label>
+                      <MultiSelectFilter
+                        options={uniqueHostCompanies}
+                        selectedValues={filterHostCompanies}
+                        onChange={setFilterHostCompanies}
+                        placeholder="Company"
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Status Filter */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Status</label>
+                      <MultiSelectFilter
+                        options={availableStatuses}
+                        selectedValues={filterStatuses}
+                        onChange={setFilterStatuses}
+                        placeholder="Status"
+                        className="w-full"
+                        formatLabel={(status) => status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
+                      />
+                    </div>
                   </div>
 
-                  {/* Host Company Filter */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Company</label>
-                    <MultiSelectFilter
-                      options={uniqueHostCompanies}
-                      selectedValues={filterHostCompanies}
-                      onChange={setFilterHostCompanies}
-                      placeholder="Company"
-                      className="w-full"
-                    />
-                  </div>
-
-                  {/* Status Filter */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Status</label>
-                    <MultiSelectFilter
-                      options={availableStatuses}
-                      selectedValues={filterStatuses}
-                      onChange={setFilterStatuses}
-                      placeholder="Status"
-                      className="w-full"
-                      formatLabel={(status) => status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
-                    />
-                  </div>
-
-                  {/* Clear Filters Button */}
-                  {(filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0) && (
+                  {/* Fixed bottom action buttons */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 flex gap-3">
+                    {(filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0) && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setFilterHosts([])
+                          setFilterHostCompanies([])
+                          setFilterStatuses([])
+                        }}
+                        className="flex-1"
+                      >
+                        Clear all
+                      </Button>
+                    )}
                     <Button
-                      variant="outline"
-                      onClick={() => {
-                        setFilterHosts([])
-                        setFilterHostCompanies([])
-                        setFilterStatuses([])
-                        setIsFiltersOpen(false)
-                      }}
-                      className="w-full"
+                      onClick={() => setIsFiltersOpen(false)}
+                      className={cn(
+                        "flex-1",
+                        (filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0) 
+                          ? "" 
+                          : "w-full"
+                      )}
                     >
-                      Clear all
+                      Show results
                     </Button>
-                  )}
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
