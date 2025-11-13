@@ -1,11 +1,11 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
+export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
   const [hostType, setHostType] = useState(data.hostType)
   const [hostName, setHostName] = useState(data.hostName)
   const [receiveCopyInvitation, setReceiveCopyInvitation] = useState(data.receiveCopyInvitation)
@@ -13,6 +13,51 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack }) {
   const [additionalOrganizers, setAdditionalOrganizers] = useState(data.additionalOrganizers)
   const [floor, setFloor] = useState(data.floor || '1')
   const [suite, setSuite] = useState(data.suite || '1001')
+
+  // Auto-populate floor and suite when host is selected
+  useEffect(() => {
+    if (hostName && hostType === 'someone' && hostName.trim().length > 0) {
+      // Always try to get visits from localStorage first, then fall back to passed prop
+      let allVisits = []
+      try {
+        const storedVisits = localStorage.getItem('visits')
+        if (storedVisits) {
+          allVisits = JSON.parse(storedVisits)
+        } else if (visits && visits.length > 0) {
+          allVisits = visits
+        }
+      } catch (e) {
+        console.error('Error reading visits from localStorage:', e)
+        if (visits && visits.length > 0) {
+          allVisits = visits
+        }
+      }
+      
+      if (allVisits.length > 0) {
+        // Find the most recent visit for this host (case-insensitive match)
+        const hostVisits = allVisits.filter(v => {
+          if (!v.host) return false
+          return v.host.toLowerCase().trim() === hostName.toLowerCase().trim()
+        })
+        
+        if (hostVisits.length > 0) {
+          // Sort by date (most recent first) and get the first one
+          const sortedVisits = hostVisits.sort((a, b) => {
+            const dateA = new Date(a.date)
+            const dateB = new Date(b.date)
+            return dateB - dateA
+          })
+          const mostRecentVisit = sortedVisits[0]
+          if (mostRecentVisit.floor) {
+            setFloor(String(mostRecentVisit.floor))
+          }
+          if (mostRecentVisit.suite) {
+            setSuite(String(mostRecentVisit.suite))
+          }
+        }
+      }
+    }
+  }, [hostName, hostType, visits])
 
   const handleSubmit = (e) => {
     e.preventDefault()

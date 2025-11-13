@@ -304,7 +304,16 @@ function App() {
           suite: formData.suite,
           visitSummary: formData.visitors?.[0]?.visitSummary || existingVisit?.visitSummary
         }
-        setVisits(prev => prev.map(v => v.id === editingVisitId ? updatedVisit : v))
+        setVisits(prev => {
+          const updated = prev.map(v => v.id === editingVisitId ? updatedVisit : v)
+          // Store visits in localStorage for auto-population
+          try {
+            localStorage.setItem('visits', JSON.stringify(updated))
+          } catch (e) {
+            console.error('Error saving visits to localStorage:', e)
+          }
+          return updated
+        })
         setConfirmedVisit({ ...formData, visitorName: visitorNames, visitorCompany: visitorCompany })
         setIsUpdateConfirmationOpen(true)
       } else {
@@ -322,7 +331,16 @@ function App() {
           status: 'expected',
           visitSummary: formData.visitors?.[0]?.visitSummary || formData.visitSummary
         }
-        setVisits(prev => [...prev, newVisit])
+        setVisits(prev => {
+          const updated = [...prev, newVisit]
+          // Store visits in localStorage for auto-population
+          try {
+            localStorage.setItem('visits', JSON.stringify(updated))
+          } catch (e) {
+            console.error('Error saving visits to localStorage:', e)
+          }
+          return updated
+        })
         setConfirmedVisit({ ...formData, visitorName: visitorNames, visitorCompany: visitorCompany })
         setIsConfirmationOpen(true)
       }
@@ -566,6 +584,31 @@ function App() {
   }
   
   const hasActiveFilters = searchQuery || filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0
+
+  // Initialize visits in localStorage on mount
+  useEffect(() => {
+    try {
+      const storedVisits = localStorage.getItem('visits')
+      if (!storedVisits && visits.length > 0) {
+        // Initialize with current visits if localStorage is empty
+        localStorage.setItem('visits', JSON.stringify(visits))
+      }
+    } catch (e) {
+      console.error('Error initializing visits in localStorage:', e)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Sync visits to localStorage when they change
+  useEffect(() => {
+    if (visits.length > 0) {
+      try {
+        localStorage.setItem('visits', JSON.stringify(visits))
+      } catch (e) {
+        console.error('Error saving visits to localStorage:', e)
+      }
+    }
+  }, [visits])
 
   // Load pinned filters from localStorage on mount
   useEffect(() => {
