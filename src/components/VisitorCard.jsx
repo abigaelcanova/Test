@@ -80,19 +80,21 @@ export function VisitorCard({ visit, onEdit, onCancel }) {
         <div className="space-y-2.5 text-sm text-gray-600">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-gray-400" />
-            <span data-testid="visitor-date">{formatDate(visit.date)}</span>
-            {visit.recurring && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Repeat className="h-4 w-4 text-gray-500" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{formatFrequency(visit.frequency)}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+            <div className="flex items-center gap-1">
+              <span data-testid="visitor-date">{formatDate(visit.date)}</span>
+              {visit.recurring && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Repeat className="h-4 w-4 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{formatFrequency(visit.frequency)}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           </div>
           
           {visit.startTime && (

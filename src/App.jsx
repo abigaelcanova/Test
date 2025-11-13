@@ -247,6 +247,7 @@ function App() {
   const [activeTab, setActiveTab] = useState("upcoming")
   const [searchQuery, setSearchQuery] = useState("")
   const [filterDate, setFilterDate] = useState(() => new Date().toISOString().split('T')[0]) // Default to today
+  const [filterDateEnd, setFilterDateEnd] = useState("") // End date for range filters
   const [selectedTimeFrame, setSelectedTimeFrame] = useState("today") // Default to today
   const [filterHosts, setFilterHosts] = useState([])
   const [filterHostCompanies, setFilterHostCompanies] = useState([])
@@ -397,6 +398,54 @@ function App() {
     }
   }
 
+  const getTimeFrameDateRange = (timeFrame) => {
+    const today = new Date()
+    const todayStr = today.toISOString().split('T')[0]
+    
+    switch (timeFrame) {
+      case 'today':
+        return { start: todayStr, end: todayStr }
+      case 'thisWeek': {
+        const startOfWeek = new Date(today)
+        startOfWeek.setDate(today.getDate() - today.getDay()) // Sunday
+        const endOfWeek = new Date(startOfWeek)
+        endOfWeek.setDate(startOfWeek.getDate() + 6) // Saturday
+        return { 
+          start: startOfWeek.toISOString().split('T')[0], 
+          end: endOfWeek.toISOString().split('T')[0] 
+        }
+      }
+      case 'thisMonth': {
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+        return { 
+          start: startOfMonth.toISOString().split('T')[0], 
+          end: endOfMonth.toISOString().split('T')[0] 
+        }
+      }
+      case 'nextWeek': {
+        const nextWeekStart = new Date(today)
+        nextWeekStart.setDate(today.getDate() + (7 - today.getDay()))
+        const nextWeekEnd = new Date(nextWeekStart)
+        nextWeekEnd.setDate(nextWeekStart.getDate() + 6) // Saturday
+        return { 
+          start: nextWeekStart.toISOString().split('T')[0], 
+          end: nextWeekEnd.toISOString().split('T')[0] 
+        }
+      }
+      case 'nextMonth': {
+        const nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+        const nextMonthEnd = new Date(today.getFullYear(), today.getMonth() + 2, 0)
+        return { 
+          start: nextMonthStart.toISOString().split('T')[0], 
+          end: nextMonthEnd.toISOString().split('T')[0] 
+        }
+      }
+      default:
+        return { start: '', end: '' }
+    }
+  }
+
   const filterVisits = (visitsList) => {
     let filtered = visitsList.filter(visit => {
       // Search filter (searches name, host, location)
@@ -471,6 +520,7 @@ function App() {
   const clearFilters = () => {
     setSearchQuery("")
     setFilterDate("") // Clear date to show all
+    setFilterDateEnd("") // Clear end date
     setFilterHosts([])
     setFilterHostCompanies([])
     setFilterStatuses([])
@@ -481,8 +531,11 @@ function App() {
     setSelectedTimeFrame(value)
     if (value === 'custom') {
       setFilterDate('')
+      setFilterDateEnd('')
     } else {
-      setFilterDate(getTimeFrameDates(value))
+      const range = getTimeFrameDateRange(value)
+      setFilterDate(range.start)
+      setFilterDateEnd(range.end)
     }
   }
   
@@ -521,6 +574,8 @@ function App() {
           const filters = JSON.parse(savedFilters)
           setSearchQuery(filters.searchQuery || "")
           setFilterDate(filters.filterDate || "")
+          setFilterDateEnd(filters.filterDateEnd || "")
+          setSelectedTimeFrame(filters.selectedTimeFrame || "today")
           setFilterHosts(filters.filterHosts || [])
           setFilterHostCompanies(filters.filterHostCompanies || [])
           setFilterStatuses(filters.filterStatuses || [])
@@ -538,6 +593,8 @@ function App() {
       localStorage.setItem('visitorFilters:data', JSON.stringify({
         searchQuery,
         filterDate,
+        filterDateEnd,
+        selectedTimeFrame,
         filterHosts,
         filterHostCompanies,
         filterStatuses
@@ -546,7 +603,7 @@ function App() {
       localStorage.removeItem('visitorFilters:pinned')
       localStorage.removeItem('visitorFilters:data')
     }
-  }, [isPinned, searchQuery, filterDate, filterHosts, filterHostCompanies, filterStatuses])
+  }, [isPinned, searchQuery, filterDate, filterDateEnd, selectedTimeFrame, filterHosts, filterHostCompanies, filterStatuses])
 
   return (
     <div className="h-full bg-white">
@@ -569,14 +626,30 @@ function App() {
           <div className="mb-4">
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700 shrink-0">Date:</label>
-              <div className="flex-1 relative">
-                <Input
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  placeholder="Select date"
-                  className="w-full pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
-                />
+              <div className="flex-1 flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    type="date"
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value)}
+                    placeholder="Select date"
+                    className="w-full pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
+                  />
+                </div>
+                {(selectedTimeFrame === 'thisWeek' || selectedTimeFrame === 'thisMonth' || selectedTimeFrame === 'nextWeek' || selectedTimeFrame === 'nextMonth') && filterDateEnd && (
+                  <>
+                    <span className="text-gray-500 shrink-0">-</span>
+                    <div className="relative flex-1">
+                      <Input
+                        type="date"
+                        value={filterDateEnd}
+                        onChange={(e) => setFilterDateEnd(e.target.value)}
+                        placeholder="End date"
+                        className="w-full pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
+                      />
+                    </div>
+                  </>
+                )}
               </div>
               <Select value={getCurrentTimeFrame()} onValueChange={handleTimeFrameChange}>
                 <SelectTrigger className="w-[120px] shrink-0">
@@ -695,14 +768,30 @@ function App() {
           <div className="mb-6">
             <div className="flex items-center gap-3">
               <label className="text-sm font-medium text-gray-700">Date:</label>
-              <div className="relative">
-                <Input
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  placeholder="Select date"
-                  className="w-64 pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
-                />
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Input
+                    type="date"
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value)}
+                    placeholder="Select date"
+                    className="w-64 pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
+                  />
+                </div>
+                {(selectedTimeFrame === 'thisWeek' || selectedTimeFrame === 'thisMonth' || selectedTimeFrame === 'nextWeek' || selectedTimeFrame === 'nextMonth') && filterDateEnd && (
+                  <>
+                    <span className="text-gray-500">-</span>
+                    <div className="relative">
+                      <Input
+                        type="date"
+                        value={filterDateEnd}
+                        onChange={(e) => setFilterDateEnd(e.target.value)}
+                        placeholder="End date"
+                        className="w-64 pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
+                      />
+                    </div>
+                  </>
+                )}
               </div>
               <Select value={getCurrentTimeFrame()} onValueChange={handleTimeFrameChange}>
                 <SelectTrigger className="w-[140px]">

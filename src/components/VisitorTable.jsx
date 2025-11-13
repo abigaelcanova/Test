@@ -63,9 +63,23 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
                 </div>
               </td>
               <td className="px-4 py-4 text-sm text-gray-900" data-testid="visitor-date">
-                <div className="flex items-start gap-2">
+                <div className="flex items-start gap-0">
                   <div className="flex flex-col">
-                    <span className="text-gray-900">{formatDate(visit.date)}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-gray-900">{formatDate(visit.date)}</span>
+                      {visit.recurring && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Repeat className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{formatFrequency(visit.frequency)}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </div>
                     {visit.startTime ? (
                       <span className="text-gray-600 text-xs">
                         {formatTime(visit.startTime)}
@@ -75,18 +89,6 @@ export function VisitorTable({ visits, onEdit, onCancel }) {
                       <span className="text-gray-600 text-xs">All day</span>
                     )}
                   </div>
-                  {visit.recurring && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Repeat className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{formatFrequency(visit.frequency)}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
                 </div>
               </td>
               <td className="px-4 py-4 text-sm text-gray-900" data-testid="visitor-summary">
