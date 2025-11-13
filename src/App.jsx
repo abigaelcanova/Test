@@ -15,6 +15,7 @@ import { ConfirmationModal } from "@/components/ConfirmationModal"
 import { UpdateConfirmationModal } from "@/components/UpdateConfirmationModal"
 import { MultiSelectFilter } from "@/components/MultiSelectFilter"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { DatePickerWithPresets } from "@/components/DatePickerWithPresets"
 import { formatDate, formatTime } from "@/lib/utils"
 
 function App() {
@@ -623,47 +624,16 @@ function App() {
         <div className="px-4 py-4 space-y-4">
           {/* Mobile Date Picker - Prominent Position */}
           <div className="mb-4">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700 shrink-0">Date:</label>
-              <div className="flex-1 flex items-center gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    type="date"
-                    value={filterDate}
-                    onChange={(e) => setFilterDate(e.target.value)}
-                    placeholder="Select date"
-                    className="w-full pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
-                  />
-                </div>
-                {(selectedTimeFrame === 'thisWeek' || selectedTimeFrame === 'thisMonth' || selectedTimeFrame === 'nextWeek' || selectedTimeFrame === 'nextMonth') && filterDateEnd && (
-                  <>
-                    <span className="text-gray-500 shrink-0">-</span>
-                    <div className="relative flex-1">
-                      <Input
-                        type="date"
-                        value={filterDateEnd}
-                        onChange={(e) => setFilterDateEnd(e.target.value)}
-                        placeholder="End date"
-                        className="w-full pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-              <Select value={getCurrentTimeFrame()} onValueChange={handleTimeFrameChange}>
-                <SelectTrigger className="w-[120px] shrink-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="thisWeek">This Week</SelectItem>
-                  <SelectItem value="thisMonth">This Month</SelectItem>
-                  <SelectItem value="nextWeek">Next Week</SelectItem>
-                  <SelectItem value="nextMonth">Next Month</SelectItem>
-                  <SelectItem value="custom">Custom</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <DatePickerWithPresets
+              value={filterDate}
+              valueEnd={filterDateEnd}
+              onValueChange={setFilterDate}
+              onValueEndChange={setFilterDateEnd}
+              selectedTimeFrame={selectedTimeFrame}
+              onTimeFrameChange={handleTimeFrameChange}
+              getTimeFrameDateRange={getTimeFrameDateRange}
+              className="w-full"
+            />
           </div>
 
           {/* Mobile Search and Filters */}
@@ -765,47 +735,15 @@ function App() {
         <div className="max-w-[1600px] mx-auto px-12 py-12">
           {/* Date Picker - Prominent Position */}
           <div className="mb-6">
-            <div className="flex items-center gap-3">
-              <label className="text-sm font-medium text-gray-700">Date:</label>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Input
-                    type="date"
-                    value={filterDate}
-                    onChange={(e) => setFilterDate(e.target.value)}
-                    placeholder="Select date"
-                    className="w-64 pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
-                  />
-                </div>
-                {(selectedTimeFrame === 'thisWeek' || selectedTimeFrame === 'thisMonth' || selectedTimeFrame === 'nextWeek' || selectedTimeFrame === 'nextMonth') && filterDateEnd && (
-                  <>
-                    <span className="text-gray-500">-</span>
-                    <div className="relative">
-                      <Input
-                        type="date"
-                        value={filterDateEnd}
-                        onChange={(e) => setFilterDateEnd(e.target.value)}
-                        placeholder="End date"
-                        className="w-64 pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5"
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-              <Select value={getCurrentTimeFrame()} onValueChange={handleTimeFrameChange}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="thisWeek">This Week</SelectItem>
-                  <SelectItem value="thisMonth">This Month</SelectItem>
-                  <SelectItem value="nextWeek">Next Week</SelectItem>
-                  <SelectItem value="nextMonth">Next Month</SelectItem>
-                  <SelectItem value="custom">Custom</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <DatePickerWithPresets
+              value={filterDate}
+              valueEnd={filterDateEnd}
+              onValueChange={setFilterDate}
+              onValueEndChange={setFilterDateEnd}
+              selectedTimeFrame={selectedTimeFrame}
+              onTimeFrameChange={handleTimeFrameChange}
+              getTimeFrameDateRange={getTimeFrameDateRange}
+            />
           </div>
 
           {/* Filters Bar */}

@@ -1,0 +1,149 @@
+import { useState } from "react"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { CalendarIcon, Check } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { formatDate } from "@/lib/utils"
+
+export function DatePickerWithPresets({ 
+  value, 
+  valueEnd, 
+  onValueChange,
+  onValueEndChange,
+  selectedTimeFrame,
+  onTimeFrameChange,
+  getTimeFrameDateRange,
+  className 
+}) {
+  const [open, setOpen] = useState(false)
+  const [endDateOpen, setEndDateOpen] = useState(false)
+
+  const timeFrameOptions = [
+    { value: 'today', label: 'Today' },
+    { value: 'thisWeek', label: 'This Week' },
+    { value: 'thisMonth', label: 'This Month' },
+    { value: 'nextWeek', label: 'Next Week' },
+    { value: 'nextMonth', label: 'Next Month' },
+    { value: 'custom', label: 'Custom' }
+  ]
+
+  const handleTimeFrameSelect = (timeFrame) => {
+    onTimeFrameChange(timeFrame)
+    if (timeFrame === 'custom') {
+      // Keep current dates but mark as custom
+      setOpen(false)
+    } else {
+      const range = getTimeFrameDateRange(timeFrame)
+      onValueChange(range.start)
+      if (range.end && range.end !== range.start && onValueEndChange) {
+        onValueEndChange(range.end)
+      }
+      setOpen(false)
+    }
+  }
+
+  const handleDateSelect = (date) => {
+    if (date) {
+      onValueChange(date)
+      // If a specific date is selected, set to custom
+      onTimeFrameChange('custom')
+      // Close popover after selection for single date
+      if (selectedTimeFrame === 'today' || !selectedTimeFrame || selectedTimeFrame === 'custom') {
+        setOpen(false)
+      }
+    }
+  }
+
+  const handleEndDateSelect = (date) => {
+    if (date && onValueEndChange) {
+      onValueEndChange(date)
+      setEndDateOpen(false)
+    }
+  }
+
+  const displayValue = value ? formatDate(value) : "Select date"
+  const showEndDate = (selectedTimeFrame === 'thisWeek' || selectedTimeFrame === 'thisMonth' || selectedTimeFrame === 'nextWeek' || selectedTimeFrame === 'nextMonth') && valueEnd
+
+  return (
+    <div className={cn("flex items-center gap-2", className)}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={cn(
+              "w-full sm:w-[240px] justify-start text-left font-normal h-10 !pl-3 pr-4 text-base",
+              !value && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-5 w-5 shrink-0" />
+            <span className="truncate text-base">{displayValue}</span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <div className="flex">
+            {/* Calendar on the left */}
+            <div className="p-4">
+              <Calendar
+                mode="single"
+                selected={value || undefined}
+                onSelect={handleDateSelect}
+                className="rounded-md border-0"
+              />
+            </div>
+            
+            {/* Time frame options on the right */}
+            <div className="border-l border-gray-200 p-4 min-w-[160px] flex items-start">
+              <div className="w-full space-y-0.5">
+                {timeFrameOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleTimeFrameSelect(option.value)}
+                    className={cn(
+                      "w-full text-left px-3 py-2 text-sm rounded-md hover:bg-gray-100 transition-colors flex items-center justify-between gap-2",
+                      selectedTimeFrame === option.value && "bg-primary/10 text-primary font-medium"
+                    )}
+                  >
+                    <span className="flex-1">{option.label}</span>
+                    {selectedTimeFrame === option.value && (
+                      <Check className="h-4 w-4 text-primary shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      {showEndDate && (
+        <>
+          <span className="text-gray-500">-</span>
+          <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full sm:w-[240px] justify-start text-left font-normal h-10 !pl-3 pr-4 text-base",
+                  !valueEnd && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-5 w-5 shrink-0" />
+                <span className="truncate text-base">{valueEnd ? formatDate(valueEnd) : "End date"}</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={valueEnd || undefined}
+                onSelect={handleEndDateSelect}
+                className="rounded-md border-0"
+              />
+            </PopoverContent>
+          </Popover>
+        </>
+      )}
+    </div>
+  )
+}
+
