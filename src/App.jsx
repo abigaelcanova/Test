@@ -529,6 +529,10 @@ function App() {
   
   const handleTimeFrameChange = (value) => {
     setSelectedTimeFrame(value)
+    // If value is empty string, it means a manual date was selected - don't change dates
+    if (value === '' || value === null || value === undefined) {
+      return
+    }
     if (value === 'custom') {
       setFilterDate('')
       setFilterDateEnd('')

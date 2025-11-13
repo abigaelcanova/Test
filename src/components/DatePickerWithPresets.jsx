@@ -24,34 +24,34 @@ export function DatePickerWithPresets({
     { value: 'thisWeek', label: 'This Week' },
     { value: 'thisMonth', label: 'This Month' },
     { value: 'nextWeek', label: 'Next Week' },
-    { value: 'nextMonth', label: 'Next Month' },
-    { value: 'custom', label: 'Custom' }
+    { value: 'nextMonth', label: 'Next Month' }
   ]
 
   const handleTimeFrameSelect = (timeFrame) => {
     onTimeFrameChange(timeFrame)
-    if (timeFrame === 'custom') {
-      // Keep current dates but mark as custom
-      setOpen(false)
-    } else {
-      const range = getTimeFrameDateRange(timeFrame)
-      onValueChange(range.start)
-      if (range.end && range.end !== range.start && onValueEndChange) {
-        onValueEndChange(range.end)
-      }
-      setOpen(false)
+    const range = getTimeFrameDateRange(timeFrame)
+    onValueChange(range.start)
+    if (range.end && range.end !== range.start && onValueEndChange) {
+      onValueEndChange(range.end)
     }
+    // Clear end date if it's a single date (like 'today')
+    if (range.end === range.start && onValueEndChange) {
+      onValueEndChange('')
+    }
+    setOpen(false)
   }
 
   const handleDateSelect = (date) => {
-    if (date) {
+    if (date && typeof date === 'string') {
       onValueChange(date)
-      // If a specific date is selected, set to custom
-      onTimeFrameChange('custom')
-      // Close popover after selection for single date
-      if (selectedTimeFrame === 'today' || !selectedTimeFrame || selectedTimeFrame === 'custom') {
-        setOpen(false)
+      // Clear the time frame when manually selecting a date
+      onTimeFrameChange('')
+      // Clear end date when manually selecting a single date
+      if (onValueEndChange) {
+        onValueEndChange('')
       }
+      // Close popover after selection
+      setOpen(false)
     }
   }
 
@@ -71,13 +71,18 @@ export function DatePickerWithPresets({
   // Display the date(s) in the button - always show just the start date
   const getDisplayValue = () => {
     if (!value) return "Select date"
-    return formatDate(value)
+    try {
+      return formatDate(value)
+    } catch (e) {
+      // If formatDate fails, just return the raw value
+      return value
+    }
   }
 
   const displayValue = getDisplayValue()
   const showEndDate = (selectedTimeFrame === 'thisWeek' || selectedTimeFrame === 'thisMonth' || selectedTimeFrame === 'nextWeek' || selectedTimeFrame === 'nextMonth') && valueEnd
   const timeFrameLabel = getTimeFrameLabel()
-  const showTimeFrameLabel = selectedTimeFrame && selectedTimeFrame !== 'custom' && timeFrameLabel
+  const showTimeFrameLabel = selectedTimeFrame && timeFrameLabel
 
   return (
     <div className={cn("flex flex-col gap-1", className)}>

@@ -51,6 +51,8 @@ export function Calendar({ selected, onSelect, className, isMultiSelect = false,
   }
 
   const handleDateClick = (day) => {
+    if (!onSelect) return
+    
     const year = currentMonth.getFullYear()
     const month = String(currentMonth.getMonth() + 1).padStart(2, '0')
     const dayStr = String(day).padStart(2, '0')
