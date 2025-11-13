@@ -519,12 +519,11 @@ function App() {
 
   const clearFilters = () => {
     setSearchQuery("")
-    setFilterDate("") // Clear date to show all
-    setFilterDateEnd("") // Clear end date
+    // Don't clear date - date selection is independent from filters
     setFilterHosts([])
     setFilterHostCompanies([])
     setFilterStatuses([])
-    setSelectedTimeFrame("custom")
+    // Don't reset time frame - date selection is independent
   }
   
   const handleTimeFrameChange = (value) => {
@@ -561,7 +560,7 @@ function App() {
     return 'custom'
   }
   
-  const hasActiveFilters = searchQuery || filterDate || filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0
+  const hasActiveFilters = searchQuery || filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0
 
   // Load pinned filters from localStorage on mount
   useEffect(() => {
