@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -22,8 +22,16 @@ const generateTimeOptions = (startHour = 8, endHour = 18) => {
   return options
 }
 
+// Helper function to get today's date in user's local timezone (YYYY-MM-DD format)
+const getLocalDateString = (date = new Date()) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export function Step0DateSelect({ data, onNext }) {
-  const initialDate = data.visitDate || new Date().toISOString().split('T')[0]
+  const initialDate = data.visitDate || getLocalDateString()
   const [dateRange, setDateRange] = useState({ 
     from: initialDate, 
     to: data.visitDateEnd || initialDate
@@ -32,6 +40,28 @@ export function Step0DateSelect({ data, onNext }) {
   const [recurringEnd, setRecurringEnd] = useState(data.recurringEnd || '')
   const [startTime, setStartTime] = useState(data.startTime || '09:00')
   const [endTime, setEndTime] = useState(data.endTime || '17:00')
+
+  // Update state when data prop changes (for editing visits)
+  useEffect(() => {
+    if (data.visitDate) {
+      setDateRange({
+        from: data.visitDate,
+        to: data.visitDateEnd || data.visitDate
+      })
+    }
+    if (data.startTime) {
+      setStartTime(data.startTime)
+    }
+    if (data.endTime) {
+      setEndTime(data.endTime)
+    }
+    if (data.recurring !== undefined) {
+      setRepeatOption(data.recurring ? (data.frequency || 'custom') : 'none')
+    }
+    if (data.recurringEnd !== undefined) {
+      setRecurringEnd(data.recurringEnd || '')
+    }
+  }, [data.visitDate, data.visitDateEnd, data.startTime, data.endTime, data.recurring, data.frequency, data.recurringEnd])
 
   const getRepeatLabel = () => {
     if (!dateRange.from) return 'Does not repeat'

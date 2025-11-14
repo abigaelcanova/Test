@@ -24,6 +24,90 @@ const getDefaultTimes = () => {
   return { startTime, endTime: endTimeStr }
 }
 
+// Helper function to get today's date in user's local timezone (YYYY-MM-DD format)
+const getLocalDateString = (date = new Date()) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/**
+ * Transform a Visit object from the API into form data structure
+ */
+const transformVisitToFormData = (visit) => {
+  if (!visit) return null
+
+  // Parse visitorName into firstName and lastName
+  const parseVisitorName = (name) => {
+    if (!name) return { firstName: '', lastName: '' }
+    const parts = name.trim().split(/\s+/)
+    if (parts.length === 0) return { firstName: '', lastName: '' }
+    if (parts.length === 1) return { firstName: parts[0], lastName: '' }
+    const lastName = parts.slice(-1)[0]
+    const firstName = parts.slice(0, -1).join(' ')
+    return { firstName, lastName }
+  }
+
+  // Split comma-separated values into arrays
+  const splitCommaSeparated = (value) => {
+    if (!value) return []
+    return value.split(',').map(v => v.trim()).filter(Boolean)
+  }
+
+  // Parse first visitor name
+  const { firstName, lastName } = parseVisitorName(visit.visitorName)
+  
+  // Split emails and phones if comma-separated
+  const emails = splitCommaSeparated(visit.visitorEmail)
+  const phones = splitCommaSeparated(visit.visitorPhone)
+  
+  // Build visitors array
+  const visitors = []
+  const maxVisitors = Math.max(1, emails.length, phones.length)
+  
+  for (let i = 0; i < maxVisitors; i++) {
+    const visitorNameParts = i === 0 
+      ? parseVisitorName(visit.visitorName)
+      : { firstName: '', lastName: '' }
+    
+    visitors.push({
+      firstName: visitorNameParts.firstName || '',
+      lastName: visitorNameParts.lastName || '',
+      email: emails[i] || '',
+      phone: phones[i] || '',
+      company: i === 0 ? (visit.visitorCompany || '') : '',
+      visitSummary: i === 0 ? (visit.visitSummary || '') : ''
+    })
+  }
+
+  // Determine hostType based on whether host is set
+  const hostType = visit.host ? 'someone' : 'me'
+
+  return {
+    visitors,
+    checkIn: visit.checkIn || 'standard',
+    visitorNote: '', // Not stored in visit object
+    hostType,
+    hostName: visit.host || '',
+    floor: visit.floor || '1',
+    suite: visit.suite || '1001',
+    visitDate: visit.date || getLocalDateString(),
+    visitDateEnd: visit.date || getLocalDateString(), // Single day visit
+    isMultiDay: false, // Not stored in visit object
+    selectedDates: visit.date ? [visit.date] : [getLocalDateString()],
+    recurring: visit.recurring || false,
+    frequency: visit.frequency || '',
+    recurringEnd: '', // Not stored in visit object
+    startTime: visit.startTime || getDefaultTimes().startTime,
+    endTime: visit.endTime || getDefaultTimes().endTime,
+    numEntries: visit.numEntries || '1',
+    receiveCopyInvitation: true, // Default value
+    receiveCheckInNotifications: true, // Default value
+    additionalOrganizers: '' // Not stored in visit object
+  }
+}
+
 export function CreateVisitPage() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -64,10 +148,10 @@ export function CreateVisitPage() {
   // Populate form data when editing a visit
   useEffect(() => {
     if (editingVisit) {
-      setFormData(prev => ({
-        ...prev,
-        ...editingVisit
-      }))
+      const transformedData = transformVisitToFormData(editingVisit)
+      if (transformedData) {
+        setFormData(transformedData)
+      }
     }
   }, [editingVisit])
 
