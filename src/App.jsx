@@ -387,23 +387,6 @@ function App() {
     return !!(filterDate && filterDateEnd && filterDate !== filterDateEnd)
   }, [filterDate, filterDateEnd])
   
-  const upcomingVisits = useMemo(() => {
-    // If filtering by a specific date, show all non-cancelled visits for that date
-    if (isFilteringBySpecificDate) {
-      return visits.filter(v => v.status !== 'cancelled')
-    }
-    // If filtering by a date range, show all non-cancelled visits in that range
-    // (server already filtered by date range, so just filter by status)
-    if (isFilteringByDateRange) {
-      return visits.filter(v => v.status !== 'cancelled')
-    }
-    // Otherwise, show upcoming visits (today or future, not cancelled)
-    // Compare date strings directly (YYYY-MM-DD format) to avoid timezone issues
-    return visits.filter(v => {
-      return v.date >= todayDateString && v.status !== 'cancelled'
-    })
-  }, [visits, todayDateString, isFilteringBySpecificDate, isFilteringByDateRange])
-  
   const pastVisits = useMemo(() => {
     // If filtering by a specific date, show all cancelled visits for that date
     if (isFilteringBySpecificDate) {
@@ -776,11 +759,11 @@ function App() {
               <div className="p-8 text-center">
                 <p className="text-red-600">Error loading visits: {error.message}</p>
               </div>
-            ) : upcomingVisits.length === 0 ? (
+            ) : visits.length === 0 ? (
               <EmptyState filtered={hasActiveFilters} />
             ) : (
               <VisitorTable 
-                visits={upcomingVisits}
+                visits={visits}
                 onEdit={handleEditVisit}
                 onCancel={handleCancelVisit}
               />
@@ -805,11 +788,11 @@ function App() {
               <div className="p-8 text-center">
                 <p className="text-red-600">Error loading visits: {error.message}</p>
               </div>
-            ) : upcomingVisits.length === 0 ? (
+            ) : visits.length === 0 ? (
               <EmptyState filtered={hasActiveFilters} />
             ) : (
               <div className="space-y-3">
-                {upcomingVisits.map(visit => (
+                {visits.map(visit => (
                   <VisitorCard 
                     key={visit.id} 
                     visit={visit}
