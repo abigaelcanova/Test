@@ -47,9 +47,7 @@ export const useVisits = (queryParams?: VisitsQueryParams) => {
   return useQuery<Visit[]>({
     queryKey,
     queryFn: async () => {
-      console.log('[useVisits] Fetching visits with params:', queryParams)
       const result = await fetchVisits(queryParams)
-      console.log('[useVisits] Fetched visits:', result.length, 'visits')
       return result
     },
   })

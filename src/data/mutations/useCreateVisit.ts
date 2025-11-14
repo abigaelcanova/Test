@@ -11,13 +11,10 @@ export const useCreateVisit = () => {
 
   return useMutation<Visit, Error, CreateVisitPayload>({
     mutationFn: async (data) => {
-      console.log('[useCreateVisit] Creating visit:', data)
       const result = await createVisit(data)
-      console.log('[useCreateVisit] Visit created:', result.id)
       return result
     },
-    onSuccess: (data) => {
-      console.log('[useCreateVisit] onSuccess - Invalidating queries for visit:', data.id)
+    onSuccess: () => {
       // Invalidate and refetch all visits queries (with any params)
       queryClient.invalidateQueries({ queryKey: ['visits'] })
     },

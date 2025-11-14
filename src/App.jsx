@@ -123,8 +123,6 @@ function App() {
       params.date = filterDate
     }
     
-    console.log('[App] queryParams updated:', { selectedTimeFrame, filterDate, filterDateEnd, params })
-    
     // Host filter
     if (filterHosts.length > 0) {
       params.host = filterHosts

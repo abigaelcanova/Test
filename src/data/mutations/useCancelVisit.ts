@@ -10,13 +10,10 @@ export const useCancelVisit = () => {
 
   return useMutation<Visit, Error, { id: number; cancelAllFuture?: boolean }>({
     mutationFn: async ({ id, cancelAllFuture }) => {
-      console.log('[useCancelVisit] Cancelling visit:', id, 'cancelAllFuture:', cancelAllFuture)
       const result = await cancelVisit(id, cancelAllFuture ?? false)
-      console.log('[useCancelVisit] Visit cancelled:', result.id)
       return result
     },
-    onSuccess: (data) => {
-      console.log('[useCancelVisit] onSuccess - Invalidating queries for visit:', data.id)
+    onSuccess: () => {
       // Invalidate and refetch all visits queries (with any params)
       queryClient.invalidateQueries({ queryKey: ['visits'] })
     },

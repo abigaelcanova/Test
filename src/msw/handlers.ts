@@ -315,7 +315,6 @@ const initializeStore = () => {
 export const handlers = [
   // Handler for GET /api/visits - returns visits from store with optional filtering
   http.get('/api/visits', ({ request }) => {
-    console.log('[MSW] GET /api/visits handler called')
     initializeStore()
     
     // Extract query parameters
@@ -327,8 +326,6 @@ export const handlers = [
     const host = url.searchParams.get('host') || ''
     const company = url.searchParams.get('company') || ''
     const status = url.searchParams.get('status') || ''
-    
-    console.log('[MSW] GET /api/visits query params:', { search, date, dateStart, dateEnd, host, company, status })
     
     // Filter visits based on query parameters
     let filtered = [...visitsStore]
@@ -389,16 +386,13 @@ export const handlers = [
       )
     }
     
-    console.log('[MSW] GET /api/visits returning', filtered.length, 'filtered visits out of', visitsStore.length, 'total')
     return HttpResponse.json(filtered)
   }),
 
   // Handler for POST /api/visits - creates a new visit
   http.post('/api/visits', async ({ request }) => {
-    console.log('[MSW] POST /api/visits handler called')
     initializeStore()
     const visitData = await request.json() as Omit<Visit, 'id'> & { status?: Visit['status'] }
-    console.log('[MSW] POST /api/visits data:', visitData)
     
     const newVisit: Visit = {
       id: Date.now(), // Generate ID
@@ -422,17 +416,14 @@ export const handlers = [
     }
     
     visitsStore.push(newVisit)
-    console.log('[MSW] POST /api/visits created visit with id:', newVisit.id, 'Total visits:', visitsStore.length)
     return HttpResponse.json(newVisit, { status: 201 })
   }),
 
   // Handler for PUT /api/visits/:id - updates an existing visit
   http.put('/api/visits/:id', async ({ params, request }) => {
-    console.log('[MSW] PUT /api/visits/:id handler called for id:', params.id)
     initializeStore()
     const id = Number(params.id)
     const updateData = await request.json() as Partial<Omit<Visit, 'id'>>
-    console.log('[MSW] PUT /api/visits/:id update data:', updateData)
     
     const visitIndex = visitsStore.findIndex(v => v.id === id)
     if (visitIndex === -1) {
@@ -447,17 +438,14 @@ export const handlers = [
     }
     
     visitsStore[visitIndex] = updatedVisit
-    console.log('[MSW] PUT /api/visits/:id updated visit:', id)
     return HttpResponse.json(updatedVisit)
   }),
 
   // Handler for PATCH /api/visits/:id/cancel - cancels a visit
   http.patch('/api/visits/:id/cancel', async ({ params, request }) => {
-    console.log('[MSW] PATCH /api/visits/:id/cancel handler called for id:', params.id)
     initializeStore()
     const id = Number(params.id)
     const { cancelAllFuture } = await request.json() as { cancelAllFuture?: boolean }
-    console.log('[MSW] PATCH /api/visits/:id/cancel cancelAllFuture:', cancelAllFuture)
     
     const visitIndex = visitsStore.findIndex(v => v.id === id)
     if (visitIndex === -1) {
@@ -473,13 +461,11 @@ export const handlers = [
     }
     
     visitsStore[visitIndex] = updatedVisit
-    console.log('[MSW] PATCH /api/visits/:id/cancel cancelled visit:', id)
     return HttpResponse.json(updatedVisit)
   }),
 
   // Handler for DELETE /api/visits/:id - sets status to cancelled instead of deleting
   http.delete('/api/visits/:id', async ({ params }) => {
-    console.log('[MSW] DELETE /api/visits/:id handler called for id:', params.id)
     initializeStore()
     const id = Number(params.id)
     
@@ -496,7 +482,6 @@ export const handlers = [
     }
     
     visitsStore[visitIndex] = updatedVisit
-    console.log('[MSW] DELETE /api/visits/:id set visit to cancelled:', id)
     return HttpResponse.json(updatedVisit)
   }),
 ]

@@ -33,8 +33,6 @@ export type VisitsQueryParams = {
  * Fetches all visits from the API with optional filtering
  */
 export const fetchVisits = async (queryParams?: VisitsQueryParams): Promise<Visit[]> => {
-  console.log('[API] fetchVisits called with params:', queryParams)
-  
   // Build query string from params
   let url = `${API_BASE_URL}/visits`
   const searchParams = new URLSearchParams()
@@ -76,7 +74,6 @@ export const fetchVisits = async (queryParams?: VisitsQueryParams): Promise<Visi
   }
   
   const data = await response.json()
-  console.log('[API] fetchVisits response:', data.length, 'visits')
   return data
 }
 
@@ -84,7 +81,6 @@ export const fetchVisits = async (queryParams?: VisitsQueryParams): Promise<Visi
  * Creates a new visit
  */
 export const createVisit = async (visitData: CreateVisitPayload): Promise<Visit> => {
-  console.log('[API] createVisit called with:', visitData)
   const response = await fetch(`${API_BASE_URL}/visits`, {
     method: 'POST',
     headers: {
@@ -99,7 +95,6 @@ export const createVisit = async (visitData: CreateVisitPayload): Promise<Visit>
   }
   
   const data = await response.json()
-  console.log('[API] createVisit response:', data.id)
   return data
 }
 
@@ -107,7 +102,6 @@ export const createVisit = async (visitData: CreateVisitPayload): Promise<Visit>
  * Updates an existing visit
  */
 export const updateVisit = async (id: number, visitData: Partial<Omit<Visit, 'id'>>): Promise<Visit> => {
-  console.log('[API] updateVisit called for id:', id, 'data:', visitData)
   const response = await fetch(`${API_BASE_URL}/visits/${id}`, {
     method: 'PUT',
     headers: {
@@ -122,7 +116,6 @@ export const updateVisit = async (id: number, visitData: Partial<Omit<Visit, 'id
   }
   
   const data = await response.json()
-  console.log('[API] updateVisit response:', data.id)
   return data
 }
 
@@ -130,7 +123,6 @@ export const updateVisit = async (id: number, visitData: Partial<Omit<Visit, 'id
  * Cancels a visit (updates status to 'cancelled')
  */
 export const cancelVisit = async (id: number, cancelAllFuture: boolean = false): Promise<Visit> => {
-  console.log('[API] cancelVisit called for id:', id, 'cancelAllFuture:', cancelAllFuture)
   const response = await fetch(`${API_BASE_URL}/visits/${id}/cancel`, {
     method: 'PATCH',
     headers: {
@@ -145,7 +137,6 @@ export const cancelVisit = async (id: number, cancelAllFuture: boolean = false):
   }
   
   const data = await response.json()
-  console.log('[API] cancelVisit response:', data.id)
   return data
 }
 
