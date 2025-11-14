@@ -1,10 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { Layout } from './components/layout/Layout.jsx'
 import App from './App.jsx'
 import { CreateVisitPage } from './pages/CreateVisitPage.jsx'
+import { queryClient } from './data/queryClient'
 import './index.css'
+import './msw'
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
@@ -36,14 +39,16 @@ class ErrorBoundary extends React.Component {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <ErrorBoundary>
-        <Routes>
-          <Route path="/" element={<App />} />
-          <Route path="/visits/new" element={<CreateVisitPage />} />
-        </Routes>
-      </ErrorBoundary>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<App />} />
+            <Route path="/visits/new" element={<CreateVisitPage />} />
+          </Routes>
+        </ErrorBoundary>
+      </BrowserRouter>
+    </QueryClientProvider>
   </React.StrictMode>,
 )
 

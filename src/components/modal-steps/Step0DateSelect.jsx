@@ -23,9 +23,10 @@ const generateTimeOptions = (startHour = 8, endHour = 18) => {
 }
 
 export function Step0DateSelect({ data, onNext }) {
+  const initialDate = data.visitDate || new Date().toISOString().split('T')[0]
   const [dateRange, setDateRange] = useState({ 
-    from: data.visitDate || new Date().toISOString().split('T')[0], 
-    to: data.visitDateEnd || data.visitDate || new Date().toISOString().split('T')[0]
+    from: initialDate, 
+    to: data.visitDateEnd || initialDate
   })
   const [repeatOption, setRepeatOption] = useState(data.recurring ? (data.frequency || 'custom') : 'none')
   const [recurringEnd, setRecurringEnd] = useState(data.recurringEnd || '')
@@ -78,24 +79,24 @@ export function Step0DateSelect({ data, onNext }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
       <div>
-        <h3 className="text-lg font-semibold">When is your visit?</h3>
+        <h3 className="text-base sm:text-lg font-semibold">When is your visit?</h3>
       </div>
 
-      <div className="space-y-5">
+      <div className="space-y-4 sm:space-y-5">
         {/* Date range mode info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm font-medium text-blue-900">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+          <p className="text-xs sm:text-sm font-medium text-blue-900">
             Select a date range: Click a start date, then click an end date
           </p>
         </div>
 
         {/* Calendar and Time Selection */}
-        <div className="flex flex-col md:flex-row gap-6 items-start">
+        <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-start">
           {/* Left Side - Calendar */}
           <div className="w-full md:flex-shrink-0 md:w-auto">
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 w-full md:w-fit">
+            <div className="bg-gray-50 rounded-lg p-2 sm:p-3 border border-gray-200 w-full md:w-fit overflow-x-auto">
               <CalendarComponent
                 mode="range"
                 selected={dateRange}
@@ -104,6 +105,7 @@ export function Step0DateSelect({ data, onNext }) {
                     setDateRange(range)
                   }
                 }}
+                className="w-full"
               />
             </div>
 

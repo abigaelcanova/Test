@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-export function Calendar({ selected, onSelect, className, isMultiSelect = false, mode = 'single' }) {
+export function Calendar({ selected, onSelect, className, isMultiSelect = false, mode = 'single', disablePast = true }) {
   const [currentMonth, setCurrentMonth] = React.useState(() => {
     try {
       if (!selected) return new Date()
@@ -173,20 +173,22 @@ export function Calendar({ selected, onSelect, className, isMultiSelect = false,
       const inRange = mode === 'range' && isInRange(day)
       const rangeEdge = mode === 'range' && isRangeEdge(day)
 
+      const isDisabled = disablePast && past
+      
       days.push(
         <div key={day} className="flex items-center justify-center">
           <button
             type="button"
             onClick={() => handleDateClick(day)}
-            disabled={past}
+            disabled={isDisabled}
             className={cn(
-              "w-10 h-10 rounded-lg text-sm font-medium transition-all hover:bg-gray-100 flex items-center justify-center",
+              "w-9 h-9 sm:w-10 sm:h-10 rounded-lg text-sm font-medium transition-all hover:bg-gray-100 flex items-center justify-center touch-manipulation",
               rangeEdge && "bg-primary text-white hover:bg-primary/90",
               inRange && !rangeEdge && "bg-primary/20 text-primary hover:bg-primary/30",
               selected && mode !== 'range' && "bg-primary text-white hover:bg-primary/90",
               today && !selected && !inRange && "border-2 border-primary text-primary",
-              past && "text-gray-300 cursor-not-allowed hover:bg-transparent",
-              !selected && !today && !past && !inRange && "text-gray-700"
+              isDisabled && "text-gray-300 cursor-not-allowed hover:bg-transparent",
+              !selected && !today && !isDisabled && !inRange && "text-gray-700"
             )}
           >
             {day}
@@ -201,18 +203,18 @@ export function Calendar({ selected, onSelect, className, isMultiSelect = false,
   return (
     <div className={cn("w-full max-w-md mx-auto", className)}>
       {/* Month/Year Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
         <Button
           type="button"
           variant="ghost"
           size="icon"
           onClick={previousMonth}
-          className="h-8 w-8"
+          className="h-8 w-8 sm:h-9 sm:w-9"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
         
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900">
           {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </h3>
         
@@ -221,7 +223,7 @@ export function Calendar({ selected, onSelect, className, isMultiSelect = false,
           variant="ghost"
           size="icon"
           onClick={nextMonth}
-          className="h-8 w-8"
+          className="h-8 w-8 sm:h-9 sm:w-9"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -232,7 +234,7 @@ export function Calendar({ selected, onSelect, className, isMultiSelect = false,
         {dayNames.map((day) => (
           <div
             key={day}
-            className="flex items-center justify-center text-xs font-semibold text-gray-500 uppercase h-8"
+            className="flex items-center justify-center text-xs font-semibold text-gray-500 uppercase h-7 sm:h-8"
           >
             {day}
           </div>
@@ -240,7 +242,7 @@ export function Calendar({ selected, onSelect, className, isMultiSelect = false,
       </div>
 
       {/* Calendar Days */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {renderDays()}
       </div>
 
