@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,242 +17,148 @@ import { MultiSelectFilter } from "@/components/MultiSelectFilter"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DatePickerWithPresets } from "@/components/DatePickerWithPresets"
 import { formatDate, formatTime, cn } from "@/lib/utils"
+import { useVisits } from "@/data/queries/useVisits"
+import { useCreateVisit } from "@/data/mutations/useCreateVisit"
+import { useUpdateVisit } from "@/data/mutations/useUpdateVisit"
+import { useCancelVisit } from "@/data/mutations/useCancelVisit"
 
 function App() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [visits, setVisits] = useState([
-    // Upcoming visits
-    {
-      id: 1,
-      visitorName: 'Jennifer Lee',
-      visitorCompany: 'CloudTech Solutions',
-      date: '2025-11-05',
-      startTime: '09:00',
-      endTime: '10:00',
-      host: 'John Smith',
-      company: 'Acme Corporation',
-      floor: '3',
-      suite: '301',
-      status: 'expected',
-      checkIn: 'standard',
-      numEntries: '1',
-      recurring: true,
-      frequency: 'weekly',
-      visitSummary: 'Quarterly business review'
-    },
-    {
-      id: 2,
-      visitorName: 'Christopher Taylor',
-      visitorCompany: 'Digital Ventures',
-      date: '2025-11-08',
-      startTime: '14:00',
-      endTime: '15:30',
-      host: 'Sarah Johnson',
-      company: 'Tech Innovations Inc',
-      floor: '5',
-      suite: '502',
-      status: 'expected',
-      checkIn: 'standard',
-      numEntries: '1',
-      visitSummary: 'Product demo and partnership discussion'
-    },
-    {
-      id: 3,
-      visitorName: 'Amanda Anderson',
-      visitorCompany: 'Strategic Partners Inc',
-      date: '2025-11-12',
-      startTime: '11:30',
-      endTime: '13:00',
-      host: 'Michael Chen',
-      company: 'Global Solutions',
-      floor: '2',
-      suite: '205',
-      status: 'expected',
-      checkIn: 'bypass',
-      numEntries: '2',
-      visitSummary: 'Contract negotiation and lunch meeting'
-    },
-    {
-      id: 4,
-      visitorName: 'Matthew Thomas',
-      visitorCompany: 'Creative Design Co',
-      date: '2025-11-15',
-      startTime: '15:30',
-      endTime: '17:00',
-      host: 'Emily Davis',
-      company: 'Design Studio LLC',
-      floor: '4',
-      suite: '401',
-      status: 'expected',
-      checkIn: 'standard',
-      numEntries: '1',
-      recurring: true,
-      frequency: 'daily',
-      visitSummary: 'Design consultation'
-    },
-    {
-      id: 5,
-      visitorName: 'Lisa Rodriguez',
-      visitorCompany: 'Brand Marketing Group',
-      date: '2025-11-20',
-      startTime: '10:00',
-      endTime: '11:30',
-      host: 'David Wilson',
-      company: 'Marketing Pro',
-      floor: '1',
-      suite: '102',
-      status: 'expected',
-      checkIn: 'standard',
-      numEntries: '1',
-      visitSummary: 'Marketing campaign review'
-    },
-    {
-      id: 6,
-      visitorName: 'Robert Brown',
-      visitorCompany: 'Business Strategy LLC',
-      date: '2025-11-22',
-      startTime: '13:00',
-      endTime: '14:30',
-      host: 'Sarah Johnson',
-      company: 'Consulting Group',
-      floor: '3',
-      suite: '310',
-      status: 'expected',
-      checkIn: 'standard',
-      numEntries: '1',
-      visitSummary: 'Strategic planning session'
-    },
-    {
-      id: 7,
-      visitorName: 'Jessica Martinez',
-      visitorCompany: 'Finance & Audit Corp',
-      date: '2025-11-25',
-      startTime: '09:30',
-      endTime: '11:00',
-      host: 'John Smith',
-      company: 'Financial Services',
-      floor: '5',
-      suite: '505',
-      status: 'expected',
-      checkIn: 'bypass',
-      numEntries: '3',
-      visitSummary: 'Financial audit and compliance review'
-    },
-    // Past visits
-    {
-      id: 8,
-      visitorName: 'Daniel Garcia',
-      visitorCompany: 'Innovation Labs',
-      date: '2024-10-15',
-      startTime: '10:00',
-      endTime: '11:00',
-      host: 'Michael Chen',
-      company: 'Tech Startup Inc',
-      floor: '2',
-      suite: '201',
-      status: 'checked-in',
-      checkIn: 'standard',
-      numEntries: '1',
-      recurring: true,
-      frequency: 'monthly',
-      visitSummary: 'Monthly check-in meeting'
-    },
-    {
-      id: 9,
-      visitorName: 'Patricia White',
-      visitorCompany: 'Health Systems Inc',
-      date: '2024-10-20',
-      startTime: '14:30',
-      endTime: '16:00',
-      host: 'Emily Davis',
-      company: 'Healthcare Partners',
-      floor: '4',
-      suite: '402',
-      status: 'checked-in',
-      checkIn: 'standard',
-      numEntries: '1',
-      visitSummary: 'Healthcare partnership proposal'
-    },
-    {
-      id: 10,
-      visitorName: 'James Miller',
-      visitorCompany: 'Property Development Group',
-      date: '2024-10-22',
-      startTime: '11:00',
-      endTime: '12:30',
-      host: 'David Wilson',
-      company: 'Real Estate Group',
-      floor: '1',
-      suite: '105',
-      status: 'cancelled',
-      checkIn: 'standard',
-      numEntries: '1',
-      visitSummary: 'Property investment discussion'
-    },
-    {
-      id: 11,
-      visitorName: 'Maria Lopez',
-      visitorCompany: 'Learning Solutions',
-      date: '2024-10-28',
-      startTime: '09:00',
-      endTime: '10:30',
-      host: 'Sarah Johnson',
-      company: 'Education Services',
-      floor: '3',
-      suite: '305',
-      status: 'checked-in',
-      checkIn: 'standard',
-      numEntries: '1',
-      recurring: true,
-      frequency: 'weekdays',
-      visitSummary: 'Training session'
-    },
-    {
-      id: 12,
-      visitorName: 'Thomas Scott',
-      visitorCompany: 'Industrial Systems Co',
-      date: '2024-11-01',
-      startTime: '15:00',
-      endTime: '16:30',
-      host: 'John Smith',
-      company: 'Manufacturing Co',
-      floor: '5',
-      suite: '501',
-      status: 'checked-out',
-      checkIn: 'standard',
-      numEntries: '1',
-      visitSummary: 'Supply chain optimization meeting'
-    },
-    {
-      id: 13,
-      visitorName: 'Sandra Hall',
-      visitorCompany: 'Legal Advisory Services',
-      date: '2024-11-02',
-      startTime: '10:30',
-      endTime: '12:00',
-      host: 'Michael Chen',
-      company: 'Legal Associates',
-      floor: '2',
-      suite: '208',
-      status: 'checked-in',
-      checkIn: 'bypass',
-      numEntries: '2',
-      visitSummary: 'Legal compliance and contract review'
-    }
-  ])
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
-  const [isUpdateConfirmationOpen, setIsUpdateConfirmationOpen] = useState(false)
-  const [confirmedVisit, setConfirmedVisit] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
+  
+  // Helper to get today's date in user's local timezone (YYYY-MM-DD format)
+  const getLocalDateString = (date = new Date()) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
   const [activeTab, setActiveTab] = useState("upcoming")
   const [searchQuery, setSearchQuery] = useState("")
-  const [filterDate, setFilterDate] = useState(() => new Date().toISOString().split('T')[0]) // Default to today
+  const [filterDate, setFilterDate] = useState(() => getLocalDateString()) // Default to today
   const [filterDateEnd, setFilterDateEnd] = useState("") // End date for range filters
   const [selectedTimeFrame, setSelectedTimeFrame] = useState("today") // Default to today
   const [filterHosts, setFilterHosts] = useState([])
   const [filterHostCompanies, setFilterHostCompanies] = useState([])
   const [filterStatuses, setFilterStatuses] = useState([])
+  
+  // Helper function to get date range for time frames
+  const getTimeFrameDateRange = (timeFrame) => {
+    const today = new Date()
+    const todayStr = getLocalDateString(today)
+    
+    switch (timeFrame) {
+      case 'today':
+        return { start: todayStr, end: todayStr }
+      case 'thisWeek': {
+        const startOfWeek = new Date(today)
+        startOfWeek.setDate(today.getDate() - today.getDay()) // Sunday
+        const endOfWeek = new Date(startOfWeek)
+        endOfWeek.setDate(startOfWeek.getDate() + 6) // Saturday
+        return { 
+          start: getLocalDateString(startOfWeek), 
+          end: getLocalDateString(endOfWeek) 
+        }
+      }
+      case 'thisMonth': {
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+        return { 
+          start: getLocalDateString(startOfMonth), 
+          end: getLocalDateString(endOfMonth) 
+        }
+      }
+      case 'nextWeek': {
+        const nextWeekStart = new Date(today)
+        nextWeekStart.setDate(today.getDate() + (7 - today.getDay()))
+        const nextWeekEnd = new Date(nextWeekStart)
+        nextWeekEnd.setDate(nextWeekStart.getDate() + 6) // Saturday
+        return { 
+          start: getLocalDateString(nextWeekStart), 
+          end: getLocalDateString(nextWeekEnd) 
+        }
+      }
+      case 'nextMonth': {
+        const nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+        const nextMonthEnd = new Date(today.getFullYear(), today.getMonth() + 2, 0)
+        return { 
+          start: getLocalDateString(nextMonthStart), 
+          end: getLocalDateString(nextMonthEnd) 
+        }
+      }
+      default:
+        return { start: '', end: '' }
+    }
+  }
+  
+  // Build query params from filter state
+  const queryParams = useMemo(() => {
+    const params = {}
+    
+    // Search query
+    if (searchQuery) {
+      params.search = searchQuery
+    }
+    
+    // Date filtering based on selectedTimeFrame
+    if (selectedTimeFrame === 'today' && filterDate) {
+      params.date = filterDate
+    } else if (selectedTimeFrame === 'custom') {
+      if (filterDate) params.dateStart = filterDate
+      if (filterDateEnd) params.dateEnd = filterDateEnd
+    } else if (selectedTimeFrame && filterDate) {
+      // For time frames like thisWeek, thisMonth, etc., use dateStart and dateEnd
+      // But respect manually selected end date if set
+      const range = getTimeFrameDateRange(selectedTimeFrame)
+      if (range.start) params.dateStart = range.start
+      // Use manually selected end date if available, otherwise use computed range end
+      if (filterDateEnd) {
+        params.dateEnd = filterDateEnd
+      } else if (range.end) {
+        params.dateEnd = range.end
+      }
+    } else if (!selectedTimeFrame && filterDate) {
+      // Manual date selection (selectedTimeFrame is empty string) - treat as single date
+      params.date = filterDate
+    }
+    
+    // Host filter
+    if (filterHosts.length > 0) {
+      params.host = filterHosts
+    }
+    
+    // Company filter
+    if (filterHostCompanies.length > 0) {
+      params.company = filterHostCompanies
+    }
+    
+    // Status filter
+    if (filterStatuses.length > 0) {
+      params.status = filterStatuses
+    }
+    
+    return params
+  }, [searchQuery, filterDate, filterDateEnd, selectedTimeFrame, filterHosts, filterHostCompanies, filterStatuses])
+  
+  // Fetch visits using TanStack Query with filter params
+  const { data: visitsData = [], isLoading: isLoadingVisits, error } = useVisits(queryParams)
+  
+  // Mutation hooks
+  const createVisitMutation = useCreateVisit()
+  const updateVisitMutation = useUpdateVisit()
+  const cancelVisitMutation = useCancelVisit()
+  
+  // Use query data as source of truth
+  const visits = visitsData
+  
+  // Track processed visit submissions to prevent duplicate processing
+  const processedVisitRef = useRef(null)
+  
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
+  const [isUpdateConfirmationOpen, setIsUpdateConfirmationOpen] = useState(false)
+  const [confirmedVisit, setConfirmedVisit] = useState(null)
+  const isLoading = isLoadingVisits
   const [isPinned, setIsPinned] = useState(false)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
@@ -271,57 +177,102 @@ function App() {
 
   // Handle incoming visits from CreateVisitPage
   useEffect(() => {
-    if (location.state?.newVisit) {
-      const formData = location.state.newVisit
-      const editingVisitId = location.state.editingVisitId
-      
-      // Create visit entries from form data
-      const visitorNames = formData.visitors
-        .filter(v => v.firstName && v.lastName)
-        .map(v => `${v.firstName} ${v.lastName}`)
-        .join(', ')
-      
-      // Extract visitor company (use first visitor's company, or join if multiple)
-      const visitorCompanies = formData.visitors
-        .filter(v => v.company)
-        .map(v => v.company)
-      const visitorCompany = visitorCompanies.length > 0 
-        ? (visitorCompanies.length === 1 ? visitorCompanies[0] : visitorCompanies.join(', '))
-        : undefined
+    const newVisit = location.state?.newVisit
+    const editingVisitId = location.state?.editingVisitId
+    
+    if (!newVisit) {
+      // Reset processed ref when there's no new visit
+      processedVisitRef.current = null
+      return
+    }
+    
+    // Create a unique key for this submission to prevent duplicate processing
+    const submissionKey = `${editingVisitId || 'new'}-${JSON.stringify(newVisit).slice(0, 100)}`
+    
+    // Skip if we've already processed this submission
+    if (processedVisitRef.current === submissionKey) {
+      return
+    }
+    
+    // Mark as processed immediately
+    processedVisitRef.current = submissionKey
+    
+    // Clear the location state immediately to prevent re-triggering
+    window.history.replaceState({}, document.title)
+    
+    const formData = newVisit
+    
+    // Create visit entries from form data
+    const visitorNames = formData.visitors
+      .filter(v => v.firstName && v.lastName)
+      .map(v => `${v.firstName} ${v.lastName}`)
+      .join(', ')
+    
+    // Extract visitor company (use first visitor's company, or join if multiple)
+    const visitorCompanies = formData.visitors
+      .filter(v => v.company)
+      .map(v => v.company)
+    const visitorCompany = visitorCompanies.length > 0 
+      ? (visitorCompanies.length === 1 ? visitorCompanies[0] : visitorCompanies.join(', '))
+      : undefined
+    
+    // Extract visitor emails (join with commas for multiple visitors)
+    const visitorEmails = formData.visitors
+      .filter(v => v.email)
+      .map(v => v.email)
+    const visitorEmail = visitorEmails.length > 0 
+      ? (visitorEmails.length === 1 ? visitorEmails[0] : visitorEmails.join(', '))
+      : undefined
+    
+    // Extract visitor phones (join with commas for multiple visitors)
+    const visitorPhones = formData.visitors
+      .filter(v => v.phone)
+      .map(v => v.phone)
+    const visitorPhone = visitorPhones.length > 0 
+      ? (visitorPhones.length === 1 ? visitorPhones[0] : visitorPhones.join(', '))
+      : undefined
 
-      if (editingVisitId) {
-        // Update existing visit - preserve existing fields like status, company, etc.
-        const existingVisit = visits.find(v => v.id === editingVisitId)
-        const updatedVisit = {
-          ...existingVisit,
-          visitorName: visitorNames,
-          visitorCompany: visitorCompany,
-          date: formData.visitDate,
-          startTime: formData.startTime,
-          endTime: formData.endTime,
-          host: formData.hostName,
-          floor: formData.floor,
-          suite: formData.suite,
-          visitSummary: formData.visitors?.[0]?.visitSummary || existingVisit?.visitSummary
-        }
-        setVisits(prev => {
-          const updated = prev.map(v => v.id === editingVisitId ? updatedVisit : v)
-          // Store visits in localStorage for auto-population
-          try {
-            localStorage.setItem('visits', JSON.stringify(updated))
-          } catch (e) {
-            console.error('Error saving visits to localStorage:', e)
+    if (editingVisitId) {
+      // Update existing visit
+      const existingVisit = visits.find(v => v.id === editingVisitId)
+      if (existingVisit) {
+        updateVisitMutation.mutate(
+          {
+            id: editingVisitId,
+            data: {
+              visitorName: visitorNames,
+              visitorCompany: visitorCompany,
+              visitorEmail: visitorEmail,
+              visitorPhone: visitorPhone,
+              date: formData.visitDate,
+              startTime: formData.startTime,
+              endTime: formData.endTime,
+              host: formData.hostName,
+              floor: formData.floor,
+              suite: formData.suite,
+              visitSummary: formData.visitors?.[0]?.visitSummary || existingVisit.visitSummary,
+            },
+          },
+          {
+            onSuccess: () => {
+              setConfirmedVisit({ ...formData, visitorName: visitorNames, visitorCompany: visitorCompany })
+              setIsUpdateConfirmationOpen(true)
+              // Reset processed ref after a delay to allow for new submissions
+              setTimeout(() => {
+                processedVisitRef.current = null
+              }, 1000)
+            },
           }
-          return updated
-        })
-        setConfirmedVisit({ ...formData, visitorName: visitorNames, visitorCompany: visitorCompany })
-        setIsUpdateConfirmationOpen(true)
-      } else {
-        // Create new visit
-        const newVisit = {
-          id: Date.now(),
+        )
+      }
+    } else {
+      // Create new visit
+      createVisitMutation.mutate(
+        {
           visitorName: visitorNames,
           visitorCompany: visitorCompany,
+          visitorEmail: visitorEmail,
+          visitorPhone: visitorPhone,
           date: formData.visitDate,
           startTime: formData.startTime,
           endTime: formData.endTime,
@@ -329,25 +280,26 @@ function App() {
           floor: formData.floor,
           suite: formData.suite,
           status: 'expected',
-          visitSummary: formData.visitors?.[0]?.visitSummary || formData.visitSummary
+          checkIn: formData.checkIn || 'standard',
+          numEntries: formData.numEntries || '1',
+          recurring: formData.recurring,
+          frequency: formData.frequency,
+          visitSummary: formData.visitors?.[0]?.visitSummary || formData.visitSummary,
+        },
+        {
+          onSuccess: () => {
+            setConfirmedVisit({ ...formData, visitorName: visitorNames, visitorCompany: visitorCompany })
+            setIsConfirmationOpen(true)
+            // Reset processed ref after a delay to allow for new submissions
+            setTimeout(() => {
+              processedVisitRef.current = null
+            }, 1000)
+          },
         }
-        setVisits(prev => {
-          const updated = [...prev, newVisit]
-          // Store visits in localStorage for auto-population
-          try {
-            localStorage.setItem('visits', JSON.stringify(updated))
-          } catch (e) {
-            console.error('Error saving visits to localStorage:', e)
-          }
-          return updated
-        })
-        setConfirmedVisit({ ...formData, visitorName: visitorNames, visitorCompany: visitorCompany })
-        setIsConfirmationOpen(true)
-      }
-      
-      // Clear the location state
-      window.history.replaceState({}, document.title)
+      )
     }
+    // Only depend on location.state to avoid re-running when visits or mutations change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state])
 
   const handleCancelVisit = (visitId) => {
@@ -358,22 +310,22 @@ function App() {
 
   const confirmCancelVisit = (cancelAllFuture = false) => {
     if (visitToCancel) {
-      if (cancelAllFuture && visitToCancel.recurring) {
-        // Cancel this visit and all future recurring visits
-        // For this demo, we'll just cancel the current visit and mark it
-        // In a real app, you'd cancel all future instances
-        setVisits(prev => prev.map(v => 
-          v.id === visitToCancel.id ? { ...v, status: 'cancelled', recurring: false } : v
-        ))
-      } else {
-        // Cancel just this single visit
-        setVisits(prev => prev.map(v => 
-          v.id === visitToCancel.id ? { ...v, status: 'cancelled' } : v
-        ))
-      }
+      cancelVisitMutation.mutate(
+        {
+          id: visitToCancel.id,
+          cancelAllFuture: cancelAllFuture && visitToCancel.recurring,
+        },
+        {
+          onSuccess: () => {
+            setIsCancelDialogOpen(false)
+            setVisitToCancel(null)
+          },
+        }
+      )
+    } else {
+      setIsCancelDialogOpen(false)
+      setVisitToCancel(null)
     }
-    setIsCancelDialogOpen(false)
-    setVisitToCancel(null)
   }
 
   // Get unique values for filter dropdowns
@@ -389,152 +341,66 @@ function App() {
 
   const availableStatuses = ['expected', 'checked-in', 'checked-out', 'cancelled']
 
-  const getTodayDate = () => new Date().toISOString().split('T')[0]
+  const getTodayDate = () => getLocalDateString()
   
   const getTimeFrameDates = (timeFrame) => {
     const today = new Date()
-    const todayStr = today.toISOString().split('T')[0]
     
     switch (timeFrame) {
       case 'today':
-        return todayStr
+        return getLocalDateString(today)
       case 'thisWeek':
         const startOfWeek = new Date(today)
         startOfWeek.setDate(today.getDate() - today.getDay()) // Sunday
-        return startOfWeek.toISOString().split('T')[0]
+        return getLocalDateString(startOfWeek)
       case 'thisMonth':
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-        return startOfMonth.toISOString().split('T')[0]
+        return getLocalDateString(startOfMonth)
       case 'nextWeek':
         const nextWeekStart = new Date(today)
         nextWeekStart.setDate(today.getDate() + (7 - today.getDay()))
-        return nextWeekStart.toISOString().split('T')[0]
+        return getLocalDateString(nextWeekStart)
       case 'nextMonth':
         const nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1)
-        return nextMonthStart.toISOString().split('T')[0]
+        return getLocalDateString(nextMonthStart)
       default:
         return ''
     }
   }
 
-  const getTimeFrameDateRange = (timeFrame) => {
-    const today = new Date()
-    const todayStr = today.toISOString().split('T')[0]
-    
-    switch (timeFrame) {
-      case 'today':
-        return { start: todayStr, end: todayStr }
-      case 'thisWeek': {
-        const startOfWeek = new Date(today)
-        startOfWeek.setDate(today.getDate() - today.getDay()) // Sunday
-        const endOfWeek = new Date(startOfWeek)
-        endOfWeek.setDate(startOfWeek.getDate() + 6) // Saturday
-        return { 
-          start: startOfWeek.toISOString().split('T')[0], 
-          end: endOfWeek.toISOString().split('T')[0] 
-        }
-      }
-      case 'thisMonth': {
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-        return { 
-          start: startOfMonth.toISOString().split('T')[0], 
-          end: endOfMonth.toISOString().split('T')[0] 
-        }
-      }
-      case 'nextWeek': {
-        const nextWeekStart = new Date(today)
-        nextWeekStart.setDate(today.getDate() + (7 - today.getDay()))
-        const nextWeekEnd = new Date(nextWeekStart)
-        nextWeekEnd.setDate(nextWeekStart.getDate() + 6) // Saturday
-        return { 
-          start: nextWeekStart.toISOString().split('T')[0], 
-          end: nextWeekEnd.toISOString().split('T')[0] 
-        }
-      }
-      case 'nextMonth': {
-        const nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1)
-        const nextMonthEnd = new Date(today.getFullYear(), today.getMonth() + 2, 0)
-        return { 
-          start: nextMonthStart.toISOString().split('T')[0], 
-          end: nextMonthEnd.toISOString().split('T')[0] 
-        }
-      }
-      default:
-        return { start: '', end: '' }
-    }
-  }
-
-  const filterVisits = (visitsList) => {
-    let filtered = visitsList.filter(visit => {
-      // Search filter (searches name, host, location)
-      const searchMatch = !searchQuery || 
-        visit.visitorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        visit.host?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        visit.floor?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        visit.suite?.toLowerCase().includes(searchQuery.toLowerCase())
-      
-      // Date filter - handle date ranges for time frames
-      let dateMatch = true
-      if (filterDate) {
-        if (selectedTimeFrame === 'today') {
-          dateMatch = visit.date === filterDate
-        } else if (selectedTimeFrame === 'thisWeek') {
-          const startDate = getTimeFrameDates('thisWeek')
-          const endDate = getTimeFrameDates('nextWeek')
-          dateMatch = visit.date >= startDate && visit.date < endDate
-        } else if (selectedTimeFrame === 'thisMonth') {
-          const startDate = getTimeFrameDates('thisMonth')
-          const endDate = getTimeFrameDates('nextMonth')
-          dateMatch = visit.date >= startDate && visit.date < endDate
-        } else if (selectedTimeFrame === 'nextWeek') {
-          const startDate = getTimeFrameDates('nextWeek')
-          const endDate = getTimeFrameDates('nextMonth')
-          dateMatch = visit.date >= startDate && visit.date < endDate
-        } else if (selectedTimeFrame === 'nextMonth') {
-          const startDate = getTimeFrameDates('nextMonth')
-          // For next month, show all dates >= start of next month
-          dateMatch = visit.date >= startDate
-        } else {
-          // Custom or exact match
-          dateMatch = visit.date === filterDate
-        }
-      }
-      
-      // Host filter (multi-select)
-      const hostMatch = filterHosts.length === 0 || filterHosts.includes(visit.host)
-      
-      // Host Company filter (multi-select)
-      const companyMatch = filterHostCompanies.length === 0 || filterHostCompanies.includes(visit.company)
-      
-      // Status filter (multi-select)
-      const statusMatch = filterStatuses.length === 0 || filterStatuses.includes(visit.status)
-      
-      return searchMatch && dateMatch && hostMatch && companyMatch && statusMatch
-    })
-    
-    // For demo purposes: if no results, show some mock data
-    if (filtered.length === 0 && visitsList.length > 0) {
-      // Return first few visits as fallback for demo
-      return visitsList.slice(0, 4)
-    }
-    
-    return filtered
-  }
-
-  const allUpcomingVisits = visits.filter(v => 
-    new Date(v.date) >= new Date() && v.status !== 'cancelled'
-  )
+  // Separate visits into upcoming and past (client-side since it's a UI concern)
+  // Server-side filtering already handles search, date, host, company, status filters
+  // Get today's date string in local timezone for comparison
+  const todayDateString = useMemo(() => {
+    return getLocalDateString()
+  }, [])
   
-  const allPastVisits = visits.filter(v => 
-    new Date(v.date) < new Date() || v.status === 'cancelled'
-  )
-
-  const filteredUpcomingVisits = filterVisits(allUpcomingVisits)
-  const filteredPastVisits = filterVisits(allPastVisits)
-
-  const upcomingVisits = filteredUpcomingVisits
-  const pastVisits = filteredPastVisits
+  // Check if we're filtering by a specific date (not a range)
+  const isFilteringBySpecificDate = useMemo(() => {
+    return selectedTimeFrame === 'today' && filterDate && !filterDateEnd
+  }, [selectedTimeFrame, filterDate, filterDateEnd])
+  
+  // Check if we're filtering by a date range
+  const isFilteringByDateRange = useMemo(() => {
+    return !!(filterDate && filterDateEnd && filterDate !== filterDateEnd)
+  }, [filterDate, filterDateEnd])
+  
+  const pastVisits = useMemo(() => {
+    // If filtering by a specific date, show all cancelled visits for that date
+    if (isFilteringBySpecificDate) {
+      return visits.filter(v => v.status === 'cancelled')
+    }
+    // If filtering by a date range, show all cancelled visits in that range
+    // (server already filtered by date range, so just filter by status)
+    if (isFilteringByDateRange) {
+      return visits.filter(v => v.status === 'cancelled')
+    }
+    // Otherwise, show past visits (before today or cancelled)
+    // Compare date strings directly (YYYY-MM-DD format) to avoid timezone issues
+    return visits.filter(v => {
+      return v.date < todayDateString || v.status === 'cancelled'
+    })
+  }, [visits, todayDateString, isFilteringBySpecificDate, isFilteringByDateRange])
 
   const clearFilters = () => {
     setSearchQuery("")
@@ -585,30 +451,6 @@ function App() {
   
   const hasActiveFilters = searchQuery || filterHosts.length > 0 || filterHostCompanies.length > 0 || filterStatuses.length > 0
 
-  // Initialize visits in localStorage on mount
-  useEffect(() => {
-    try {
-      const storedVisits = localStorage.getItem('visits')
-      if (!storedVisits && visits.length > 0) {
-        // Initialize with current visits if localStorage is empty
-        localStorage.setItem('visits', JSON.stringify(visits))
-      }
-    } catch (e) {
-      console.error('Error initializing visits in localStorage:', e)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Sync visits to localStorage when they change
-  useEffect(() => {
-    if (visits.length > 0) {
-      try {
-        localStorage.setItem('visits', JSON.stringify(visits))
-      } catch (e) {
-        console.error('Error saving visits to localStorage:', e)
-      }
-    }
-  }, [visits])
 
   // Load pinned filters from localStorage on mount
   useEffect(() => {
@@ -655,7 +497,7 @@ function App() {
   return (
     <div className="h-full bg-white">
       {/* Page Header */}
-      <div className="bg-white border-b">
+      <div className="hidden md:block bg-white border-b">
         <div className="max-w-[1600px] mx-auto px-4 md:px-12 pt-4 md:pt-12 pb-4 md:pb-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-semibold" style={{ color: '#2D3338' }}>Visitor Management</h1>
@@ -680,6 +522,7 @@ function App() {
               onTimeFrameChange={handleTimeFrameChange}
               getTimeFrameDateRange={getTimeFrameDateRange}
               className="w-full"
+              disablePast={false}
             />
           </div>
 
@@ -690,7 +533,7 @@ function App() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 type="text"
-                placeholder="Search by visitor name, host, or location..."
+                placeholder="Search by name, email, phone, host, or location..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 pr-4"
@@ -818,6 +661,7 @@ function App() {
               selectedTimeFrame={selectedTimeFrame}
               onTimeFrameChange={handleTimeFrameChange}
               getTimeFrameDateRange={getTimeFrameDateRange}
+              disablePast={false}
             />
           </div>
 
@@ -829,7 +673,7 @@ function App() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="Search by visitor name, host, or location..."
+                  placeholder="Search by name, email, phone, host, or location..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4"
@@ -909,11 +753,15 @@ function App() {
           <div className="min-h-[600px]">
             {isLoading ? (
               <LoadingSkeleton />
-            ) : filteredUpcomingVisits.length === 0 ? (
-              <EmptyState filtered={hasActiveFilters && allUpcomingVisits.length > 0} />
+            ) : error ? (
+              <div className="p-8 text-center">
+                <p className="text-red-600">Error loading visits: {error.message}</p>
+              </div>
+            ) : visits.length === 0 ? (
+              <EmptyState filtered={hasActiveFilters} />
             ) : (
               <VisitorTable 
-                visits={upcomingVisits}
+                visits={visits}
                 onEdit={handleEditVisit}
                 onCancel={handleCancelVisit}
               />
@@ -924,34 +772,54 @@ function App() {
 
       {/* Mobile Content */}
       <div className="md:hidden px-4 py-4 pb-24">
-        {isLoading ? (
-          <LoadingSkeleton />
-        ) : activeTab === 'upcoming' ? (
-          upcomingVisits.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <div className="space-y-3">
-              {upcomingVisits.map(visit => (
-                <VisitorCard 
-                  key={visit.id} 
-                  visit={visit}
-                  onEdit={handleEditVisit}
-                  onCancel={handleCancelVisit}
-                />
-              ))}
-            </div>
-          )
-        ) : (
-          pastVisits.length === 0 ? (
-            <EmptyState type="past" />
-          ) : (
-            <div className="space-y-3">
-              {pastVisits.map(visit => (
-                <VisitorCard key={visit.id} visit={visit} />
-              ))}
-            </div>
-          )
-        )}
+        {/* Mobile Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
+          <TabsList className="grid w-full grid-cols-2 hidden">
+            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+            <TabsTrigger value="past">Past</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="upcoming" className="mt-4">
+            {isLoading ? (
+              <LoadingSkeleton />
+            ) : error ? (
+              <div className="p-8 text-center">
+                <p className="text-red-600">Error loading visits: {error.message}</p>
+              </div>
+            ) : visits.length === 0 ? (
+              <EmptyState filtered={hasActiveFilters} />
+            ) : (
+              <div className="space-y-3">
+                {visits.map(visit => (
+                  <VisitorCard 
+                    key={visit.id} 
+                    visit={visit}
+                    onEdit={handleEditVisit}
+                    onCancel={handleCancelVisit}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="past" className="mt-4">
+            {isLoading ? (
+              <LoadingSkeleton />
+            ) : error ? (
+              <div className="p-8 text-center">
+                <p className="text-red-600">Error loading visits: {error.message}</p>
+              </div>
+            ) : pastVisits.length === 0 ? (
+              <EmptyState type="past" filtered={hasActiveFilters} />
+            ) : (
+              <div className="space-y-3">
+                {pastVisits.map(visit => (
+                  <VisitorCard key={visit.id} visit={visit} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Floating Action Button - Mobile Only */}

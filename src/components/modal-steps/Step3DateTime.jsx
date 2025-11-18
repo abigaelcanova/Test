@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -13,10 +13,45 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
   const [additionalOrganizers, setAdditionalOrganizers] = useState(data.additionalOrganizers)
   const [floor, setFloor] = useState(data.floor || '1')
   const [suite, setSuite] = useState(data.suite || '1001')
+  
+  // Track if hostName was set from data prop (editing) vs user input
+  const hostNameFromDataRef = useRef(data.hostName || '')
 
-  // Auto-populate floor and suite when host is selected
+  // Update state when data prop changes (for editing visits)
   useEffect(() => {
-    if (hostName && hostType === 'someone' && hostName.trim().length > 0) {
+    if (data.hostType !== undefined) {
+      setHostType(data.hostType)
+    }
+    if (data.hostName !== undefined) {
+      hostNameFromDataRef.current = data.hostName
+      setHostName(data.hostName)
+    }
+    // Always update floor and suite when data changes
+    if (data.floor !== undefined) {
+      setFloor(data.floor)
+    }
+    if (data.suite !== undefined) {
+      setSuite(data.suite)
+    }
+    if (data.receiveCopyInvitation !== undefined) {
+      setReceiveCopyInvitation(data.receiveCopyInvitation)
+    }
+    if (data.receiveCheckInNotifications !== undefined) {
+      setReceiveCheckInNotifications(data.receiveCheckInNotifications)
+    }
+    if (data.additionalOrganizers !== undefined) {
+      setAdditionalOrganizers(data.additionalOrganizers || '')
+    }
+  }, [data.hostType, data.hostName, data.floor, data.suite, data.receiveCopyInvitation, data.receiveCheckInNotifications, data.additionalOrganizers])
+
+  // Auto-populate floor and suite when host is selected (only when user manually types host, not when editing)
+  useEffect(() => {
+    // Only auto-populate if:
+    // 1. hostName was changed by user (not from data prop)
+    // 2. hostName is different from what was set from data
+    const isUserInput = hostName && hostName !== hostNameFromDataRef.current
+    
+    if (isUserInput && hostType === 'someone' && hostName.trim().length > 0) {
       // Always try to get visits from localStorage first, then fall back to passed prop
       let allVisits = []
       try {
@@ -57,7 +92,7 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
         }
       }
     }
-  }, [hostName, hostType, visits])
+  }, [hostName, hostType, visits, data.floor, data.suite])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -108,12 +143,12 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
         {hostType === 'someone' && (
           <div className="space-y-2">
             <Label htmlFor="hostName">Host name <span className="text-destructive">*</span></Label>
-            <Input
-              id="hostName"
-              placeholder="Search or enter host name"
-              value={hostName}
-              onChange={(e) => setHostName(e.target.value)}
-            />
+              <Input
+                id="hostName"
+                placeholder="Search or enter host name"
+                value={hostName}
+                onChange={(e) => setHostName(e.target.value)}
+              />
           </div>
         )}
       </div>

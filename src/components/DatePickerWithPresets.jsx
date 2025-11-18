@@ -14,7 +14,8 @@ export function DatePickerWithPresets({
   selectedTimeFrame,
   onTimeFrameChange,
   getTimeFrameDateRange,
-  className 
+  className,
+  disablePast = false
 }) {
   const [open, setOpen] = useState(false)
   const [endDateOpen, setEndDateOpen] = useState(false)
@@ -115,6 +116,7 @@ export function DatePickerWithPresets({
                 selected={value || undefined}
                 onSelect={handleDateSelect}
                 className="rounded-md border-0"
+                disablePast={disablePast}
               />
             </div>
             
@@ -164,6 +166,7 @@ export function DatePickerWithPresets({
                 selected={valueEnd || undefined}
                 onSelect={handleEndDateSelect}
                 className="rounded-md border-0"
+                disablePast={disablePast}
               />
             </PopoverContent>
           </Popover>
