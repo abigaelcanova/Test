@@ -12,7 +12,6 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
   const [receiveCheckInNotifications, setReceiveCheckInNotifications] = useState(data.receiveCheckInNotifications)
   const [additionalOrganizers, setAdditionalOrganizers] = useState(data.additionalOrganizers)
   const [floor, setFloor] = useState(data.floor || '1')
-  const [suite, setSuite] = useState(data.suite || '1001')
   
   // Track if hostName was set from data prop (editing) vs user input
   const hostNameFromDataRef = useRef(data.hostName || '')
@@ -26,12 +25,9 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
       hostNameFromDataRef.current = data.hostName
       setHostName(data.hostName)
     }
-    // Always update floor and suite when data changes
+    // Always update floor when data changes
     if (data.floor !== undefined) {
       setFloor(data.floor)
-    }
-    if (data.suite !== undefined) {
-      setSuite(data.suite)
     }
     if (data.receiveCopyInvitation !== undefined) {
       setReceiveCopyInvitation(data.receiveCopyInvitation)
@@ -42,9 +38,9 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
     if (data.additionalOrganizers !== undefined) {
       setAdditionalOrganizers(data.additionalOrganizers || '')
     }
-  }, [data.hostType, data.hostName, data.floor, data.suite, data.receiveCopyInvitation, data.receiveCheckInNotifications, data.additionalOrganizers])
+  }, [data.hostType, data.hostName, data.floor, data.receiveCopyInvitation, data.receiveCheckInNotifications, data.additionalOrganizers])
 
-  // Auto-populate floor and suite when host is selected (only when user manually types host, not when editing)
+  // Auto-populate floor when host is selected (only when user manually types host, not when editing)
   useEffect(() => {
     // Only auto-populate if:
     // 1. hostName was changed by user (not from data prop)
@@ -86,13 +82,10 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
           if (mostRecentVisit.floor) {
             setFloor(String(mostRecentVisit.floor))
           }
-          if (mostRecentVisit.suite) {
-            setSuite(String(mostRecentVisit.suite))
-          }
         }
       }
     }
-  }, [hostName, hostType, visits, data.floor, data.suite])
+  }, [hostName, hostType, visits, data.floor])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -102,8 +95,7 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
       receiveCopyInvitation,
       receiveCheckInNotifications,
       additionalOrganizers,
-      floor,
-      suite
+      floor
     }
     
     if (onNext) {
@@ -211,7 +203,7 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
         </div>
       )}
 
-      {/* Floor and Suite */}
+      {/* Floor */}
       <div className="border-t pt-6 space-y-6">
         <h3 className="font-medium text-gray-900">Location</h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -229,23 +221,6 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
                 <SelectItem value="3">3</SelectItem>
                 <SelectItem value="14">14</SelectItem>
                 <SelectItem value="15">15</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="suite">
-              Suite <span className="text-destructive">*</span>
-            </Label>
-            <Select value={suite} onValueChange={setSuite}>
-              <SelectTrigger id="suite">
-                <SelectValue placeholder="Select suite" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1001">#1001</SelectItem>
-                <SelectItem value="1002">#1002</SelectItem>
-                <SelectItem value="1003">#1003</SelectItem>
-                <SelectItem value="1004">#1004</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -124,7 +124,6 @@ export function CreateVisitPage() {
     hostType: 'me',
     hostName: '',
     floor: '1',
-    suite: '1001',
     visitDate: new Date().toISOString().split('T')[0],
     visitDateEnd: new Date().toISOString().split('T')[0],
     isMultiDay: false,
