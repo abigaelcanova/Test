@@ -20,13 +20,23 @@ export function DatePickerWithPresets({
   const [open, setOpen] = useState(false)
   const [endDateOpen, setEndDateOpen] = useState(false)
 
-  const timeFrameOptions = [
+  const futureTimeFrameOptions = [
     { value: 'today', label: 'Today' },
-    { value: 'thisWeek', label: 'This Week' },
-    { value: 'thisMonth', label: 'This Month' },
-    { value: 'nextWeek', label: 'Next Week' },
-    { value: 'nextMonth', label: 'Next Month' }
+    { value: 'thisWeek', label: 'This week' },
+    { value: 'thisMonth', label: 'This month' },
+    { value: 'nextWeek', label: 'Next week' },
+    { value: 'nextMonth', label: 'Next month' },
+    { value: 'allUpcoming', label: 'All upcoming' }
   ]
+
+  const pastTimeFrameOptions = [
+    { value: 'yesterday', label: 'Yesterday' },
+    { value: 'lastWeek', label: 'Last week' },
+    { value: 'lastMonth', label: 'Last month' },
+    { value: 'allPast', label: 'All past' }
+  ]
+
+  const timeFrameOptions = [...futureTimeFrameOptions, ...pastTimeFrameOptions]
 
   const handleTimeFrameSelect = (timeFrame) => {
     onTimeFrameChange(timeFrame)
@@ -81,7 +91,16 @@ export function DatePickerWithPresets({
   }
 
   const displayValue = getDisplayValue()
-  const showEndDate = (selectedTimeFrame === 'thisWeek' || selectedTimeFrame === 'thisMonth' || selectedTimeFrame === 'nextWeek' || selectedTimeFrame === 'nextMonth') && valueEnd
+  const showEndDate = (
+    selectedTimeFrame === 'allUpcoming' || 
+    selectedTimeFrame === 'allPast' || 
+    selectedTimeFrame === 'thisWeek' || 
+    selectedTimeFrame === 'thisMonth' || 
+    selectedTimeFrame === 'nextWeek' || 
+    selectedTimeFrame === 'nextMonth' || 
+    selectedTimeFrame === 'lastWeek' || 
+    selectedTimeFrame === 'lastMonth'
+  ) && valueEnd
   const timeFrameLabel = getTimeFrameLabel()
   const showTimeFrameLabel = selectedTimeFrame && timeFrameLabel
 
@@ -123,7 +142,28 @@ export function DatePickerWithPresets({
             {/* Time frame options on the right (desktop) / below (mobile) */}
             <div className="border-t md:border-t-0 md:border-l border-gray-200 p-4 min-w-[160px] flex items-start">
               <div className="w-full space-y-0.5">
-                {timeFrameOptions.map((option) => (
+                {/* Future date presets */}
+                {futureTimeFrameOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleTimeFrameSelect(option.value)}
+                    className={cn(
+                      "w-full text-left px-3 py-2 text-sm rounded-md hover:bg-gray-100 transition-colors flex items-center justify-between gap-2",
+                      selectedTimeFrame === option.value && "bg-primary/10 text-primary font-medium"
+                    )}
+                  >
+                    <span className="flex-1">{option.label}</span>
+                    {selectedTimeFrame === option.value && (
+                      <Check className="h-4 w-4 text-primary shrink-0" />
+                    )}
+                  </button>
+                ))}
+                
+                {/* Divider */}
+                <div className="my-2 border-t border-gray-200"></div>
+                
+                {/* Past date presets */}
+                {pastTimeFrameOptions.map((option) => (
                   <button
                     key={option.value}
                     onClick={() => handleTimeFrameSelect(option.value)}

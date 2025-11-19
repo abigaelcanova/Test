@@ -49,6 +49,15 @@ function App() {
     const todayStr = getLocalDateString(today)
     
     switch (timeFrame) {
+      case 'allUpcoming': {
+        // All visits from today onwards (1 year into future)
+        const oneYearFromNow = new Date(today)
+        oneYearFromNow.setFullYear(today.getFullYear() + 1)
+        return { 
+          start: todayStr, 
+          end: getLocalDateString(oneYearFromNow) 
+        }
+      }
       case 'today':
         return { start: todayStr, end: todayStr }
       case 'thisWeek': {
@@ -85,6 +94,41 @@ function App() {
         return { 
           start: getLocalDateString(nextMonthStart), 
           end: getLocalDateString(nextMonthEnd) 
+        }
+      }
+      case 'yesterday': {
+        const yesterday = new Date(today)
+        yesterday.setDate(today.getDate() - 1)
+        const yesterdayStr = getLocalDateString(yesterday)
+        return { start: yesterdayStr, end: yesterdayStr }
+      }
+      case 'lastWeek': {
+        const lastWeekEnd = new Date(today)
+        lastWeekEnd.setDate(today.getDate() - today.getDay() - 1) // Last Saturday
+        const lastWeekStart = new Date(lastWeekEnd)
+        lastWeekStart.setDate(lastWeekEnd.getDate() - 6) // Last Sunday
+        return { 
+          start: getLocalDateString(lastWeekStart), 
+          end: getLocalDateString(lastWeekEnd) 
+        }
+      }
+      case 'lastMonth': {
+        const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+        const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0)
+        return { 
+          start: getLocalDateString(lastMonthStart), 
+          end: getLocalDateString(lastMonthEnd) 
+        }
+      }
+      case 'allPast': {
+        // All visits from 1 year ago up to yesterday
+        const oneYearAgo = new Date(today)
+        oneYearAgo.setFullYear(today.getFullYear() - 1)
+        const yesterday = new Date(today)
+        yesterday.setDate(today.getDate() - 1)
+        return { 
+          start: getLocalDateString(oneYearAgo), 
+          end: getLocalDateString(yesterday) 
         }
       }
       default:
