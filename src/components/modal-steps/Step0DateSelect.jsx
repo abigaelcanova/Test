@@ -30,6 +30,46 @@ const getLocalDateString = (date = new Date()) => {
   return `${year}-${month}-${day}`
 }
 
+// Helper function to calculate end time from start time and duration (in hours)
+const calculateEndTime = (startTime, durationHours) => {
+  if (!startTime || !durationHours) return startTime
+  
+  const [hours, minutes] = startTime.split(':').map(Number)
+  const startDate = new Date()
+  startDate.setHours(hours, minutes, 0, 0)
+  
+  const endDate = new Date(startDate.getTime() + durationHours * 60 * 60 * 1000)
+  const endHours = endDate.getHours()
+  const endMinutes = endDate.getMinutes()
+  
+  return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`
+}
+
+// Helper function to calculate duration from start and end times (in hours)
+const calculateDuration = (startTime, endTime) => {
+  if (!startTime || !endTime) return null
+  
+  const [startHours, startMinutes] = startTime.split(':').map(Number)
+  const [endHours, endMinutes] = endTime.split(':').map(Number)
+  
+  const startDate = new Date()
+  startDate.setHours(startHours, startMinutes, 0, 0)
+  
+  const endDate = new Date()
+  endDate.setHours(endHours, endMinutes, 0, 0)
+  
+  // Handle case where end time is next day
+  if (endDate < startDate) {
+    endDate.setDate(endDate.getDate() + 1)
+  }
+  
+  const diffMs = endDate - startDate
+  const diffHours = diffMs / (1000 * 60 * 60)
+  
+  // Round to nearest hour
+  return Math.round(diffHours)
+}
+
 export function Step0DateSelect({ data, onNext }) {
   const initialDate = data.visitDate || getLocalDateString()
   const [dateRange, setDateRange] = useState({ 
@@ -40,6 +80,15 @@ export function Step0DateSelect({ data, onNext }) {
   const [recurringEnd, setRecurringEnd] = useState(data.recurringEnd || '')
   const [startTime, setStartTime] = useState(data.startTime || '09:00')
   const [endTime, setEndTime] = useState(data.endTime || '17:00')
+  const [timeMode, setTimeMode] = useState('duration') // 'endTime' or 'duration' - default to duration
+  const [duration, setDuration] = useState(() => {
+    // Try to calculate duration from existing start/end times
+    if (data.startTime && data.endTime) {
+      const calculatedDuration = calculateDuration(data.startTime, data.endTime)
+      return calculatedDuration ? String(calculatedDuration) : '1'
+    }
+    return '1'
+  })
 
   // Update state when data prop changes (for editing visits)
   useEffect(() => {
@@ -54,6 +103,13 @@ export function Step0DateSelect({ data, onNext }) {
     }
     if (data.endTime) {
       setEndTime(data.endTime)
+      // Try to calculate duration if we have both times
+      if (data.startTime && data.endTime) {
+        const calculatedDuration = calculateDuration(data.startTime, data.endTime)
+        if (calculatedDuration) {
+          setDuration(String(calculatedDuration))
+        }
+      }
     }
     if (data.recurring !== undefined) {
       setRepeatOption(data.recurring ? (data.frequency || 'custom') : 'none')
@@ -62,6 +118,28 @@ export function Step0DateSelect({ data, onNext }) {
       setRecurringEnd(data.recurringEnd || '')
     }
   }, [data.visitDate, data.visitDateEnd, data.startTime, data.endTime, data.recurring, data.frequency, data.recurringEnd])
+
+  // Calculate end time when duration mode is selected and duration or start time changes
+  useEffect(() => {
+    if (timeMode === 'duration' && startTime && duration) {
+      const calculatedEndTime = calculateEndTime(startTime, Number(duration))
+      if (calculatedEndTime) {
+        setEndTime(calculatedEndTime)
+      }
+    }
+  }, [timeMode, startTime, duration])
+
+  // Handle mode switching - calculate duration from existing times when switching to duration mode
+  const handleModeChange = (newMode) => {
+    if (newMode === 'duration' && timeMode === 'endTime' && startTime && endTime) {
+      // Calculate duration from existing start and end times
+      const calculatedDuration = calculateDuration(startTime, endTime)
+      if (calculatedDuration && calculatedDuration > 0 && calculatedDuration <= 8) {
+        setDuration(String(calculatedDuration))
+      }
+    }
+    setTimeMode(newMode)
+  }
 
   const getRepeatLabel = () => {
     if (!dateRange.from) return 'Does not repeat'
@@ -183,19 +261,62 @@ export function Step0DateSelect({ data, onNext }) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="endTime">End time</Label>
-                  <Select value={endTime} onValueChange={setEndTime}>
-                    <SelectTrigger id="endTime">
-                      <SelectValue placeholder="Select end time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {generateTimeOptions(8, 18).map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-6 mb-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="timeMode"
+                        value="duration"
+                        checked={timeMode === 'duration'}
+                        onChange={() => handleModeChange('duration')}
+                        className="h-4 w-4 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm font-medium text-gray-900">Duration</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="timeMode"
+                        value="endTime"
+                        checked={timeMode === 'endTime'}
+                        onChange={() => handleModeChange('endTime')}
+                        className="h-4 w-4 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm font-medium text-gray-900">End time</span>
+                    </label>
+                  </div>
+                  {timeMode === 'endTime' ? (
+                    <Select value={endTime} onValueChange={setEndTime}>
+                      <SelectTrigger id="endTime">
+                        <SelectValue placeholder="Select end time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {generateTimeOptions(8, 18).map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Select value={duration} onValueChange={setDuration}>
+                      <SelectTrigger id="duration">
+                        <SelectValue placeholder="Select duration" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((hours) => (
+                          <SelectItem key={hours} value={String(hours)}>
+                            {hours} {hours === 1 ? 'hour' : 'hours'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  {timeMode === 'duration' && endTime && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      End time: {generateTimeOptions(8, 18).find(opt => opt.value === endTime)?.label || endTime}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
