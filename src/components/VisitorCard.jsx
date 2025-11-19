@@ -116,13 +116,11 @@ export function VisitorCard({ visit, onEdit, onCancel }) {
             </div>
           )}
           
-          {(visit.floor || visit.suite) && (
+          {visit.floor && (
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-gray-400" />
               <span data-testid="visitor-location">
-                {visit.floor && `Floor ${visit.floor}`}
-                {visit.floor && visit.suite && ', '}
-                {visit.suite && `Suite ${visit.suite}`}
+                Floor {visit.floor}
               </span>
             </div>
           )}
