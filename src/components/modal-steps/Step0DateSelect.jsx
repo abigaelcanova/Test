@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { Calendar as CalendarIcon } from "lucide-react"
+import { Calendar as CalendarIcon, Check } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 // Helper function to generate time options in 15-minute increments
 const generateTimeOptions = (startHour = 8, endHour = 18) => {
@@ -77,6 +78,7 @@ export function Step0DateSelect({ data, onNext }) {
     to: data.visitDateEnd || initialDate
   })
   const [repeatOption, setRepeatOption] = useState(data.recurring ? (data.frequency || 'custom') : 'none')
+  const [selectedDays, setSelectedDays] = useState(data.selectedDays || [])
   const [recurringEnd, setRecurringEnd] = useState(data.recurringEnd || '')
   const [startTime, setStartTime] = useState(data.startTime || '09:00')
   const [endTime, setEndTime] = useState(data.endTime || '17:00')
@@ -114,10 +116,13 @@ export function Step0DateSelect({ data, onNext }) {
     if (data.recurring !== undefined) {
       setRepeatOption(data.recurring ? (data.frequency || 'custom') : 'none')
     }
+    if (data.selectedDays !== undefined) {
+      setSelectedDays(data.selectedDays || [])
+    }
     if (data.recurringEnd !== undefined) {
       setRecurringEnd(data.recurringEnd || '')
     }
-  }, [data.visitDate, data.visitDateEnd, data.startTime, data.endTime, data.recurring, data.frequency, data.recurringEnd])
+  }, [data.visitDate, data.visitDateEnd, data.startTime, data.endTime, data.recurring, data.frequency, data.selectedDays, data.recurringEnd])
 
   // Calculate end time when duration mode is selected and duration or start time changes
   useEffect(() => {
@@ -141,6 +146,7 @@ export function Step0DateSelect({ data, onNext }) {
     setTimeMode(newMode)
   }
 
+
   const getRepeatLabel = () => {
     if (!dateRange.from) return 'Does not repeat'
     const date = new Date(dateRange.from)
@@ -154,7 +160,8 @@ export function Step0DateSelect({ data, onNext }) {
       weekly: `Weekly on ${dayName}`,
       monthly: `Monthly on day ${monthDay}`,
       annually: `Annually on ${monthName}`,
-      weekdays: 'Every weekday (Monday to Friday)'
+      weekdays: 'Every weekday (Monday to Friday)',
+      custom: 'Custom'
     }
   }
 
@@ -166,9 +173,30 @@ export function Step0DateSelect({ data, onNext }) {
       visitDateEnd: dateRange.to,
       recurring,
       frequency: recurring ? repeatOption : '',
+      selectedDays: repeatOption === 'custom' ? selectedDays : [],
       recurringEnd: recurring ? recurringEnd : '',
       startTime,
       endTime
+    })
+  }
+
+  const daysOfWeek = [
+    { value: 'monday', label: 'Monday' },
+    { value: 'tuesday', label: 'Tuesday' },
+    { value: 'wednesday', label: 'Wednesday' },
+    { value: 'thursday', label: 'Thursday' },
+    { value: 'friday', label: 'Friday' },
+    { value: 'saturday', label: 'Saturday' },
+    { value: 'sunday', label: 'Sunday' }
+  ]
+
+  const toggleDay = (day) => {
+    setSelectedDays(prev => {
+      if (prev.includes(day)) {
+        return prev.filter(d => d !== day)
+      } else {
+        return [...prev, day]
+      }
     })
   }
 
@@ -335,9 +363,42 @@ export function Step0DateSelect({ data, onNext }) {
                   <SelectItem value="monthly">{getRepeatLabel().monthly}</SelectItem>
                   <SelectItem value="annually">{getRepeatLabel().annually}</SelectItem>
                   <SelectItem value="weekdays">{getRepeatLabel().weekdays}</SelectItem>
+                  <SelectItem value="custom">{getRepeatLabel().custom}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Custom Days Selection */}
+            {repeatOption === 'custom' && (
+              <div className="space-y-2">
+                <Label>Select days</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {daysOfWeek.map((day) => (
+                    <button
+                      key={day.value}
+                      type="button"
+                      onClick={() => toggleDay(day.value)}
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 text-sm rounded-md border transition-colors",
+                        selectedDays.includes(day.value) 
+                          ? "bg-primary/10 border-primary text-primary" 
+                          : "bg-white border-gray-300 hover:bg-gray-50"
+                      )}
+                    >
+                      <div className={cn(
+                        "h-4 w-4 border rounded flex items-center justify-center flex-shrink-0",
+                        selectedDays.includes(day.value) ? "bg-primary border-primary" : "border-gray-300"
+                      )}>
+                        {selectedDays.includes(day.value) && (
+                          <Check className="h-3 w-3 text-white" />
+                        )}
+                      </div>
+                      <span className="flex-1 text-left">{day.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {repeatOption !== 'none' && (
               <div className="space-y-2">
