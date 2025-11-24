@@ -867,7 +867,7 @@ function App() {
       {/* Floating Action Button - Mobile Only */}
       <div className="md:hidden fixed bottom-5 right-5 z-20">
         <Button
-          className="rounded-3xl shadow-lg hover:shadow-xl flex items-center gap-2 pl-4 pr-6 h-14"
+          className="rounded-xl shadow-lg hover:shadow-xl flex items-center gap-2 pl-4 pr-6 h-14"
           onClick={() => navigate('/visits/new')}
           data-testid="add-visitor-fab"
         >
