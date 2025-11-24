@@ -91,6 +91,10 @@ export function Step0DateSelect({ data, onNext }) {
     }
     return '1'
   })
+  
+  // Error states
+  const [errors, setErrors] = useState({})
+  const [touched, setTouched] = useState({})
 
   // Update state when data prop changes (for editing visits)
   useEffect(() => {
@@ -165,8 +169,73 @@ export function Step0DateSelect({ data, onNext }) {
     }
   }
 
+  const validateForm = () => {
+    const newErrors = {}
+    
+    // Validate date range
+    if (!dateRange.from) {
+      newErrors.startDate = 'Start date is required'
+    }
+    if (!dateRange.to) {
+      newErrors.endDate = 'End date is required'
+    }
+    
+    // Validate start date is before or equal to end date
+    if (dateRange.from && dateRange.to && dateRange.from > dateRange.to) {
+      newErrors.startDate = 'Start date must be before or equal to end date'
+      newErrors.endDate = 'End date must be after or equal to start date'
+    }
+    
+    // Validate start time and end time
+    if (startTime && endTime) {
+      const [startHours, startMinutes] = startTime.split(':').map(Number)
+      const [endHours, endMinutes] = endTime.split(':').map(Number)
+      const startTimeInMinutes = startHours * 60 + startMinutes
+      const endTimeInMinutes = endHours * 60 + endMinutes
+      
+      // Only validate if it's the same day (single day visit)
+      if (dateRange.from === dateRange.to && startTimeInMinutes >= endTimeInMinutes) {
+        newErrors.endTime = 'End time must be after start time'
+      }
+    }
+    
+    // Validate custom repeat days
+    if (repeatOption === 'custom' && selectedDays.length === 0) {
+      newErrors.selectedDays = 'Please select at least one day'
+    }
+    
+    // Validate recurring end date
+    if (repeatOption !== 'none' && !recurringEnd) {
+      newErrors.recurringEnd = 'Please select when the recurring visit should end'
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
+    
+    // Mark all fields as touched
+    const allTouched = {
+      startDate: true,
+      endDate: true,
+      startTime: true,
+      endTime: true
+    }
+    if (repeatOption === 'custom') {
+      allTouched.selectedDays = true
+    }
+    if (repeatOption !== 'none') {
+      allTouched.recurringEnd = true
+    }
+    setTouched(allTouched)
+    
+    // Validate and submit
+    if (!validateForm()) {
+      return
+    }
+    
     const recurring = repeatOption !== 'none'
     onNext({ 
       visitDate: dateRange.from,
@@ -178,6 +247,10 @@ export function Step0DateSelect({ data, onNext }) {
       startTime,
       endTime
     })
+  }
+  
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }))
   }
 
   const daysOfWeek = [
@@ -239,6 +312,11 @@ export function Step0DateSelect({ data, onNext }) {
                 onSelect={(range) => {
                   if (range) {
                     setDateRange(range)
+                    // Mark dates as touched and validate
+                    if (range.from) {
+                      setTouched(prev => ({ ...prev, startDate: true, endDate: true }))
+                    }
+                    setTimeout(() => validateForm(), 0)
                   }
                 }}
                 className="w-full"
@@ -258,13 +336,35 @@ export function Step0DateSelect({ data, onNext }) {
                     id="startDate"
                     type="date"
                     value={dateRange.from}
-                    onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
+                    onChange={(e) => {
+                      setDateRange({ ...dateRange, from: e.target.value })
+                      if (touched.startDate || touched.endDate) {
+                        setTimeout(() => validateForm(), 0)
+                      }
+                    }}
+                    onBlur={() => handleBlur('startDate')}
+                    className={errors.startDate && touched.startDate ? 'border-destructive' : ''}
                   />
+                  {errors.startDate && touched.startDate && (
+                    <p className="text-sm text-destructive">{errors.startDate}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="startTime">Start time</Label>
-                  <Select value={startTime} onValueChange={setStartTime}>
-                    <SelectTrigger id="startTime">
+                  <Select 
+                    value={startTime} 
+                    onValueChange={(value) => {
+                      setStartTime(value)
+                      if (touched.startTime || touched.endTime) {
+                        setTimeout(() => validateForm(), 0)
+                      }
+                    }}
+                  >
+                    <SelectTrigger 
+                      id="startTime"
+                      className={errors.startTime && touched.startTime ? 'border-destructive' : ''}
+                      onBlur={() => handleBlur('startTime')}
+                    >
                       <SelectValue placeholder="Select start time" />
                     </SelectTrigger>
                     <SelectContent>
@@ -275,6 +375,9 @@ export function Step0DateSelect({ data, onNext }) {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.startTime && touched.startTime && (
+                    <p className="text-sm text-destructive">{errors.startTime}</p>
+                  )}
                 </div>
               </div>
 
@@ -285,8 +388,18 @@ export function Step0DateSelect({ data, onNext }) {
                     id="endDate"
                     type="date"
                     value={dateRange.to || dateRange.from}
-                    onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
+                    onChange={(e) => {
+                      setDateRange({ ...dateRange, to: e.target.value })
+                      if (touched.endDate || touched.startDate || touched.startTime || touched.endTime) {
+                        setTimeout(() => validateForm(), 0)
+                      }
+                    }}
+                    onBlur={() => handleBlur('endDate')}
+                    className={errors.endDate && touched.endDate ? 'border-destructive' : ''}
                   />
+                  {errors.endDate && touched.endDate && (
+                    <p className="text-sm text-destructive">{errors.endDate}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <div className="flex gap-6 mb-2">
@@ -314,20 +427,45 @@ export function Step0DateSelect({ data, onNext }) {
                     </label>
                   </div>
                   {timeMode === 'endTime' ? (
-                    <Select value={endTime} onValueChange={setEndTime}>
-                      <SelectTrigger id="endTime">
-                        <SelectValue placeholder="Select end time" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {generateTimeOptions(8, 18).map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <>
+                      <Select 
+                        value={endTime} 
+                        onValueChange={(value) => {
+                          setEndTime(value)
+                          if (touched.endTime || touched.startTime) {
+                            setTimeout(() => validateForm(), 0)
+                          }
+                        }}
+                      >
+                        <SelectTrigger 
+                          id="endTime"
+                          className={errors.endTime && touched.endTime ? 'border-destructive' : ''}
+                          onBlur={() => handleBlur('endTime')}
+                        >
+                          <SelectValue placeholder="Select end time" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {generateTimeOptions(8, 18).map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.endTime && touched.endTime && (
+                        <p className="text-sm text-destructive">{errors.endTime}</p>
+                      )}
+                    </>
                   ) : (
-                    <Select value={duration} onValueChange={setDuration}>
+                    <Select 
+                      value={duration} 
+                      onValueChange={(value) => {
+                        setDuration(value)
+                        if (touched.endTime) {
+                          setTimeout(() => validateForm(), 0)
+                        }
+                      }}
+                    >
                       <SelectTrigger id="duration">
                         <SelectValue placeholder="Select duration" />
                       </SelectTrigger>
@@ -344,6 +482,9 @@ export function Step0DateSelect({ data, onNext }) {
                     <p className="text-xs text-gray-500 mt-1">
                       End time: {generateTimeOptions(8, 18).find(opt => opt.value === endTime)?.label || endTime}
                     </p>
+                  )}
+                  {timeMode === 'duration' && errors.endTime && touched.endTime && (
+                    <p className="text-sm text-destructive">{errors.endTime}</p>
                   )}
                 </div>
               </div>
@@ -377,7 +518,13 @@ export function Step0DateSelect({ data, onNext }) {
                     <button
                       key={day.value}
                       type="button"
-                      onClick={() => toggleDay(day.value)}
+                      onClick={() => {
+                        toggleDay(day.value)
+                        if (touched.selectedDays) {
+                          validateForm()
+                        }
+                      }}
+                      onBlur={() => handleBlur('selectedDays')}
                       className={cn(
                         "flex items-center gap-2 px-3 py-2 text-sm rounded-md border transition-colors",
                         selectedDays.includes(day.value) 
@@ -397,18 +544,31 @@ export function Step0DateSelect({ data, onNext }) {
                     </button>
                   ))}
                 </div>
+                {errors.selectedDays && touched.selectedDays && (
+                  <p className="text-sm text-destructive">{errors.selectedDays}</p>
+                )}
               </div>
             )}
 
             {repeatOption !== 'none' && (
               <div className="space-y-2">
-                <Label htmlFor="recurringEnd">Repeat until</Label>
+                <Label htmlFor="recurringEnd">Repeat until <span className="text-destructive">*</span></Label>
                 <Input
                   id="recurringEnd"
                   type="date"
                   value={recurringEnd}
-                  onChange={(e) => setRecurringEnd(e.target.value)}
+                  onChange={(e) => {
+                    setRecurringEnd(e.target.value)
+                    if (touched.recurringEnd) {
+                      validateForm()
+                    }
+                  }}
+                  onBlur={() => handleBlur('recurringEnd')}
+                  className={errors.recurringEnd && touched.recurringEnd ? 'border-destructive' : ''}
                 />
+                {errors.recurringEnd && touched.recurringEnd && (
+                  <p className="text-sm text-destructive">{errors.recurringEnd}</p>
+                )}
               </div>
             )}
           </div>

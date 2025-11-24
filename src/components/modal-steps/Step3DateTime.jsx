@@ -15,6 +15,10 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
   
   // Track if hostName was set from data prop (editing) vs user input
   const hostNameFromDataRef = useRef(data.hostName || '')
+  
+  // Error states
+  const [errors, setErrors] = useState({})
+  const [touched, setTouched] = useState({})
 
   // Update state when data prop changes (for editing visits)
   useEffect(() => {
@@ -87,8 +91,38 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
     }
   }, [hostName, hostType, visits, data.floor])
 
+  const validateForm = () => {
+    const newErrors = {}
+    
+    // Validate host name if "someone else" is selected
+    if (hostType === 'someone' && !hostName?.trim()) {
+      newErrors.hostName = 'Host name is required'
+    }
+    
+    // Floor is always required
+    if (!floor) {
+      newErrors.floor = 'Floor is required'
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
+    
+    // Mark relevant fields as touched
+    const allTouched = { floor: true }
+    if (hostType === 'someone') {
+      allTouched.hostName = true
+    }
+    setTouched(allTouched)
+    
+    // Validate and submit
+    if (!validateForm()) {
+      return
+    }
+    
     const stepData = {
       hostType,
       hostName,
@@ -103,6 +137,10 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
     } else if (onSubmit) {
       onSubmit(stepData)
     }
+  }
+  
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }))
   }
 
   return (
@@ -135,12 +173,22 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
         {hostType === 'someone' && (
           <div className="space-y-2">
             <Label htmlFor="hostName">Host name <span className="text-destructive">*</span></Label>
-              <Input
-                id="hostName"
-                placeholder="Search or enter host name"
-                value={hostName}
-                onChange={(e) => setHostName(e.target.value)}
-              />
+            <Input
+              id="hostName"
+              placeholder="Search or enter host name"
+              value={hostName}
+              onChange={(e) => {
+                setHostName(e.target.value)
+                if (touched.hostName) {
+                  validateForm()
+                }
+              }}
+              onBlur={() => handleBlur('hostName')}
+              className={errors.hostName && touched.hostName ? 'border-destructive' : ''}
+            />
+            {errors.hostName && touched.hostName && (
+              <p className="text-sm text-destructive">{errors.hostName}</p>
+            )}
           </div>
         )}
       </div>
@@ -211,8 +259,20 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
             <Label htmlFor="floor">
               Floor <span className="text-destructive">*</span>
             </Label>
-            <Select value={floor} onValueChange={setFloor}>
-              <SelectTrigger id="floor">
+            <Select 
+              value={floor} 
+              onValueChange={(value) => {
+                setFloor(value)
+                if (touched.floor) {
+                  validateForm()
+                }
+              }}
+            >
+              <SelectTrigger 
+                id="floor"
+                className={errors.floor && touched.floor ? 'border-destructive' : ''}
+                onBlur={() => handleBlur('floor')}
+              >
                 <SelectValue placeholder="Select floor" />
               </SelectTrigger>
               <SelectContent>
@@ -223,6 +283,9 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
                 <SelectItem value="15">15</SelectItem>
               </SelectContent>
             </Select>
+            {errors.floor && touched.floor && (
+              <p className="text-sm text-destructive">{errors.floor}</p>
+            )}
           </div>
         </div>
       </div>

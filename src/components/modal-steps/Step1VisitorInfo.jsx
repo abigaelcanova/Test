@@ -14,6 +14,10 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
   // Multiple visitors group fields
   const [uploadedFile, setUploadedFile] = useState(null)
   const [guestCount, setGuestCount] = useState(null)
+  
+  // Error states
+  const [errors, setErrors] = useState({})
+  const [touched, setTouched] = useState({})
 
   const addVisitor = () => {
     setVisitors([...visitors, { email: '', firstName: '', lastName: '', phone: '', company: '', visitSummary: '' }])
@@ -45,8 +49,62 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
     setVisitors(updated)
   }
 
+  const validateForm = () => {
+    const newErrors = {}
+    
+    if (visitorMode === 'single') {
+      // Validate each visitor
+      visitors.forEach((visitor, index) => {
+        if (!visitor.firstName?.trim()) {
+          newErrors[`firstName-${index}`] = 'First name is required'
+        }
+        if (!visitor.lastName?.trim()) {
+          newErrors[`lastName-${index}`] = 'Last name is required'
+        }
+        if (!visitor.company?.trim()) {
+          newErrors[`company-${index}`] = 'Affiliation / company name is required'
+        }
+        if (!visitor.visitSummary?.trim()) {
+          newErrors[`visitSummary-${index}`] = 'Visit summary is required'
+        }
+      })
+    } else {
+      // Validate group visit
+      if (!groupVisitSummary?.trim()) {
+        newErrors.groupVisitSummary = 'Visit summary is required'
+      }
+      if (!uploadedFile) {
+        newErrors.uploadedFile = 'Please upload a visitor list CSV file'
+      }
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
+    
+    // Mark all fields as touched
+    const allTouched = {}
+    if (visitorMode === 'single') {
+      visitors.forEach((_, index) => {
+        allTouched[`firstName-${index}`] = true
+        allTouched[`lastName-${index}`] = true
+        allTouched[`company-${index}`] = true
+        allTouched[`visitSummary-${index}`] = true
+      })
+    } else {
+      allTouched.groupVisitSummary = true
+      allTouched.uploadedFile = true
+    }
+    setTouched(allTouched)
+    
+    // Validate and submit
+    if (!validateForm()) {
+      return
+    }
+    
     if (visitorMode === 'multiple') {
       // For multiple visitors, pass the group details
       onNext({ 
@@ -58,6 +116,10 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
       // For single visitor, pass visitor data
       onNext({ visitors })
     }
+  }
+  
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }))
   }
 
   const handleDownloadTemplate = () => {
@@ -152,9 +214,18 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
                   id={`firstName-${index}`}
                   placeholder="e.g. John"
                   value={visitor.firstName}
-                  onChange={(e) => updateVisitor(index, 'firstName', e.target.value)}
-                  className="visitor-firstname"
+                  onChange={(e) => {
+                    updateVisitor(index, 'firstName', e.target.value)
+                    if (touched[`firstName-${index}`]) {
+                      validateForm()
+                    }
+                  }}
+                  onBlur={() => handleBlur(`firstName-${index}`)}
+                  className={`visitor-firstname ${errors[`firstName-${index}`] && touched[`firstName-${index}`] ? 'border-destructive' : ''}`}
                 />
+                {errors[`firstName-${index}`] && touched[`firstName-${index}`] && (
+                  <p className="text-sm text-destructive">{errors[`firstName-${index}`]}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -165,9 +236,18 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
                   id={`lastName-${index}`}
                   placeholder="e.g. Smith"
                   value={visitor.lastName}
-                  onChange={(e) => updateVisitor(index, 'lastName', e.target.value)}
-                  className="visitor-lastname"
+                  onChange={(e) => {
+                    updateVisitor(index, 'lastName', e.target.value)
+                    if (touched[`lastName-${index}`]) {
+                      validateForm()
+                    }
+                  }}
+                  onBlur={() => handleBlur(`lastName-${index}`)}
+                  className={`visitor-lastname ${errors[`lastName-${index}`] && touched[`lastName-${index}`] ? 'border-destructive' : ''}`}
                 />
+                {errors[`lastName-${index}`] && touched[`lastName-${index}`] && (
+                  <p className="text-sm text-destructive">{errors[`lastName-${index}`]}</p>
+                )}
               </div>
             </div>
 
@@ -208,9 +288,18 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
                 id={`company-${index}`}
                 placeholder="e.g. Acme Corp"
                 value={visitor.company}
-                onChange={(e) => updateVisitor(index, 'company', e.target.value)}
-                className="visitor-company"
+                onChange={(e) => {
+                  updateVisitor(index, 'company', e.target.value)
+                  if (touched[`company-${index}`]) {
+                    validateForm()
+                  }
+                }}
+                onBlur={() => handleBlur(`company-${index}`)}
+                className={`visitor-company ${errors[`company-${index}`] && touched[`company-${index}`] ? 'border-destructive' : ''}`}
               />
+              {errors[`company-${index}`] && touched[`company-${index}`] && (
+                <p className="text-sm text-destructive">{errors[`company-${index}`]}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -221,9 +310,18 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
                 id={`visitSummary-${index}`}
                 placeholder="e.g. Quarterly business review"
                 value={visitor.visitSummary}
-                onChange={(e) => updateVisitor(index, 'visitSummary', e.target.value)}
-                className="visitor-summary"
+                onChange={(e) => {
+                  updateVisitor(index, 'visitSummary', e.target.value)
+                  if (touched[`visitSummary-${index}`]) {
+                    validateForm()
+                  }
+                }}
+                onBlur={() => handleBlur(`visitSummary-${index}`)}
+                className={`visitor-summary ${errors[`visitSummary-${index}`] && touched[`visitSummary-${index}`] ? 'border-destructive' : ''}`}
               />
+              {errors[`visitSummary-${index}`] && touched[`visitSummary-${index}`] && (
+                <p className="text-sm text-destructive">{errors[`visitSummary-${index}`]}</p>
+              )}
             </div>
           </div>
         ))}
@@ -240,9 +338,19 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
               id="groupVisitSummary"
               placeholder="e.g. Quarterly business review"
               value={groupVisitSummary}
-              onChange={(e) => setGroupVisitSummary(e.target.value)}
+              onChange={(e) => {
+                setGroupVisitSummary(e.target.value)
+                if (touched.groupVisitSummary) {
+                  validateForm()
+                }
+              }}
+              onBlur={() => handleBlur('groupVisitSummary')}
+              className={errors.groupVisitSummary && touched.groupVisitSummary ? 'border-destructive' : ''}
               rows={3}
             />
+            {errors.groupVisitSummary && touched.groupVisitSummary && (
+              <p className="text-sm text-destructive">{errors.groupVisitSummary}</p>
+            )}
           </div>
 
           {/* CSV Upload Section */}
@@ -270,17 +378,27 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
                   type="file"
                   id="csvUpload"
                   accept=".csv"
-                  onChange={handleFileUpload}
+                  onChange={(e) => {
+                    handleFileUpload(e)
+                    if (touched.uploadedFile) {
+                      validateForm()
+                    }
+                  }}
+                  onBlur={() => handleBlur('uploadedFile')}
                   className="hidden"
                 />
                 <Label htmlFor="csvUpload" className="cursor-pointer">
-                  <div className="flex items-center justify-center h-10 px-4 py-2 bg-background border border-input rounded-md hover:bg-accent hover:text-accent-foreground">
+                  <div className={`flex items-center justify-center h-10 px-4 py-2 bg-background border rounded-md hover:bg-accent hover:text-accent-foreground ${errors.uploadedFile && touched.uploadedFile ? 'border-destructive' : 'border-input'}`}>
                     <Upload className="h-4 w-4 mr-2" />
                     {uploadedFile ? uploadedFile.name : 'Upload CSV'}
                   </div>
                 </Label>
               </div>
             </div>
+
+            {errors.uploadedFile && touched.uploadedFile && (
+              <p className="text-sm text-destructive">{errors.uploadedFile}</p>
+            )}
 
             {uploadedFile && guestCount !== null && (
               <div className="text-sm text-green-600 flex items-center gap-2">
