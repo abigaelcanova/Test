@@ -543,7 +543,7 @@ function App() {
         <div className="max-w-[1600px] mx-auto px-4 md:px-12 pt-4 md:pt-12 pb-4 md:pb-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-semibold" style={{ color: '#2D3338' }}>Visitor Management</h1>
-            <Button onClick={() => navigate('/visits/new')} data-testid="add-visitor-desktop" className="shadow-sm">
+            <Button onClick={() => navigate('/visits/new')} data-testid="add-visitor-desktop" className="shadow-sm rounded">
               Create visit
             </Button>
           </div>
@@ -867,7 +867,7 @@ function App() {
       {/* Floating Action Button - Mobile Only */}
       <div className="md:hidden fixed bottom-5 right-5 z-20">
         <Button
-          className="rounded-xl shadow-lg hover:shadow-xl flex items-center gap-2 pl-4 pr-6 h-14"
+          className="rounded shadow-lg hover:shadow-xl flex items-center gap-2 pl-4 pr-6 h-14"
           onClick={() => navigate('/visits/new')}
           data-testid="add-visitor-fab"
         >
