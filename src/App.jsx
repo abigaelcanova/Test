@@ -867,12 +867,12 @@ function App() {
       {/* Floating Action Button - Mobile Only */}
       <div className="md:hidden fixed bottom-5 right-5 z-20">
         <Button
-          size="icon"
-          className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl"
+          className="rounded-3xl shadow-lg hover:shadow-xl flex items-center gap-2 pl-4 pr-6 h-14"
           onClick={() => navigate('/visits/new')}
           data-testid="add-visitor-fab"
         >
           <Plus className="h-6 w-6 text-white" />
+          <span className="font-semibold text-white">Create</span>
         </Button>
       </div>
 
