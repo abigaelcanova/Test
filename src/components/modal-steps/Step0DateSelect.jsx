@@ -294,13 +294,6 @@ export function Step0DateSelect({ data, onNext }) {
       </div>
 
       <div className="space-y-4 sm:space-y-5">
-        {/* Date range mode info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
-          <p className="text-xs sm:text-sm font-medium text-blue-900">
-            Select a date range: Click a start date, then click an end date
-          </p>
-        </div>
-
         {/* Calendar and Time Selection */}
         <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-start">
           {/* Left Side - Calendar */}
