@@ -506,7 +506,7 @@ export function Step0DateSelect({ data, onNext }) {
             {repeatOption === 'custom' && (
               <div className="space-y-2">
                 <Label>Select days</Label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   {daysOfWeek.map((day) => (
                     <button
                       key={day.value}
@@ -518,12 +518,7 @@ export function Step0DateSelect({ data, onNext }) {
                         }
                       }}
                       onBlur={() => handleBlur('selectedDays')}
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-2 text-sm rounded-md border transition-colors",
-                        selectedDays.includes(day.value) 
-                          ? "bg-primary/10 border-primary text-primary" 
-                          : "bg-white border-gray-300 hover:bg-gray-50"
-                      )}
+                      className="flex items-center gap-2 py-2 text-sm transition-colors hover:opacity-80"
                     >
                       <div className={cn(
                         "h-4 w-4 border rounded flex items-center justify-center flex-shrink-0",
@@ -533,7 +528,7 @@ export function Step0DateSelect({ data, onNext }) {
                           <Check className="h-3 w-3 text-white" />
                         )}
                       </div>
-                      <span className="flex-1 text-left">{day.label}</span>
+                      <span className="flex-1 text-left text-gray-900">{day.label}</span>
                     </button>
                   ))}
                 </div>
