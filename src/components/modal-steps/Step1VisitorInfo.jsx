@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { X, Download, Upload } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { X, Download, Upload, Info } from "lucide-react"
 
 export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
   const [visitors, setVisitors] = useState(data.visitors)
@@ -156,10 +157,12 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold">Visitor information</h2>
-      </div>
+    <TooltipProvider>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <h2 className="text-xl font-semibold">Visitor information</h2>
+          <p className="text-sm text-gray-600 mt-1">Provide details about who is visiting</p>
+        </div>
 
       {/* Visitor Mode Selection */}
       <div className="space-y-3">
@@ -261,6 +264,7 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
                 onChange={(e) => updateVisitor(index, 'email', e.target.value)}
                 className="visitor-email"
               />
+              <p className="text-xs text-gray-500">Optional: Used to send visit invitations</p>
             </div>
 
             <div className="space-y-2">
@@ -278,6 +282,7 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
                   className="flex-1 visitor-phone"
                 />
               </div>
+              <p className="text-xs text-gray-500">Optional: Contact number for the visitor</p>
             </div>
 
             <div className="space-y-2">
@@ -356,7 +361,17 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
           {/* CSV Upload Section */}
           <div className="space-y-4 pt-4 border-t">
             <div>
-              <h3 className="font-medium mb-2">Upload visitor list</h3>
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-medium">Upload visitor list</h3>
+                <Tooltip>
+                  <TooltipTrigger type="button">
+                    <Info className="h-4 w-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Use our CSV template to add multiple visitors at once with their contact information</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <p className="text-sm text-gray-600 mb-4">
                 Download our template, fill in your visitor details, and upload the completed file
               </p>
@@ -410,6 +425,7 @@ export function Step1VisitorInfo({ data, onNext, onToggleBulkUpload, onBack }) {
         </div>
       )}
     </form>
+    </TooltipProvider>
   )
 }
 

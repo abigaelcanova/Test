@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { Calendar as CalendarIcon, Check } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Calendar as CalendarIcon, Check, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // Helper function to generate time options in 15-minute increments
@@ -288,10 +289,12 @@ export function Step0DateSelect({ data, onNext }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-      <div>
-        <h3 className="text-base sm:text-lg font-semibold">When is your visit?</h3>
-      </div>
+    <TooltipProvider>
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+        <div>
+          <h3 className="text-base sm:text-lg font-semibold">When is your visit?</h3>
+          <p className="text-sm text-gray-600 mt-1">Select the date and time for your visit</p>
+        </div>
 
       <div className="space-y-4 sm:space-y-5">
         {/* Calendar and Time Selection */}
@@ -315,7 +318,9 @@ export function Step0DateSelect({ data, onNext }) {
                 className="w-full"
               />
             </div>
-
+            <p className="text-xs text-gray-500 mt-2">
+              Click a start date, then click an end date to select a range
+            </p>
           </div>
 
           {/* Right Side - Time Selection */}
@@ -395,7 +400,7 @@ export function Step0DateSelect({ data, onNext }) {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <div className="flex gap-6 mb-2">
+                  <div className="flex gap-6 mb-2 items-center">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
@@ -418,6 +423,14 @@ export function Step0DateSelect({ data, onNext }) {
                       />
                       <span className="text-sm font-medium text-gray-900">End time</span>
                     </label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Choose "Duration" to set visit length in hours, or "End time" to specify an exact end time</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   {timeMode === 'endTime' ? (
                     <>
@@ -485,7 +498,17 @@ export function Step0DateSelect({ data, onNext }) {
 
             {/* Repeat Dropdown */}
             <div className="space-y-2">
-              <Label htmlFor="repeat">Repeat</Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="repeat">Repeat</Label>
+                <Tooltip>
+                  <TooltipTrigger type="button">
+                    <Info className="h-4 w-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Set up recurring visits that repeat on a schedule (daily, weekly, monthly, etc.)</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Select value={repeatOption} onValueChange={setRepeatOption}>
                 <SelectTrigger id="repeat">
                   <SelectValue />
@@ -506,6 +529,7 @@ export function Step0DateSelect({ data, onNext }) {
             {repeatOption === 'custom' && (
               <div className="space-y-2">
                 <Label>Select days</Label>
+                <p className="text-xs text-gray-500 mb-2">Choose which days of the week this visit should repeat</p>
                 <div className="grid grid-cols-2 gap-3">
                   {daysOfWeek.map((day) => (
                     <button
@@ -554,8 +578,10 @@ export function Step0DateSelect({ data, onNext }) {
                   onBlur={() => handleBlur('recurringEnd')}
                   className={errors.recurringEnd && touched.recurringEnd ? 'border-destructive' : ''}
                 />
-                {errors.recurringEnd && touched.recurringEnd && (
+                {errors.recurringEnd && touched.recurringEnd ? (
                   <p className="text-sm text-destructive">{errors.recurringEnd}</p>
+                ) : (
+                  <p className="text-xs text-gray-500">The last date this recurring visit will occur</p>
                 )}
               </div>
             )}
@@ -563,6 +589,7 @@ export function Step0DateSelect({ data, onNext }) {
         </div>
       </div>
     </form>
+    </TooltipProvider>
   )
 }
 

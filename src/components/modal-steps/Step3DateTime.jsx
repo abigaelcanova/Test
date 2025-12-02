@@ -4,6 +4,8 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Info } from "lucide-react"
 
 export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
   const [hostType, setHostType] = useState(data.hostType)
@@ -144,12 +146,14 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Who is hosting section */}
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-lg font-semibold">Who is hosting?</h3>
-        </div>
+    <TooltipProvider>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Who is hosting section */}
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold">Who is hosting?</h3>
+            <p className="text-sm text-gray-600 mt-1">Specify who will be the host for this visit</p>
+          </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Button
@@ -196,7 +200,17 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
       {/* Host Preferences */}
       {hostType && (
         <div className="border-t pt-6 space-y-6">
-          <h3 className="font-medium text-gray-900">Host preferences</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-gray-900">Host preferences</h3>
+            <Tooltip>
+              <TooltipTrigger type="button">
+                <Info className="h-4 w-4 text-gray-400" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs">Configure what notifications and communications the host should receive</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
 
           <div className="space-y-4">
             <div className="flex items-start gap-3 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
@@ -235,10 +249,20 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="additionalOrganizers">Additional organizers (optional)</Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="additionalOrganizers">Additional organizers (optional)</Label>
+              <Tooltip>
+                <TooltipTrigger type="button">
+                  <Info className="h-4 w-4 text-gray-400" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs">Add other people who should receive host notifications and invitations</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <Textarea
               id="additionalOrganizers"
-              placeholder="Enter email addresses separated by commas"
+              placeholder="e.g. john@example.com, jane@example.com"
               value={additionalOrganizers}
               onChange={(e) => setAdditionalOrganizers(e.target.value)}
               rows={3}
@@ -253,7 +277,10 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
 
       {/* Floor */}
       <div className="border-t pt-6 space-y-6">
-        <h3 className="font-medium text-gray-900">Location</h3>
+        <div>
+          <h3 className="font-medium text-gray-900">Location</h3>
+          <p className="text-sm text-gray-600 mt-1">Where will the visitor be meeting?</p>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="floor">
@@ -290,6 +317,7 @@ export function Step3DateTime({ data, onNext, onSubmit, onBack, visits = [] }) {
         </div>
       </div>
     </form>
+    </TooltipProvider>
   )
 }
 
