@@ -156,15 +156,11 @@ export function Step0DateSelect({ data, onNext }) {
     if (!dateRange.from) return 'Does not repeat'
     const date = new Date(dateRange.from)
     const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
-    const monthDay = date.getDate()
-    const monthName = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
     
     return {
       none: 'Does not repeat',
       daily: 'Daily',
       weekly: `Weekly on ${dayName}`,
-      monthly: `Monthly on day ${monthDay}`,
-      annually: `Annually on ${monthName}`,
       weekdays: 'Every weekday (Monday to Friday)',
       custom: 'Custom'
     }
@@ -173,18 +169,9 @@ export function Step0DateSelect({ data, onNext }) {
   const validateForm = () => {
     const newErrors = {}
     
-    // Validate date range
+    // Validate visit date
     if (!dateRange.from) {
-      newErrors.startDate = 'Start date is required'
-    }
-    if (!dateRange.to) {
-      newErrors.endDate = 'End date is required'
-    }
-    
-    // Validate start date is before or equal to end date
-    if (dateRange.from && dateRange.to && dateRange.from > dateRange.to) {
-      newErrors.startDate = 'Start date must be before or equal to end date'
-      newErrors.endDate = 'End date must be after or equal to start date'
+      newErrors.startDate = 'Visit date is required'
     }
     
     // Validate start time and end time
@@ -194,8 +181,7 @@ export function Step0DateSelect({ data, onNext }) {
       const startTimeInMinutes = startHours * 60 + startMinutes
       const endTimeInMinutes = endHours * 60 + endMinutes
       
-      // Only validate if it's the same day (single day visit)
-      if (dateRange.from === dateRange.to && startTimeInMinutes >= endTimeInMinutes) {
+      if (startTimeInMinutes >= endTimeInMinutes) {
         newErrors.endTime = 'End time must be after start time'
       }
     }
@@ -220,7 +206,6 @@ export function Step0DateSelect({ data, onNext }) {
     // Mark all fields as touched
     const allTouched = {
       startDate: true,
-      endDate: true,
       startTime: true,
       endTime: true
     }
@@ -303,15 +288,12 @@ export function Step0DateSelect({ data, onNext }) {
           <div className="w-full md:flex-shrink-0 md:w-auto">
             <div className="bg-gray-50 rounded-lg p-2 sm:p-3 border border-gray-200 w-full md:w-fit overflow-x-auto">
               <CalendarComponent
-                mode="range"
-                selected={dateRange}
-                onSelect={(range) => {
-                  if (range) {
-                    setDateRange(range)
-                    // Mark dates as touched and validate
-                    if (range.from) {
-                      setTouched(prev => ({ ...prev, startDate: true, endDate: true }))
-                    }
+                mode="single"
+                selected={dateRange.from || undefined}
+                onSelect={(dateStr) => {
+                  if (dateStr) {
+                    setDateRange({ from: dateStr, to: dateStr })
+                    setTouched(prev => ({ ...prev, startDate: true }))
                     setTimeout(() => validateForm(), 0)
                   }
                 }}
@@ -319,150 +301,116 @@ export function Step0DateSelect({ data, onNext }) {
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Click a start date, then click an end date to select a range
+              Select the date for your visit
             </p>
           </div>
 
           {/* Right Side - Time Selection */}
           <div className="w-full md:flex-1 space-y-4">
-            {/* Start and End Date/Time */}
+            {/* Visit Date */}
+            <div className="space-y-2">
+              <Label htmlFor="startDate">Visit date</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={dateRange.from}
+                onChange={(e) => {
+                  const newDate = e.target.value
+                  setDateRange({ from: newDate, to: newDate })
+                  if (touched.startDate) {
+                    setTimeout(() => validateForm(), 0)
+                  }
+                }}
+                onBlur={() => handleBlur('startDate')}
+                className={errors.startDate && touched.startDate ? 'border-destructive' : ''}
+              />
+              {errors.startDate && touched.startDate && (
+                <p className="text-sm text-destructive">{errors.startDate}</p>
+              )}
+            </div>
+
+            {/* Start Time and End Time / Duration */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="startDate">Start date</Label>
-                  <Input
-                    id="startDate"
-                    type="date"
-                    value={dateRange.from}
-                    onChange={(e) => {
-                      setDateRange({ ...dateRange, from: e.target.value })
-                      if (touched.startDate || touched.endDate) {
-                        setTimeout(() => validateForm(), 0)
-                      }
-                    }}
-                    onBlur={() => handleBlur('startDate')}
-                    className={errors.startDate && touched.startDate ? 'border-destructive' : ''}
-                  />
-                  {errors.startDate && touched.startDate && (
-                    <p className="text-sm text-destructive">{errors.startDate}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="startTime">Start time</Label>
-                  <Select 
-                    value={startTime} 
-                    onValueChange={(value) => {
-                      setStartTime(value)
-                      if (touched.startTime || touched.endTime) {
-                        setTimeout(() => validateForm(), 0)
-                      }
-                    }}
+              <div className="space-y-2">
+                <Label htmlFor="startTime">Start time</Label>
+                <Select 
+                  value={startTime} 
+                  onValueChange={(value) => {
+                    setStartTime(value)
+                    if (touched.startTime || touched.endTime) {
+                      setTimeout(() => validateForm(), 0)
+                    }
+                  }}
+                >
+                  <SelectTrigger 
+                    id="startTime"
+                    className={errors.startTime && touched.startTime ? 'border-destructive' : ''}
+                    onBlur={() => handleBlur('startTime')}
                   >
-                    <SelectTrigger 
-                      id="startTime"
-                      className={errors.startTime && touched.startTime ? 'border-destructive' : ''}
-                      onBlur={() => handleBlur('startTime')}
-                    >
-                      <SelectValue placeholder="Select start time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {generateTimeOptions(8, 18).map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.startTime && touched.startTime && (
-                    <p className="text-sm text-destructive">{errors.startTime}</p>
-                  )}
-                </div>
+                    <SelectValue placeholder="Select start time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {generateTimeOptions(8, 18).map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.startTime && touched.startTime && (
+                  <p className="text-sm text-destructive">{errors.startTime}</p>
+                )}
               </div>
 
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="endDate">End date</Label>
-                  <Input
-                    id="endDate"
-                    type="date"
-                    value={dateRange.to || dateRange.from}
-                    onChange={(e) => {
-                      setDateRange({ ...dateRange, to: e.target.value })
-                      if (touched.endDate || touched.startDate || touched.startTime || touched.endTime) {
-                        setTimeout(() => validateForm(), 0)
-                      }
-                    }}
-                    onBlur={() => handleBlur('endDate')}
-                    className={errors.endDate && touched.endDate ? 'border-destructive' : ''}
-                  />
-                  {errors.endDate && touched.endDate && (
-                    <p className="text-sm text-destructive">{errors.endDate}</p>
-                  )}
+              <div className="space-y-2">
+                <div className="flex items-center gap-1 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => handleModeChange('duration')}
+                    className={`px-2 py-1 rounded ${timeMode === 'duration' ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                  >
+                    Duration
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleModeChange('endTime')}
+                    className={`px-2 py-1 rounded ${timeMode === 'endTime' ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                  >
+                    End time
+                  </button>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex gap-6 mb-2 items-center">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="timeMode"
-                        value="duration"
-                        checked={timeMode === 'duration'}
-                        onChange={() => handleModeChange('duration')}
-                        className="h-4 w-4 text-primary focus:ring-primary"
-                      />
-                      <span className="text-sm font-medium text-gray-900">Duration</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="timeMode"
-                        value="endTime"
-                        checked={timeMode === 'endTime'}
-                        onChange={() => handleModeChange('endTime')}
-                        className="h-4 w-4 text-primary focus:ring-primary"
-                      />
-                      <span className="text-sm font-medium text-gray-900">End time</span>
-                    </label>
-                    <Tooltip>
-                      <TooltipTrigger type="button">
-                        <Info className="h-4 w-4 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">Choose "Duration" to set visit length in hours, or "End time" to specify an exact end time</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  {timeMode === 'endTime' ? (
-                    <>
-                      <Select 
-                        value={endTime} 
-                        onValueChange={(value) => {
-                          setEndTime(value)
-                          if (touched.endTime || touched.startTime) {
-                            setTimeout(() => validateForm(), 0)
-                          }
-                        }}
+                {timeMode === 'endTime' ? (
+                  <>
+                    <Select 
+                      value={endTime} 
+                      onValueChange={(value) => {
+                        setEndTime(value)
+                        if (touched.endTime || touched.startTime) {
+                          setTimeout(() => validateForm(), 0)
+                        }
+                      }}
+                    >
+                      <SelectTrigger 
+                        id="endTime"
+                        className={errors.endTime && touched.endTime ? 'border-destructive' : ''}
+                        onBlur={() => handleBlur('endTime')}
                       >
-                        <SelectTrigger 
-                          id="endTime"
-                          className={errors.endTime && touched.endTime ? 'border-destructive' : ''}
-                          onBlur={() => handleBlur('endTime')}
-                        >
-                          <SelectValue placeholder="Select end time" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {generateTimeOptions(8, 18).map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {errors.endTime && touched.endTime && (
-                        <p className="text-sm text-destructive">{errors.endTime}</p>
-                      )}
-                    </>
-                  ) : (
+                        <SelectValue placeholder="Select end time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {generateTimeOptions(8, 18).map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.endTime && touched.endTime && (
+                      <p className="text-sm text-destructive">{errors.endTime}</p>
+                    )}
+                  </>
+                ) : (
+                  <>
                     <Select 
                       value={duration} 
                       onValueChange={(value) => {
@@ -483,16 +431,16 @@ export function Step0DateSelect({ data, onNext }) {
                         ))}
                       </SelectContent>
                     </Select>
-                  )}
-                  {timeMode === 'duration' && endTime && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      End time: {generateTimeOptions(8, 18).find(opt => opt.value === endTime)?.label || endTime}
-                    </p>
-                  )}
-                  {timeMode === 'duration' && errors.endTime && touched.endTime && (
-                    <p className="text-sm text-destructive">{errors.endTime}</p>
-                  )}
-                </div>
+                    {endTime && (
+                      <p className="text-xs text-gray-500">
+                        End time: {generateTimeOptions(8, 18).find(opt => opt.value === endTime)?.label || endTime}
+                      </p>
+                    )}
+                    {errors.endTime && touched.endTime && (
+                      <p className="text-sm text-destructive">{errors.endTime}</p>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
@@ -505,7 +453,7 @@ export function Step0DateSelect({ data, onNext }) {
                     <Info className="h-4 w-4 text-gray-400" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="max-w-xs">Set up recurring visits that repeat on a schedule (daily, weekly, monthly, etc.)</p>
+                    <p className="max-w-xs">Set up recurring visits that repeat on a schedule (daily, weekly, weekdays, or custom days)</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -517,8 +465,6 @@ export function Step0DateSelect({ data, onNext }) {
                   <SelectItem value="none">{getRepeatLabel().none}</SelectItem>
                   <SelectItem value="daily">{getRepeatLabel().daily}</SelectItem>
                   <SelectItem value="weekly">{getRepeatLabel().weekly}</SelectItem>
-                  <SelectItem value="monthly">{getRepeatLabel().monthly}</SelectItem>
-                  <SelectItem value="annually">{getRepeatLabel().annually}</SelectItem>
                   <SelectItem value="weekdays">{getRepeatLabel().weekdays}</SelectItem>
                   <SelectItem value="custom">{getRepeatLabel().custom}</SelectItem>
                 </SelectContent>
@@ -581,7 +527,7 @@ export function Step0DateSelect({ data, onNext }) {
                 {errors.recurringEnd && touched.recurringEnd ? (
                   <p className="text-sm text-destructive">{errors.recurringEnd}</p>
                 ) : (
-                  <p className="text-xs text-gray-500">The last date this recurring visit will occur</p>
+                  <p className="text-xs text-gray-500">The last date this recurring visit will occur (maximum 6 months from first visit)</p>
                 )}
               </div>
             )}
